@@ -1,0 +1,92 @@
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--color-border-subtle);
+  }
+
+  html {
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Accessible Precision Focus Ring */
+  :focus-visible {
+    outline: var(--border-width-focus) solid var(--color-focus-default);
+    outline-offset: 2px;
+  }
+
+  /* Custom Clean Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-default);
+    border-radius: var(--radius-sm);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-border-strong);
+  }
+}
+
+@layer utilities {
+  /* Precision Canvas Dot Pattern */
+  .gridframe-dot-matrix {
+    background-size: 16px 16px;
+    background-image: radial-gradient(circle, var(--color-border-default) 1px, transparent 1px);
+  }
+
+  /* High performance containment for grid rendering */
+  .contain-specimen-tile {
+    contain: layout style paint;
+  }
+
+  /* Safe Area Inset Helpers */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0.5rem);
+  }
+
+  /* Touch-friendly Minimum Tap Target */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Native scrolling for code blocks with zero Lenis interference */
+  .native-scroll {
+    overflow: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: auto !important;
+  }
+}

@@ -1,0 +1,154 @@
+/**
+ * GRIDFRAME V2 Design Tokens
+ * Precision Icon Workstation Source of Truth
+ */
+
+:root {
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, "Liberation Mono", Menlo, monospace;
+
+  /* 4px Base Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radius Scale: Restrained 4px, 6px, 8px */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Border Widths */
+  --border-width-default: 1px;
+  --border-width-focus: 1.5px;
+
+  /* Timings */
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-modal: 240ms;
+  --ease-gridframe: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   Dark Theme (Default)
+   ========================================================================== */
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --color-background-primary: #050505;
+  --color-background-secondary: #0B0B0B;
+  --color-background-elevated: #141414;
+  --color-background-overlay: rgba(0, 0, 0, 0.75);
+
+  /* Text */
+  --color-text-primary: #F5F5F2;
+  --color-text-secondary: #B8B8B2;
+  --color-text-tertiary: #8E8E8E;
+  --color-text-inverse: #050505;
+  --color-text-disabled: #555555;
+
+  /* Borders */
+  --color-border-default: #292929;
+  --color-border-subtle: #1C1C1C;
+  --color-border-strong: #3A3A3A;
+
+  /* Actions */
+  --color-action-primary: #F5F5F2;
+  --color-action-primary-hover: #E2E2DE;
+  --color-action-primary-active: #D0D0CC;
+  --color-action-secondary: #1C1C1C;
+  --color-action-secondary-hover: #292929;
+  --color-action-destructive: #EF4444;
+  --color-action-destructive-hover: #DC2626;
+
+  /* Status */
+  --color-status-success-bg: rgba(16, 185, 129, 0.12);
+  --color-status-success-border: rgba(16, 185, 129, 0.35);
+  --color-status-success-text: #34D399;
+
+  --color-status-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-status-warning-border: rgba(245, 158, 11, 0.35);
+  --color-status-warning-text: #FBBF24;
+
+  --color-status-error-bg: rgba(239, 68, 68, 0.12);
+  --color-status-error-border: rgba(239, 68, 68, 0.35);
+  --color-status-error-text: #F87171;
+
+  --color-status-info-bg: rgba(59, 130, 246, 0.12);
+  --color-status-info-border: rgba(59, 130, 246, 0.35);
+  --color-status-info-text: #60A5FA;
+
+  /* Focus */
+  --color-focus-default: #FFFFFF;
+
+  /* Shadows: Very restrained, only for layering */
+  --shadow-modal: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px #292929;
+  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 0 1px #292929;
+}
+
+/* ==========================================================================
+   Light Theme
+   ========================================================================== */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --color-background-primary: #F3F2EE;
+  --color-background-secondary: #EAE9E4;
+  --color-background-elevated: #FFFFFF;
+  --color-background-overlay: rgba(17, 17, 17, 0.6);
+
+  /* Text */
+  --color-text-primary: #111111;
+  --color-text-secondary: #555550;
+  --color-text-tertiary: #6F6F6A;
+  --color-text-inverse: #F5F5F2;
+  --color-text-disabled: #A5A59E;
+
+  /* Borders */
+  --color-border-default: #C9C8C2;
+  --color-border-subtle: #DCDBCF;
+  --color-border-strong: #A9A8A2;
+
+  /* Actions */
+  --color-action-primary: #111111;
+  --color-action-primary-hover: #222222;
+  --color-action-primary-active: #333333;
+  --color-action-secondary: #E0DFD8;
+  --color-action-secondary-hover: #D5D4CC;
+  --color-action-destructive: #DC2626;
+  --color-action-destructive-hover: #B91C1C;
+
+  /* Status */
+  --color-status-success-bg: rgba(16, 185, 129, 0.12);
+  --color-status-success-border: rgba(16, 185, 129, 0.35);
+  --color-status-success-text: #065F46;
+
+  --color-status-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-status-warning-border: rgba(245, 158, 11, 0.35);
+  --color-status-warning-text: #92400E;
+
+  --color-status-error-bg: rgba(239, 68, 68, 0.12);
+  --color-status-error-border: rgba(239, 68, 68, 0.35);
+  --color-status-error-text: #991B1B;
+
+  --color-status-info-bg: rgba(59, 130, 246, 0.12);
+  --color-status-info-border: rgba(59, 130, 246, 0.35);
+  --color-status-info-text: #1E40AF;
+
+  /* Focus */
+  --color-focus-default: #111111;
+
+  /* Shadows */
+  --shadow-modal: 0 20px 48px rgba(0, 0, 0, 0.14), 0 0 0 1px #C9C8C2;
+  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px #C9C8C2;
+}

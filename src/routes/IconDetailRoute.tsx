@@ -1,0 +1,121 @@
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { WorkspaceShell } from '@/components/layout/WorkspaceShell';
+import { ExplorerToolbar } from '@/features/icon-explorer/ExplorerToolbar';
+import { SpecimenGrid } from '@/features/icon-explorer/SpecimenGrid';
+import { IconDetailModal } from '@/features/icon-modal/IconDetailModal';
+import { CommandPalette } from '@/features/search/CommandPalette';
+import { useFavorites } from '@/features/favorites/useFavorites';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
+import { searchIconsWithScore } from '@/lib/icon-search';
+import type { Icon, IconStyle } from '@/types/icon';
+import type { SortOption } from '@/types/filters';
+
+export const IconDetailRoute: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('all');
+  const [style, setStyle] = useState<IconStyle | 'all'>('all');
+  const [sort, setSort] = useState<SortOption>('popular');
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+
+  // Find icon by slug
+  const matchedIcon = useMemo(() => {
+    if (!slug) return null;
+    return GRIDFRAME_ICONS.find((i) => i.slug.toLowerCase() === slug.toLowerCase()) || null;
+  }, [slug]);
+
+  const [selectedIcon, setSelectedIcon] = useState<Icon | null>(matchedIcon);
+
+  useEffect(() => {
+    setSelectedIcon(matchedIcon);
+  }, [matchedIcon]);
+
+  useDocumentTitle(
+    matchedIcon ? `${matchedIcon.name} Vector Icon` : 'Icon Not Found',
+    matchedIcon
+      ? `Inspect, customize, and export the ${matchedIcon.name} vector icon in React JSX, SVG, and HTML.`
+      : 'Vector icon not found.'
+  );
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedIcon(null);
+    navigate('/icons');
+  }, [navigate]);
+
+  const handleSelectIcon = useCallback(
+    (icon: Icon) => {
+      setSelectedIcon(icon);
+      navigate(`/icons/${icon.slug}`);
+    },
+    [navigate]
+  );
+
+  const handleToggleFavorite = useCallback(
+    (icon: Icon) => {
+      toggleFavorite(icon.id);
+    },
+    [toggleFavorite]
+  );
+
+  const filteredIcons = useMemo(() => {
+    let list = [...GRIDFRAME_ICONS];
+    if (category !== 'all') {
+      const catLower = category.toLowerCase();
+      list = list.filter((i) => i.category.toLowerCase() === catLower);
+    }
+    if (style !== 'all') {
+      list = list.filter((i) => i.variants.some((v) => v.style === style));
+    }
+    if (query.trim()) {
+      list = searchIconsWithScore(list, query);
+    }
+    return list;
+  }, [category, style, query]);
+
+  return (
+    <WorkspaceShell onOpenSearch={() => setIsCommandPaletteOpen(true)}>
+      <ExplorerToolbar
+        query={query}
+        onQueryChange={setQuery}
+        selectedCategory={category}
+        onCategoryChange={setCategory}
+        selectedStyle={style}
+        onStyleChange={setStyle}
+        sort={sort}
+        onSortChange={setSort}
+        totalCount={GRIDFRAME_ICONS.length}
+        filteredCount={filteredIcons.length}
+      />
+
+      <SpecimenGrid
+        icons={filteredIcons}
+        selectedIconId={selectedIcon?.id}
+        favoriteIds={favoriteSet}
+        onSelectIcon={handleSelectIcon}
+        onToggleFavorite={handleToggleFavorite}
+      />
+
+      <IconDetailModal
+        isOpen={Boolean(selectedIcon)}
+        onClose={handleCloseModal}
+        icon={selectedIcon}
+        isFavorite={selectedIcon ? favoriteSet.has(selectedIcon.id) : false}
+        onToggleFavorite={handleToggleFavorite}
+      />
+
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectIcon={handleSelectIcon}
+      />
+    </WorkspaceShell>
+  );
+};
+export default IconDetailRoute;

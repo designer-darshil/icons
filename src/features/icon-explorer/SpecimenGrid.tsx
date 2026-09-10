@@ -1,0 +1,117 @@
+import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import type { Icon } from '@/types/icon';
+import { SpecimenCard } from './SpecimenCard';
+import { Button } from '@/components/ui/Button';
+import { SearchX, RotateCcw, Loader2 } from 'lucide-react';
+
+const BATCH_SIZE = 72;
+
+export interface SpecimenGridProps {
+  icons: Icon[];
+  selectedIconId?: string | null;
+  favoriteIds?: Set<string>;
+  onSelectIcon: (icon: Icon) => void;
+  onToggleFavorite?: (icon: Icon) => void;
+  onResetFilters?: () => void;
+}
+
+export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
+  icons,
+  selectedIconId,
+  favoriteIds = new Set(),
+  onSelectIcon,
+  onToggleFavorite,
+  onResetFilters,
+}) => {
+  const [renderedCount, setRenderedCount] = useState(BATCH_SIZE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Reset rendered count when the source dataset changes (e.g. search, category filter)
+  useEffect(() => {
+    setRenderedCount(BATCH_SIZE);
+  }, [icons]);
+
+  const visibleIcons = useMemo(() => {
+    return icons.slice(0, renderedCount);
+  }, [icons, renderedCount]);
+
+  const hasMore = renderedCount < icons.length;
+
+  const loadMore = useCallback(() => {
+    setRenderedCount((prev) => Math.min(prev + BATCH_SIZE, icons.length));
+  }, [icons.length]);
+
+  // IntersectionObserver for auto-loading next batch on scroll
+  useEffect(() => {
+    if (!hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: '400px' }
+    );
+
+    const target = loadMoreRef.current;
+    if (target) observer.observe(target);
+
+    return () => {
+      if (target) observer.unobserve(target);
+      observer.disconnect();
+    };
+  }, [hasMore, loadMore]);
+
+  if (icons.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-border-default bg-bg-secondary p-12 text-center my-8 space-y-4 max-w-md mx-auto">
+        <div className="w-10 h-10 rounded-md bg-bg-elevated text-text-tertiary flex items-center justify-center mx-auto border border-border-default">
+          <SearchX className="w-5 h-5" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-sm font-semibold text-text-primary">No Icons Found</h3>
+          <p className="text-xs text-text-tertiary">
+            No icon matched your query or active category filters.
+          </p>
+        </div>
+        {onResetFilters && (
+          <Button variant="secondary" size="sm" onClick={onResetFilters}>
+            <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+            <span>Reset Filters</span>
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-4 sm:gap-5">
+        {visibleIcons.map((icon) => (
+          <SpecimenCard
+            key={icon.id}
+            icon={icon}
+            isSelected={selectedIconId === icon.id}
+            isFavorite={favoriteIds.has(icon.id)}
+            onSelect={onSelectIcon}
+            onToggleFavorite={onToggleFavorite}
+          />
+        ))}
+      </div>
+
+      {/* Infinite Scroll Trigger Sentinel */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="py-6 flex flex-col items-center justify-center gap-2">
+          <div className="flex items-center gap-2 text-xs font-mono text-text-tertiary">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-text-secondary" />
+            <span>Loading more icons ({visibleIcons.length} of {icons.length})...</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+SpecimenGrid.displayName = 'SpecimenGrid';
+
