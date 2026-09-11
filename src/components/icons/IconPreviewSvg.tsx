@@ -73,8 +73,14 @@ export const IconPreviewSvg: React.FC<IconPreviewSvgProps> = memo(({
 
   // 3. Fallback error state: do NOT fake geometry with dots/circles
   if (!isValid || !innerSvg) {
-    if (process.env.NODE_ENV !== 'production' && rawSvg) {
-      console.warn(`[IconPreviewSvg] Invalid or missing SVG artwork for icon: ${icon?.slug || 'unknown'}, variant: ${activeVariant?.id || 'unknown'}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        `[IconPreviewSvg] Validation Failure:\n` +
+        `  icon id: ${icon?.id || icon?.slug || 'unknown'}\n` +
+        `  variant id: ${activeVariant?.id || 'unknown'}\n` +
+        `  source: ${rawSvg ? 'provided rawSvg' : 'empty'}\n` +
+        `  validation failure: ${!isValid ? 'malformed XML/SVG tags' : 'empty inner SVG paths'}`
+      );
     }
     return (
       <span

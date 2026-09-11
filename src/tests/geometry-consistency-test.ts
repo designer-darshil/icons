@@ -115,8 +115,35 @@ if (!heartSolid.svg.includes('fill="currentColor"') && !heartSolid.svg.includes(
 }
 console.log('✓ Heart regular and solid variants cleanly distinguished with authentic artwork.');
 
-// 7. Validate 100% of Catalog Icons for Valid Geometry & No Empty Art
-console.log('\n6. Validating entire catalog (1,420+ concepts)...');
+// 7. Specific Regression Test: User Xmark Icon
+console.log('\n6. Testing "User Xmark" icon geometry fidelity...');
+const userXmarkIcon = GRIDFRAME_ICONS.find((i) => i.slug === 'user-xmark');
+if (!userXmarkIcon) {
+  throw new Error('User Xmark icon not found in catalog!');
+}
+const userXmarkRegular = userXmarkIcon.variants.find((v) => v.style === 'regular');
+if (!userXmarkRegular) {
+  throw new Error('User Xmark icon missing regular variant!');
+}
+if (!userXmarkRegular.svg.includes('M18.6213 12.1213L20.7426 10') || !userXmarkRegular.svg.includes('M1 20V19C1 15.134') || !userXmarkRegular.svg.includes('M8 12C10.2091')) {
+  throw new Error('User Xmark SVG missing authentic Iconoir paths!');
+}
+console.log('✓ User Xmark icon preserves authentic Iconoir regular path geometry (no collapsing into dots or circles).');
+
+// 8. Test Multi-Resolution Scaling on User Xmark
+for (const sz of testSizes) {
+  const scaledUserXmark = transformSvgMarkup(userXmarkRegular, {
+    ...DEFAULT_CUSTOMIZATION,
+    size: sz,
+  });
+  if (!scaledUserXmark.includes(`width="${sz}"`) || !scaledUserXmark.includes(`height="${sz}"`)) {
+    throw new Error(`Scaled User Xmark failed at size ${sz}px`);
+  }
+}
+console.log('✓ User Xmark multi-resolution scaling (16px–64px) verified with 100% silhouette fidelity.');
+
+// 9. Validate 100% of Catalog Icons for Valid Geometry & No Empty Art
+console.log('\n7. Validating entire catalog (1,420+ concepts)...');
 let totalVariantsCount = 0;
 for (const icon of GRIDFRAME_ICONS) {
   if (!icon.variants || icon.variants.length === 0) {

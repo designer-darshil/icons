@@ -88,15 +88,19 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Sync selected style when icon changes
+  // Reset state on icon change or modal opening (Strict State Isolation)
   useEffect(() => {
-    if (icon && icon.variants && icon.variants.length > 0) {
-      const hasStyle = icon.variants.some((v) => v.style === selectedStyle);
-      if (!hasStyle) {
-        setSelectedStyle(icon.variants[0].style);
-      }
+    if (icon && isOpen) {
+      const defaultStyle = icon.variants?.some((v) => v.style === 'regular')
+        ? 'regular'
+        : icon.variants?.[0]?.style || 'regular';
+      setSelectedStyle(defaultStyle);
+      setCustomization(DEFAULT_CUSTOMIZATION);
+      setPadding(0);
+      setAnimation('none');
+      setShowInfo(false);
     }
-  }, [icon, selectedStyle]);
+  }, [icon?.id, isOpen]);
 
   // Active Variant (Single source of truth)
   const activeVariant: IconVariant = useMemo(() => {

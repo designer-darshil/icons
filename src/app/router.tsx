@@ -7,7 +7,7 @@ import { CategoriesRoute } from "@/routes/CategoriesRoute";
 import { StylesRoute } from "@/routes/StylesRoute";
 import { IconDetailRoute } from "@/routes/IconDetailRoute";
 import { DesignSystemRoute } from "@/routes/DesignSystemRoute";
-import { QARoute } from "@/routes/QARoute";
+import { DevQARoute } from "@/routes/DevQARoute";
 import { IconRenderingQARoute } from "@/routes/IconRenderingQARoute";
 import { IconoirQARoute } from "@/routes/IconoirQARoute";
 import { NotFoundRoute } from "@/routes/NotFoundRoute";
@@ -82,8 +82,12 @@ export const router = createBrowserRouter([
         element: <IconRenderingQARoute />,
       },
       {
+        path: "dev/qa",
+        element: <DevQARoute />,
+      },
+      {
         path: "qa",
-        element: <QARoute />,
+        element: <DevQARoute />,
       },
       {
         path: "*",
