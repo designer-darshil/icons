@@ -242,4 +242,13 @@
     -webkit-overflow-scrolling: touch !important;
     touch-action: auto !important;
   }
+
+  @keyframes gridframe-float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
 }
