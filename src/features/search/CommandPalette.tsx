@@ -7,6 +7,7 @@ import type { Icon } from '@/types/icon';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { modalOverlayVariants, commandPaletteVariants } from '@/lib/motion';
+import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 import { cn } from '@/lib/cn';
 
 export interface CommandPaletteProps {
@@ -173,17 +174,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-sm bg-bg-elevated border border-border-default flex items-center justify-center shrink-0">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              width="18"
-                              height="18"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.5}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              dangerouslySetInnerHTML={{ __html: variant?.svg || icon.svg }}
+                            <IconPreviewSvg
+                              variant={variant}
+                              icon={icon}
+                              size={18}
+                              className="w-4.5 h-4.5"
                             />
                           </div>
                           <div>

@@ -6,6 +6,7 @@ import { Folder, MoreVertical, Edit2, Trash2, Download, ArrowRight } from 'lucid
 import { downloadFile } from '@/lib/export-svg';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
+import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 import { cn } from '@/lib/cn';
 
 export interface CollectionCardProps {
@@ -168,18 +169,11 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
                 className="aspect-square rounded-xs bg-bg-elevated flex items-center justify-center p-1.5 text-text-primary border border-border-default"
               >
                 {icon ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox={icon.viewBox || '0 0 24 24'}
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    dangerouslySetInnerHTML={{ __html: variant?.svg || icon.svg }}
-                    className="w-full h-full"
+                  <IconPreviewSvg
+                    variant={variant}
+                    icon={icon}
+                    size={16}
+                    className="w-4 h-4"
                   />
                 ) : (
                   <div className="w-1 h-1 rounded-full bg-border-strong" />

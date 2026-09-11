@@ -6,6 +6,7 @@ import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { copyToClipboard, downloadFile } from '@/lib/export-svg';
 import { useToast } from '@/components/ui/Toast';
+import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 
 export interface SpecimenCardProps {
   icon: Icon;
@@ -78,7 +79,6 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
     [icon, onToggleFavorite]
   );
 
-  const innerSvg = variant.svg || icon.svg;
   const isFilled = variant.style === 'filled';
   const variantCount = icon.variants?.length || 1;
 
@@ -133,18 +133,11 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
         <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
         <div className="relative z-10 flex items-center justify-center text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox={icon.viewBox || '0 0 24 24'}
-            width="44"
-            height="44"
-            fill={isFilled ? 'currentColor' : 'none'}
-            stroke={isFilled ? 'none' : 'currentColor'}
-            strokeWidth={isFilled ? 0 : 1.6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            dangerouslySetInnerHTML={{ __html: innerSvg }}
-            className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
+          <IconPreviewSvg
+            variant={variant}
+            icon={icon}
+            size={40}
+            className="w-10 h-10 shrink-0"
           />
         </div>
       </div>
