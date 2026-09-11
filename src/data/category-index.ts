@@ -163,12 +163,10 @@ export class CategoryIndex {
         }
       }
 
-      // Check variant completeness (5 required variants)
+      // Check variant completeness (must have canonical regular variant with valid SVG)
       const variants = icon.variants || [];
-      const requiredStyles = ['light', 'regular', 'filled', 'duotone', 'duotone-line'];
-      const presentStyles = new Set(variants.map((v) => v.style.toLowerCase()));
-      const isComplete = requiredStyles.every((s) => presentStyles.has(s));
-      if (!isComplete && variants.length < 5) {
+      const hasRegular = variants.some((v) => v.style === 'regular' && Boolean(v.svg));
+      if (!hasRegular) {
         missingVariants++;
       }
     }
@@ -180,7 +178,8 @@ export class CategoryIndex {
 
       for (const icon of iconsInCat) {
         const variants = icon.variants || [];
-        if (variants.length >= 5 && !icon.otherReviewRequired) {
+        const hasRegular = variants.some((v) => v.style === 'regular' && Boolean(v.svg));
+        if (hasRegular && !icon.otherReviewRequired) {
           validated++;
         } else {
           review++;

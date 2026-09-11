@@ -51,7 +51,7 @@ console.log('--- Testing Raw SVG Export ---');
 const svgOut = formatSvg(mockIcon, mockVariant, customConfig);
 console.assert(svgOut.filename === 'arrow-right-linear.svg', 'SVG filename mismatch');
 console.assert(svgOut.code.includes('width="32"'), 'SVG size mismatch');
-console.assert(svgOut.code.includes('stroke="#3B82F6"'), 'SVG stroke color mismatch');
+console.assert(svgOut.code.includes('color="#3B82F6"') || svgOut.code.includes('stroke="#3B82F6"'), 'SVG stroke color mismatch');
 console.assert(svgOut.code.includes('stroke-width="2.5"'), 'SVG stroke width mismatch');
 console.assert(svgOut.code.includes('rotate(90 12 12)'), 'SVG rotation mismatch');
 console.log('✓ SVG Export passed\n', svgOut.code);

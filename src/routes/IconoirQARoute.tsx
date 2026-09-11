@@ -11,6 +11,7 @@ const SIZES = [16, 20, 24, 32, 48, 64] as const;
 type SizeOption = (typeof SIZES)[number];
 
 const COMPARISON_BENCHMARKS = [
+  { label: 'Accessibility', slug: 'accessibility' },
   { label: 'Search', slug: 'search' },
   { label: 'Home', slug: 'home' },
   { label: 'User', slug: 'user' },
@@ -22,7 +23,6 @@ const COMPARISON_BENCHMARKS = [
   { label: 'Lock', slug: 'lock' },
   { label: 'Camera', slug: 'camera' },
   { label: 'Map', slug: 'map' },
-  { label: 'Airplane', slug: 'airplane' },
 ];
 
 export const IconoirQARoute: React.FC = () => {

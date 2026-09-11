@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { CodeModal } from '@/components/export/CodeModal';
 import { CollectionModal } from '@/features/collections/CollectionModal';
 import { useToast } from '@/components/ui/Toast';
+import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { copyToClipboard, downloadFile } from '@/lib/export-svg';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
@@ -49,7 +50,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   onToggleFavorite,
 }) => {
   const { success } = useToast();
-  const [selectedStyle, setSelectedStyle] = useState<IconStyle>('outline');
+  const [selectedStyle, setSelectedStyle] = useState<IconStyle>('regular');
   const [customization, setCustomization] = useState<IconCustomization>(DEFAULT_CUSTOMIZATION);
   const [stageBg, setStageBg] = useState<'transparent' | 'dark' | 'light'>('transparent');
   const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
@@ -193,14 +194,21 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/25 pointer-events-none" />
                 <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/25 pointer-events-none" />
 
-                {/* Rendered Live SVG Stage */}
-                <div
-                  dangerouslySetInnerHTML={{ __html: transformedSvg }}
-                  className="relative z-10 flex items-center justify-center text-text-primary transition-transform duration-200"
-                  style={{
-                    transform: `scale(${Math.max(1, displaySize / 24)})`,
-                  }}
-                />
+                {/* Rendered Live SVG Stage (Single shared renderer, zero path deformation) */}
+                <div className="relative z-10 flex items-center justify-center text-text-primary transition-all duration-200">
+                  <IconPreviewSvg
+                    variant={activeVariant}
+                    icon={icon}
+                    size={Math.max(64, displaySize * 2)}
+                    color={customization.color}
+                    strokeWidth={customization.strokeWidth}
+                    strokeLinecap={customization.strokeLinecap}
+                    strokeLinejoin={customization.strokeLinejoin}
+                    rotation={customization.rotation}
+                    flipX={customization.flipX}
+                    flipY={customization.flipY}
+                  />
+                </div>
 
                 {/* Floating Canvas Surface Switcher */}
                 <div className="absolute top-3.5 right-3.5 flex items-center gap-1 bg-bg-primary p-1 border border-border-subtle rounded-lg text-[10px] font-mono select-none">

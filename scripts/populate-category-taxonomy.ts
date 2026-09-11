@@ -15,6 +15,7 @@ import { OFFICIAL_CATEGORIES, normalizeCategorySlug, getCanonicalCategory } from
 import { generateFiveVariants } from '../src/lib/svg/variantGenerators';
 import { analyzeIconOpticalSystem } from '../src/lib/svg/opticalBounds';
 import { validateIconConceptVariants } from '../src/lib/svg/variantValidator';
+import { extractInnerSvg } from '../src/lib/icon-sanitizer';
 import type { Icon, IconVariant, CanonicalIconVariant } from '../src/types/icon';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -853,32 +854,133 @@ export const FOUNDATION_ICON_TEMPLATES: Record<string, { name: string; slug: str
 };
 
 export function executeCatalogPopulation() {
-  console.log('⚡ Loading current catalog data...');
-  const rawCatalog: Icon[] = JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
-  console.log(`📦 Loaded ${rawCatalog.length} existing icons.`);
+  console.log('⚡ Ingesting authentic Iconoir catalog data & taxonomy...');
 
-  const existingSlugMap = new Map<string, Icon>();
-  for (const icon of rawCatalog) {
-    existingSlugMap.set(icon.slug, icon);
+  const REGULAR_DIR = path.resolve(__dirname, '../node_modules/iconoir/icons/regular');
+  const SOLID_DIR = path.resolve(__dirname, '../node_modules/iconoir/icons/solid');
+
+  const regularFiles = fs.readdirSync(REGULAR_DIR).filter((f) => f.endsWith('.svg'));
+  const solidFiles = fs.existsSync(SOLID_DIR)
+    ? fs.readdirSync(SOLID_DIR).filter((f) => f.endsWith('.svg'))
+    : [];
+  const solidSet = new Set(solidFiles);
+
+  console.log(`📦 Found ${regularFiles.length} Iconoir regular SVGs and ${solidFiles.length} authentic solid SVGs.`);
+
+  const iconMap = new Map<string, Icon>();
+
+  // 1. Ingest all canonical Iconoir icons
+  for (const file of regularFiles) {
+    const slug = file.replace(/\.svg$/, '');
+    const regularRawSvg = fs.readFileSync(path.join(REGULAR_DIR, file), 'utf8');
+    const regularInner = extractInnerSvg(regularRawSvg);
+    const viewBox = '0 0 24 24';
+
+    const variants: IconVariant[] = [
+      {
+        id: `${slug}-regular`,
+        style: 'regular',
+        label: 'Regular',
+        svg: regularInner,
+        viewBox,
+        supportsStroke: true,
+        supportsColor: true,
+        defaultStrokeWidth: 1.5,
+      },
+    ];
+
+    // Check for authentic solid variant in Iconoir
+    if (solidSet.has(file)) {
+      const solidRawSvg = fs.readFileSync(path.join(SOLID_DIR, file), 'utf8');
+      const solidInner = extractInnerSvg(solidRawSvg);
+      variants.push({
+        id: `${slug}-solid`,
+        style: 'filled',
+        label: 'Solid',
+        svg: solidInner,
+        viewBox,
+        supportsStroke: false,
+        supportsColor: true,
+        defaultStrokeWidth: 0,
+      });
+    }
+
+    const name = slug
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+    const classification = classifyIcon(name, 'System', [slug], [slug]);
+    const primaryCanonical = getCanonicalCategory(classification.primaryCategory);
+    const secondarySlugs = classification.secondaryCategories;
+
+    const icon: Icon = {
+      id: slug,
+      name,
+      slug,
+      family: name,
+      familyId: slug,
+      baseIcon: slug,
+      category: primaryCanonical.name,
+      primaryCategory: primaryCanonical.slug,
+      secondaryCategories: secondarySlugs.filter((s) => s !== primaryCanonical.slug),
+      otherReviewRequired: primaryCanonical.slug === 'other',
+      tags: Array.from(new Set([slug, ...slug.split('-'), primaryCanonical.slug, ...secondarySlugs])),
+      keywords: Array.from(new Set([slug, ...slug.split('-'), primaryCanonical.name.toLowerCase()])),
+      aliases: [slug.replace(/-/g, ' ')],
+      useCases: [`Precision vector icon representing ${name.toLowerCase()} in user interfaces.`],
+      defaultVariantId: `${slug}-regular`,
+      style: 'regular',
+      variants,
+      svg: regularInner,
+      viewBox,
+      capabilities: {
+        color: true,
+        size: true,
+        strokeWidth: true,
+        lineCap: true,
+        lineJoin: true,
+        background: true,
+        rotation: true,
+        flip: true,
+      },
+      popularity: 100,
+      relatedIconIds: [],
+    };
+
+    iconMap.set(slug, icon);
   }
 
-  // 1. Ingest foundation templates for narrow categories first so they take precedence
+  // 2. Ingest foundation templates for narrow categories (to ensure complete 44-category coverage)
   console.log('✨ Ingesting category foundation sets...');
   for (const [catSlug, templates] of Object.entries(FOUNDATION_ICON_TEMPLATES)) {
     const canonicalCat = getCanonicalCategory(catSlug);
 
     for (const tmpl of templates) {
-      const fiveVars = generateFiveVariants(tmpl.slug, tmpl.name, tmpl.svg);
-      const optical = analyzeIconOpticalSystem(fiveVars.regular.svg, 1.5);
-      const validation = validateIconConceptVariants(tmpl.slug, fiveVars.all);
-
-      for (const v of fiveVars.all) {
-        const rep = validation.variantReports[v.style as CanonicalIconVariant];
-        if (rep) {
-          v.qualityStatus = rep.status;
-          v.qualityReport = rep;
-        }
+      if (iconMap.has(tmpl.slug)) {
+        // Update existing icon's category alignment if foundation template has curated metadata
+        const existing = iconMap.get(tmpl.slug)!;
+        existing.category = canonicalCat.name;
+        existing.primaryCategory = canonicalCat.slug;
+        if (tmpl.aliases) existing.aliases = Array.from(new Set([...(existing.aliases || []), ...tmpl.aliases]));
+        if (tmpl.tags) existing.tags = Array.from(new Set([...existing.tags, ...tmpl.tags]));
+        if (tmpl.useCases) existing.useCases = tmpl.useCases;
+        continue;
       }
+
+      const regularInner = extractInnerSvg(tmpl.svg);
+      const variants: IconVariant[] = [
+        {
+          id: `${tmpl.slug}-regular`,
+          style: 'regular',
+          label: 'Regular',
+          svg: regularInner,
+          viewBox: '0 0 24 24',
+          supportsStroke: true,
+          supportsColor: true,
+          defaultStrokeWidth: 1.5,
+        },
+      ];
 
       const newIcon: Icon = {
         id: tmpl.slug,
@@ -895,9 +997,10 @@ export function executeCatalogPopulation() {
         keywords: Array.from(new Set([...tmpl.tags, canonicalCat.name.toLowerCase()])),
         aliases: tmpl.aliases,
         useCases: tmpl.useCases,
+        defaultVariantId: `${tmpl.slug}-regular`,
         style: 'regular',
-        variants: fiveVars.all,
-        svg: fiveVars.regular.svg,
+        variants,
+        svg: regularInner,
         viewBox: '0 0 24 24',
         capabilities: {
           color: true,
@@ -909,74 +1012,23 @@ export function executeCatalogPopulation() {
           rotation: true,
           flip: true,
         },
-        opticalMetrics: optical.metrics,
-        qualityScore: validation.overallScore,
+        popularity: 100,
         relatedIconIds: [],
       };
 
-      existingSlugMap.set(tmpl.slug, newIcon);
+      iconMap.set(tmpl.slug, newIcon);
     }
   }
 
-  // 2. Reclassify existing icons
-  console.log('🔄 Reclassifying catalog icons across 44 official categories...');
-  const updatedIcons: Icon[] = [];
+  // 3. Sort icons alphabetically by slug
+  const finalIcons = Array.from(iconMap.values()).sort((a, b) => a.slug.localeCompare(b.slug));
 
-  for (const [slug, item] of existingSlugMap.entries()) {
-    const classification = classifyIcon(
-      item.name || item.slug,
-      item.category || 'Other',
-      item.tags || [],
-      item.keywords || []
-    );
-    const primarySlug = item.primaryCategory && item.primaryCategory !== 'other' && !item.otherReviewRequired
-      ? (FOUNDATION_ICON_TEMPLATES[item.primaryCategory] ? item.primaryCategory : classification.primaryCategory)
-      : classification.primaryCategory;
-    const secondarySlugs = classification.secondaryCategories;
+  // 4. Write back to catalog.json
+  console.log(`💾 Writing canonical catalog with ${finalIcons.length} icons to disk...`);
+  fs.writeFileSync(CATALOG_PATH, JSON.stringify(finalIcons, null, 2), 'utf8');
 
-    const primaryCanonical = getCanonicalCategory(primarySlug);
-
-    // Ensure 5 variants exist for this icon
-    const baseSvg = item.svg || (item.variants && item.variants[0]?.svg) || '';
-    const fiveVars = generateFiveVariants(item.slug, item.name, baseSvg);
-
-    const optical = analyzeIconOpticalSystem(fiveVars.regular.svg, 1.5);
-    const validation = validateIconConceptVariants(item.slug, fiveVars.all);
-
-    for (const v of fiveVars.all) {
-      const rep = validation.variantReports[v.style as CanonicalIconVariant];
-      if (rep) {
-        v.qualityStatus = rep.status;
-        v.qualityReport = rep;
-      }
-    }
-
-    const updated: Icon = {
-      ...item,
-      category: primaryCanonical.name,
-      primaryCategory: primaryCanonical.slug,
-      secondaryCategories: secondarySlugs.filter((s) => s !== primaryCanonical.slug),
-      otherReviewRequired: primaryCanonical.slug === 'other',
-      variants: fiveVars.all,
-      svg: fiveVars.regular.svg,
-      style: 'regular',
-      opticalMetrics: optical.metrics,
-      qualityScore: validation.overallScore,
-      aliases: item.aliases && item.aliases.length > 0 ? item.aliases : [item.name.toLowerCase()],
-      tags: Array.from(new Set([...(item.tags || []), primaryCanonical.slug, ...secondarySlugs])),
-      keywords: Array.from(new Set([...(item.keywords || []), primaryCanonical.name.toLowerCase()])),
-      useCases: item.useCases && item.useCases.length > 0 ? item.useCases : [`Precision vector icon representing ${item.name.toLowerCase()} in digital interfaces.`],
-    };
-
-    updatedIcons.push(updated);
-  }
-
-  // 3. Write back to catalog.json
-  console.log(`💾 Writing updated catalog with ${updatedIcons.length} icons to disk...`);
-  fs.writeFileSync(CATALOG_PATH, JSON.stringify(updatedIcons, null, 2), 'utf8');
-
-  console.log('✅ Catalog update complete!');
-  return updatedIcons;
+  console.log('✅ Canonical catalog update complete!');
+  return finalIcons;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -117,9 +117,9 @@ export function runTaxonomyValidation(): boolean {
   console.log(`✓ Derived counts strictly match icon membership (Total memberships: ${totalIndexedCount}).`);
 
   // 5. Check catalog icons completeness & 5 variants
-  console.log('5. Validating catalog icons & 5-variant compliance...');
-  const requiredStyles = ['light', 'regular', 'filled', 'duotone', 'duotone-line'];
-  let iconsMissingVariants = 0;
+  // 5. Check catalog icons completeness & authentic variants
+  console.log('5. Validating catalog icons & canonical variant compliance...');
+  let iconsMissingRegular = 0;
 
   for (const icon of GRIDFRAME_ICONS) {
     // Check categories
@@ -129,11 +129,10 @@ export function runTaxonomyValidation(): boolean {
       passed = false;
     }
 
-    // Check variants
-    const presentStyles = (icon.variants || []).map((v) => v.style.toLowerCase());
-    const hasAllFive = requiredStyles.every((s) => presentStyles.includes(s));
-    if (!hasAllFive) {
-      iconsMissingVariants++;
+    // Check regular variant
+    const hasRegular = (icon.variants || []).some((v) => v.style === 'regular');
+    if (!hasRegular) {
+      iconsMissingRegular++;
     }
 
     // Check viewBox
@@ -143,11 +142,11 @@ export function runTaxonomyValidation(): boolean {
     }
   }
 
-  if (iconsMissingVariants > 0) {
-    console.error(`❌ ${iconsMissingVariants} icons missing 5 canonical variants!`);
+  if (iconsMissingRegular > 0) {
+    console.error(`❌ ${iconsMissingRegular} icons missing canonical regular variant!`);
     passed = false;
   } else {
-    console.log(`✓ 100% of ${GRIDFRAME_ICONS.length} catalog icons have all 5 canonical variants.`);
+    console.log(`✓ 100% of ${GRIDFRAME_ICONS.length} catalog icons have verified canonical regular variant.`);
   }
 
   // 6. Generate Category Coverage Report

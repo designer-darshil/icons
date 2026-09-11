@@ -3,17 +3,17 @@ import type { IconCustomization } from "@/types/customization";
 import type { IconVariant } from "@/types/icon";
 
 /**
- * Transforms an SVG variant markup applying live customization parameters without mutating source data.
+ * Transforms an SVG variant markup applying live customization parameters without mutating source geometry.
  */
 export function transformSvgMarkup(
   variant: IconVariant,
   customization: IconCustomization
 ): string {
-  
   const inner = extractInnerSvg(variant.svg);
   const size = customization.size || 24;
   const color = customization.color || "currentColor";
-  const strokeWidth = variant.supportsStroke ? customization.strokeWidth : 0;
+  const supportsStroke = variant.supportsStroke !== false;
+  const strokeWidth = supportsStroke ? (customization.strokeWidth || variant.defaultStrokeWidth || 1.5) : undefined;
   const strokeLinecap = customization.strokeLinecap || "round";
   const strokeLinejoin = customization.strokeLinejoin || "round";
 
@@ -29,8 +29,11 @@ export function transformSvgMarkup(
   }
 
   const transformAttr = transforms.length > 0 ? ` transform="${transforms.join(" ")}"` : "";
+  const strokeAttrs = supportsStroke
+    ? ` stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}"`
+    : "";
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${variant.viewBox}" fill="${variant.style === "filled" ? color : "none"}" stroke="${variant.supportsStroke ? color : "none"}" stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}"${transformAttr}>
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${variant.viewBox || '0 0 24 24'}" fill="none" color="${color}"${strokeAttrs}${transformAttr}>
   ${inner}
 </svg>`;
 }
@@ -40,7 +43,7 @@ export function transformSvgMarkup(
  */
 export function isCustomized(
   customization: IconCustomization,
-  defaultStrokeWidth: number = 2
+  defaultStrokeWidth: number = 1.5
 ): boolean {
   return (
     customization.color !== "currentColor" ||
