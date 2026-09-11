@@ -11,6 +11,7 @@ export interface SpecimenGridProps {
   selectedIconId?: string | null;
   favoriteIds?: Set<string>;
   activeStyle?: IconStyle | 'all';
+  forceRegular?: boolean;
   onSelectIcon: (icon: Icon) => void;
   onToggleFavorite?: (icon: Icon) => void;
   onResetFilters?: () => void;
@@ -22,6 +23,7 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
   selectedIconId,
   favoriteIds = new Set(),
   activeStyle,
+  forceRegular = false,
   onSelectIcon,
   onToggleFavorite,
   onResetFilters,
@@ -101,6 +103,7 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
             isSelected={selectedIconId === icon.id}
             isFavorite={favoriteIds.has(icon.id)}
             activeStyle={activeStyle}
+            forceRegular={forceRegular}
             onSelect={onSelectIcon}
             onToggleFavorite={onToggleFavorite}
           />

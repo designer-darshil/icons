@@ -474,7 +474,7 @@ export const IconsRoute: React.FC = () => {
             icons={filteredIcons}
             selectedIconId={selectedIcon?.id}
             favoriteIds={favoriteSet}
-            activeStyle={style}
+            forceRegular={true}
             onSelectIcon={handleSelectIcon}
             onToggleFavorite={handleToggleFavorite}
             onResetFilters={handleResetFilters}

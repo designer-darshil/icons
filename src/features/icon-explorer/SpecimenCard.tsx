@@ -13,6 +13,7 @@ export interface SpecimenCardProps {
   isSelected?: boolean;
   isFavorite?: boolean;
   activeStyle?: IconStyle | 'all';
+  forceRegular?: boolean;
   onSelect: (icon: Icon) => void;
   onToggleFavorite?: (icon: Icon) => void;
   className?: string;
@@ -23,6 +24,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
   isSelected,
   isFavorite,
   activeStyle,
+  forceRegular = false,
   onSelect,
   onToggleFavorite,
   className,
@@ -31,17 +33,24 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
-  const variant =
-    (activeStyle && activeStyle !== 'all' && icon.variants.find((v) => v.style === activeStyle)) ||
+  // Deterministic Regular Variant Resolution (Single Source of Truth)
+  const regularVariant =
+    icon.variants.find((v) => v.style === 'regular') ||
+    icon.variants.find((v) => v.style === 'outline' || v.style === 'linear') ||
     icon.variants[0] || {
       id: icon.id,
-      style: 'outline',
-      label: 'Outline',
+      style: 'regular',
+      label: 'Regular',
       svg: icon.svg,
       viewBox: icon.viewBox || '0 0 24 24',
       supportsStroke: true,
       supportsColor: true,
     };
+
+  const variant = forceRegular
+    ? regularVariant
+    : (activeStyle && activeStyle !== 'all' && icon.variants.find((v) => v.style === activeStyle)) ||
+      regularVariant;
 
   const getActiveSvgMarkup = useCallback(() => {
     return transformSvgMarkup(variant, DEFAULT_CUSTOMIZATION);
