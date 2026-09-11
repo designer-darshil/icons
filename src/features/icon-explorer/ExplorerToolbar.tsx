@@ -21,12 +21,22 @@ export interface ExplorerToolbarProps {
   onOpenCommandPalette?: () => void;
 }
 
-const CATEGORIES = ['ALL', ...ICON_CATEGORIES.map((c) => c.name.toUpperCase())];
+const CATEGORY_ITEMS = [
+  { id: 'all', slug: 'all', name: 'ALL' },
+  ...ICON_CATEGORIES.map((c) => ({
+    id: c.slug,
+    slug: c.slug,
+    name: c.name.toUpperCase(),
+  })),
+];
 
 const STYLES: { id: IconStyle | 'all'; label: string }[] = [
   { id: 'all', label: 'All Styles' },
+  { id: 'light', label: 'Light' },
   { id: 'regular', label: 'Regular' },
-  { id: 'filled', label: 'Solid' },
+  { id: 'filled', label: 'Filled' },
+  { id: 'duotone', label: 'Duotone' },
+  { id: 'duotone-line', label: 'Duotone Line' },
 ];
 
 export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
@@ -145,16 +155,17 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
             data-lenis-prevent="true"
             className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 w-full overscroll-x-contain touch-pan-x select-none"
           >
-            {CATEGORIES.map((cat) => {
+            {CATEGORY_ITEMS.map((cat) => {
               const isActive =
-                (cat === 'ALL' && (currentCatUpper === 'ALL' || !selectedCategory)) ||
-                cat === currentCatUpper;
+                (cat.id === 'all' && (currentCatUpper === 'ALL' || !selectedCategory || selectedCategory === 'all')) ||
+                cat.slug.toLowerCase() === selectedCategory.toLowerCase() ||
+                cat.name === currentCatUpper;
 
               return (
                 <button
-                  key={cat}
+                  key={cat.id}
                   type="button"
-                  onClick={() => onCategoryChange(cat === 'ALL' ? 'all' : cat.toLowerCase())}
+                  onClick={() => onCategoryChange(cat.id)}
                   className={cn(
                     'px-3.5 py-1.5 text-xs font-mono tracking-wide whitespace-nowrap transition-all select-none cursor-pointer shrink-0 rounded-full border',
                     isActive
@@ -162,7 +173,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                       : 'bg-bg-secondary/30 hover:bg-bg-secondary text-text-secondary hover:text-text-primary border-border-subtle/70 hover:border-border-strong'
                   )}
                 >
-                  {cat}
+                  {cat.name}
                 </button>
               );
             })}

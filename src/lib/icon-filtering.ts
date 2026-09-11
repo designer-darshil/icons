@@ -12,9 +12,16 @@ export function filterAndSortIcons(icons: Icon[], filters: FilterState): Icon[] 
 
   // 2. Category Filter
   if (filters.category && filters.category !== "all" && filters.category !== "All Categories") {
-    result = result.filter(
-      (icon) => icon.category.toLowerCase() === filters.category.toLowerCase()
-    );
+    const filterCatSlug = filters.category.toLowerCase().replace(/\s+/g, '-');
+    result = result.filter((icon) => {
+      const iconPrimarySlug = (icon.primaryCategory || icon.category || '').toLowerCase().replace(/\s+/g, '-');
+      const iconSecondaries = (icon.secondaryCategories || []).map((s) => s.toLowerCase().replace(/\s+/g, '-'));
+      return (
+        iconPrimarySlug === filterCatSlug ||
+        iconSecondaries.includes(filterCatSlug) ||
+        icon.category.toLowerCase() === filters.category.toLowerCase()
+      );
+    });
   }
 
   // 3. Style Filter

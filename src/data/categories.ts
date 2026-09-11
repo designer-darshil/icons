@@ -1,76 +1,83 @@
 import { GRIDFRAME_ICONS } from './icons/gridframe-catalog';
 import type { Icon } from '@/types/icon';
+import {
+  OFFICIAL_CATEGORIES,
+  CATEGORY_BY_SLUG,
+  normalizeCategorySlug,
+  getCanonicalCategory,
+} from './category-registry';
+import { CategoryIndex } from './category-index';
 
 export interface CategoryMetadata {
-  id: string;
+  id: string; // canonical slug
   name: string;
+  slug: string;
   description: string;
   count: number;
+  order: number;
 }
 
-const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  Interface: 'General UI controls, interactive widgets, toggles, and layout elements',
-  Arrows: 'Directional indicators, chevrons, expanding, and flow arrows',
-  Communication: 'Mail, chat bubbles, messages, phone triggers, and signals',
-  Security: 'Locks, shields, privacy, authentication, and keys',
-  Files: 'Documents, directories, archives, clipboards, and folders',
-  Maps: 'Location pins, compasses, navigation markers, and route paths',
-  Media: 'Audio, video, cameras, volume, and playback controls',
-  Social: 'Brands, network platforms, communication, reactions, and sharing badges',
-  Time: 'Clocks, timers, calendars, and schedules',
-  People: 'User avatars, profiles, teams, crowds, and human representations',
-  Navigation: 'Chevrons, compass, pins, routes, and wayfinding',
-  System: 'Core system controls, toggles, indicators, and configuration markers',
-  Design: 'Color pickers, layers, vector tools, artboards, and layout assets',
-  Devices: 'Computers, smartphones, hardware, peripherals, and electronics',
-  Commerce: 'Shopping carts, price tags, checkout flows, and retail icons',
-  Development: 'Code syntax, brackets, git branches, terminals, and databases',
-  Editor: 'Text formatting, code blocks, cursors, drafting, and typography tools',
-  Finance: 'Currencies, credit cards, bank notes, charts, and payment tokens',
-  Health: 'Medical symbols, hearts, fitness markers, and emergency signs',
-  Weather: 'Sun, clouds, precipitation, wind, astronomy, and moon phases',
-  Transportation: 'Vehicles, cars, trains, aircraft, ships, and transit systems',
-  Home: 'Furniture, domestic appliances, living spaces, and comfort items',
-  Shapes: 'Polygons, geometric stars, badges, circular badges, and frames',
-  Text: 'Alphabet characters, typography glyphs, and font symbols',
-  Food: 'Cuisine, beverages, fruits, dining tools, and culinary symbols',
-  Buildings: 'Architecture, landmarks, offices, factories, and warehouses',
-  Nature: 'Flora, fauna, plants, leaves, and ecological indicators',
-};
+// Global canonical category index initialized with the main catalog
+export const canonicalCategoryIndex = new CategoryIndex(GRIDFRAME_ICONS);
 
 /**
- * Single canonical function to index category counts from an icon dataset.
+ * Returns the official list of 44 categories with dynamically computed icon counts
+ * in EXACT canonical prompt order (no alphabetical sorting, no count sorting).
+ */
+export function getOfficialCategories(icons: Icon[] = GRIDFRAME_ICONS): CategoryMetadata[] {
+  const index = icons === GRIDFRAME_ICONS ? canonicalCategoryIndex : new CategoryIndex(icons);
+  return index.getCategoriesWithCounts().map((c) => ({
+    id: c.slug,
+    slug: c.slug,
+    name: c.name,
+    description: c.description,
+    count: c.iconCount,
+    order: c.order,
+  }));
+}
+
+export const ICON_CATEGORIES: CategoryMetadata[] = getOfficialCategories(GRIDFRAME_ICONS);
+
+/**
+ * Returns dynamic category counts mapped by slug and lowercase name.
  */
 export function getCategoryCounts(icons: Icon[] = GRIDFRAME_ICONS): Record<string, number> {
+  const categories = getOfficialCategories(icons);
   const counts: Record<string, number> = {};
-  for (const icon of icons) {
-    const cat = icon.category || 'Interface';
-    counts[cat] = (counts[cat] || 0) + 1;
-    counts[cat.toLowerCase()] = (counts[cat.toLowerCase()] || 0) + 1;
+  for (const cat of categories) {
+    counts[cat.slug] = cat.count;
+    counts[cat.name.toLowerCase()] = cat.count;
   }
   return counts;
 }
 
-// Compute dynamic categories map based on canonical catalog
-const catalogCategoryMap = new Map<string, number>();
-for (const icon of GRIDFRAME_ICONS) {
-  const cat = icon.category;
-  catalogCategoryMap.set(cat, (catalogCategoryMap.get(cat) || 0) + 1);
-}
+/**
+ * Retrieves metadata for a category by its slug or name.
+ */
+export function getCategoryMetadata(categoryIdOrName: string, icons: Icon[] = GRIDFRAME_ICONS): CategoryMetadata | undefined {
+  if (!categoryIdOrName) return undefined;
+  const slug = normalizeCategorySlug(categoryIdOrName);
+  const canonical = CATEGORY_BY_SLUG.get(slug);
+  if (!canonical) return undefined;
 
-// Sort alphabetically by category name
-export const ICON_CATEGORIES: CategoryMetadata[] = Array.from(catalogCategoryMap.entries())
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([name, count]) => ({
-    id: name.toLowerCase(),
-    name,
-    description: CATEGORY_DESCRIPTIONS[name] || `${name} vector icons for digital interfaces`,
+  const count = icons === GRIDFRAME_ICONS
+    ? canonicalCategoryIndex.getCount(slug)
+    : new CategoryIndex(icons).getCount(slug);
+
+  return {
+    id: canonical.slug,
+    slug: canonical.slug,
+    name: canonical.name,
+    description: canonical.description,
     count,
-  }));
-
-export function getCategoryMetadata(categoryIdOrName: string): CategoryMetadata | undefined {
-  const lower = categoryIdOrName.toLowerCase();
-  return ICON_CATEGORIES.find((c) => c.id === lower || c.name.toLowerCase() === lower);
+    order: canonical.order,
+  };
 }
 
-
+export {
+  OFFICIAL_CATEGORIES,
+  CATEGORY_BY_SLUG,
+  normalizeCategorySlug,
+  getCanonicalCategory,
+  CategoryIndex,
+};

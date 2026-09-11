@@ -1,6 +1,6 @@
 import React from "react";
 import { ICON_CATEGORIES } from "@/data/categories";
-import { MOCK_ICONS } from "@/data/icons/mock-icons";
+import { GRIDFRAME_ICONS } from "@/data/icons/gridframe-catalog";
 import { cn } from "@/lib/cn";
 
 export interface CategoryFilterProps {
@@ -29,16 +29,15 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
               : "bg-bg-surface text-text-secondary hover:text-text-primary border border-border-default"
           )}
         >
-          All ({MOCK_ICONS.length})
+          All ({GRIDFRAME_ICONS.length})
         </button>
         {ICON_CATEGORIES.map((cat) => {
-          const count = MOCK_ICONS.filter((i) => i.category === cat.id).length;
-          const isActive = activeCategory.toLowerCase() === cat.id.toLowerCase();
+          const isActive = activeCategory.toLowerCase() === cat.slug.toLowerCase() || activeCategory.toLowerCase() === cat.name.toLowerCase();
           return (
             <button
               key={cat.id}
               type="button"
-              onClick={() => onSelectCategory(cat.id)}
+              onClick={() => onSelectCategory(cat.slug)}
               className={cn(
                 "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors select-none",
                 isActive
@@ -46,7 +45,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                   : "bg-bg-surface text-text-secondary hover:text-text-primary border border-border-default"
               )}
             >
-              {cat.name} {count > 0 && <span className="opacity-70 text-[10px]">({count})</span>}
+              {cat.name} {cat.count > 0 && <span className="opacity-70 text-[10px]">({cat.count})</span>}
             </button>
           );
         })}
@@ -70,16 +69,15 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         )}
       >
         <span>All Categories</span>
-        <span className="text-[10px] text-text-muted font-mono">{MOCK_ICONS.length}</span>
+        <span className="text-[10px] text-text-muted font-mono">{GRIDFRAME_ICONS.length}</span>
       </button>
       {ICON_CATEGORIES.map((cat) => {
-        const count = MOCK_ICONS.filter((i) => i.category === cat.id).length;
-        const isActive = activeCategory.toLowerCase() === cat.id.toLowerCase();
+        const isActive = activeCategory.toLowerCase() === cat.slug.toLowerCase() || activeCategory.toLowerCase() === cat.name.toLowerCase();
         return (
           <button
             key={cat.id}
             type="button"
-            onClick={() => onSelectCategory(cat.id)}
+            onClick={() => onSelectCategory(cat.slug)}
             className={cn(
               "w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center justify-between select-none",
               isActive
@@ -88,7 +86,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             )}
           >
             <span>{cat.name}</span>
-            <span className="text-[10px] text-text-muted font-mono">{count}</span>
+            <span className="text-[10px] text-text-muted font-mono">{cat.count}</span>
           </button>
         );
       })}

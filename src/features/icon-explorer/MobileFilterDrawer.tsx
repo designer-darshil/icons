@@ -23,7 +23,14 @@ export interface MobileFilterDrawerProps {
   onResetAll?: () => void;
 }
 
-const CATEGORIES = ['ALL', ...ICON_CATEGORIES.map((c) => c.name.toUpperCase())];
+const CATEGORY_ITEMS = [
+  { id: 'all', slug: 'all', name: 'ALL' },
+  ...ICON_CATEGORIES.map((c) => ({
+    id: c.slug,
+    slug: c.slug,
+    name: c.name.toUpperCase(),
+  })),
+];
 
 const STYLES: { id: IconStyle | 'all'; label: string; sublabel: string }[] = [
   { id: 'all', label: 'All Styles', sublabel: 'Every stroke & fill weight' },
@@ -203,20 +210,21 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
               {/* 3. Category Domain Quick Selector */}
               <div className="space-y-2.5">
                 <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-tertiary block">
-                  Domain Categories ({CATEGORIES.length})
+                  Domain Categories ({CATEGORY_ITEMS.length - 1})
                 </span>
 
                 <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1.5 border border-border-subtle/60 rounded-xl bg-bg-secondary/20 native-scroll">
-                  {CATEGORIES.map((cat) => {
+                  {CATEGORY_ITEMS.map((cat) => {
                     const isSelected =
-                      (cat === 'ALL' && (currentCatUpper === 'ALL' || !selectedCategory)) ||
-                      cat === currentCatUpper;
+                      (cat.id === 'all' && (currentCatUpper === 'ALL' || !selectedCategory || selectedCategory === 'all')) ||
+                      cat.slug.toLowerCase() === selectedCategory.toLowerCase() ||
+                      cat.name === currentCatUpper;
 
                     return (
                       <button
-                        key={cat}
+                        key={cat.id}
                         type="button"
-                        onClick={() => onCategoryChange(cat === 'ALL' ? 'all' : cat.toLowerCase())}
+                        onClick={() => onCategoryChange(cat.id)}
                         className={cn(
                           'px-3.5 py-2 min-h-[40px] rounded-full text-xs font-mono uppercase tracking-wider transition-all cursor-pointer select-none touch-manipulation',
                           isSelected
@@ -224,7 +232,7 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
                             : 'bg-bg-secondary/60 text-text-secondary hover:text-text-primary border border-border-subtle'
                         )}
                       >
-                        {cat}
+                        {cat.name}
                       </button>
                     );
                   })}

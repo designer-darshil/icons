@@ -35,6 +35,9 @@ interface IndexedIcon {
   slug: string;
   family: string;
   category: string;
+  primaryCategory: string;
+  secondaryCategories: string[];
+  allCategoryTokens: string[];
   tags: string[];
   keywords: string[];
   aliases: string[];
@@ -56,6 +59,10 @@ function getOrCreateIndex(icons: Icon[]): IndexedIcon[] {
     const slugLower = icon.slug.toLowerCase();
     const familyLower = (icon.family || '').toLowerCase();
     const categoryLower = icon.category.toLowerCase();
+    const primaryCategory = (icon.primaryCategory || icon.category || '').toLowerCase();
+    const secondaryCategories = (icon.secondaryCategories || []).map((s) => s.toLowerCase());
+    const allCategoryTokens = [categoryLower, primaryCategory, ...secondaryCategories];
+
     const tagsLower = icon.tags.map((t) => t.toLowerCase());
     const keywordsLower = icon.keywords.map((k) => k.toLowerCase());
     const aliasesLower = (icon.aliases || []).map((a) => a.toLowerCase());
@@ -68,7 +75,7 @@ function getOrCreateIndex(icons: Icon[]): IndexedIcon[] {
       nameLower,
       slugLower,
       familyLower,
-      categoryLower,
+      ...allCategoryTokens,
       ...tagsLower,
       ...keywordsLower,
       ...aliasesLower,
@@ -90,6 +97,9 @@ function getOrCreateIndex(icons: Icon[]): IndexedIcon[] {
       slug: slugLower,
       family: familyLower,
       category: categoryLower,
+      primaryCategory,
+      secondaryCategories,
+      allCategoryTokens,
       tags: tagsLower,
       keywords: keywordsLower,
       aliases: aliasesLower,
@@ -202,14 +212,15 @@ export function searchIconsWithScore(icons: Icon[], query: string): Icon[] {
         termScore += 20;
       }
 
-      // 8. Category Match
-      if (item.category === term) {
-        termScore += 15;
-      } else if (item.category.includes(term)) {
-        termScore += 10;
+      // 8. Category & Primary/Secondary Category Match
+      const matchedCat = item.allCategoryTokens.some((c) => c === term || c.replace(/-/g, ' ') === term);
+      if (matchedCat) {
+        termScore += 45;
+      } else if (item.allCategoryTokens.some((c) => c.includes(term) || c.replace(/-/g, ' ').includes(term))) {
+        termScore += 20;
       }
 
-      // 8. Synonym & Token Fallback Match
+      // 9. Synonym & Token Fallback Match
       if (termScore === 0) {
         for (const token of item.searchTokens) {
           if (token.includes(term)) {
@@ -256,16 +267,16 @@ export function getSearchSuggestions(icons: Icon[], query: string = ''): SearchS
   const clean = query.trim().toLowerCase();
 
   const defaultSuggestions: SearchSuggestion[] = [
-    { text: 'Interface', category: 'interface', type: 'category' },
-    { text: 'Arrows', category: 'arrows', type: 'category' },
-    { text: 'Editor', category: 'editor', type: 'category' },
+    { text: 'Cloud', category: 'cloud', type: 'category' },
+    { text: 'Communication', category: 'communication', type: 'category' },
+    { text: 'Design Tools', category: 'design-tools', type: 'category' },
+    { text: 'Development', category: 'development', type: 'category' },
     { text: 'Security', category: 'security', type: 'category' },
-    { text: 'zap', type: 'tag' },
+    { text: 'Photos and Videos', category: 'photos-and-videos', type: 'category' },
+    { text: 'upload', type: 'tag' },
     { text: 'search', type: 'tag' },
     { text: 'settings', type: 'tag' },
     { text: 'code', type: 'tag' },
-    { text: 'heart', type: 'tag' },
-    { text: 'download', type: 'tag' },
   ];
 
   if (!clean) return defaultSuggestions.slice(0, 8);

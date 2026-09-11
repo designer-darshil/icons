@@ -30,13 +30,13 @@ console.log('--- Testing Filtering & Sorting Engine ---');
 // 5. Category filter
 const filteredCat = filterAndSortIcons(GRIDFRAME_ICONS, {
   query: '',
-  category: 'Arrows',
+  category: 'Navigation',
   style: 'all',
   strokeWeight: 'all',
   sort: 'popular',
 });
 console.assert(filteredCat.length > 0, 'Category filter returned 0');
-console.assert(filteredCat.every((i) => i.category.toLowerCase() === 'arrows'), 'Category filter leaked non-arrows icons');
+console.assert(filteredCat.every((i) => i.primaryCategory === 'navigation' || i.category.toLowerCase() === 'navigation' || (i.secondaryCategories && i.secondaryCategories.includes('navigation'))), 'Category filter leaked non-navigation icons');
 console.log('✓ Category filtering passed');
 
 // 6. Style filter

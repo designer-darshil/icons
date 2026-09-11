@@ -16,31 +16,50 @@ export type IconStyle =
   | "thin";
 
 export type IconCategory =
-  | "Navigation"
-  | "Arrows"
+  | "Cloud"
   | "Communication"
-  | "Commerce"
+  | "Clothing"
+  | "Business"
+  | "Buildings"
+  | "Audio"
+  | "Animations"
+  | "Animals"
+  | "Activities"
+  | "Actions"
+  | "Connectivity"
+  | "Database"
+  | "Design Tools"
   | "Development"
-  | "Design"
-  | "Files"
+  | "Devices"
+  | "Docs"
+  | "Emojis"
   | "Finance"
-  | "Media"
+  | "Food"
+  | "Gaming"
+  | "Gestures"
+  | "Git"
+  | "Health"
+  | "Home"
+  | "Identity"
+  | "Layout"
+  | "Maps"
+  | "Music"
+  | "Nature"
+  | "Navigation"
+  | "Organization"
+  | "Other"
+  | "Photos and Videos"
+  | "Science"
   | "Security"
+  | "Shapes"
+  | "Shopping"
   | "Social"
+  | "System"
+  | "Tools"
+  | "Transport"
+  | "Typography"
   | "Users"
   | "Weather"
-  | "Maps"
-  | "Devices"
-  | "Home"
-  | "Accessibility"
-  | "Editor"
-  | "Buildings"
-  | "Time"
-  | "Food"
-  | "Health"
-  | "Transportation"
-  | "Shapes"
-  | "System"
   | string;
 
 export type GridDensity = "compact" | "comfortable" | "spacious";
@@ -158,6 +177,9 @@ export type Icon = {
   baseIcon?: string;
   modifier?: string;
   category: string;
+  primaryCategory?: string;
+  secondaryCategories?: string[];
+  otherReviewRequired?: boolean;
   subcategory?: string;
   tags: string[];
   keywords: string[];
