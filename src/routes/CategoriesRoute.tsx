@@ -181,32 +181,32 @@ export const CategoriesRoute: React.FC = () => {
           </div>
         ) : (
           /* Category cards directory in official canonical order */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5 md:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {ICON_CATEGORIES.map((cat) => {
               return (
                 <Link
                   key={cat.id}
                   to={`/categories/${cat.slug}`}
-                  className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-md"
+                  className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-xl"
                 >
-                  <div className="h-full p-3.5 sm:p-4 rounded-md border border-border-subtle/60 bg-bg-secondary/30 hover:bg-bg-secondary/70 hover:border-border-default hover:-translate-y-0.5 transition-all duration-150 flex flex-col justify-between gap-2 cursor-pointer select-none">
+                  <div className="h-full p-5 sm:p-6 rounded-xl border border-border-subtle/70 bg-bg-secondary/30 hover:bg-bg-secondary/70 hover:border-border-strong hover:-translate-y-1 hover:shadow-dropdown transition-all duration-200 flex flex-col justify-between min-h-[145px] sm:min-h-[155px] cursor-pointer select-none">
                     {/* Top Row: Index + Title + Count */}
-                    <div className="flex items-baseline justify-between gap-2 min-w-0">
-                      <div className="flex items-baseline gap-2 min-w-0">
-                        <span className="text-[10px] font-mono text-text-tertiary/70 group-hover:text-accent transition-colors font-semibold tracking-wider shrink-0">
+                    <div className="flex items-baseline justify-between gap-3 min-w-0">
+                      <div className="flex items-baseline gap-2.5 min-w-0">
+                        <span className="text-xs font-mono text-accent font-bold tracking-wider shrink-0">
                           #{cat.order.toString().padStart(2, '0')}
                         </span>
-                        <h2 className="text-sm font-semibold tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
+                        <h2 className="text-base sm:text-[17px] font-semibold tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
                           {cat.name}
                         </h2>
                       </div>
-                      <span className="text-[11px] font-mono text-text-tertiary px-1.5 py-0.5 rounded bg-bg-elevated/50 border border-border-subtle/50 shrink-0 group-hover:text-text-secondary transition-colors">
+                      <span className="text-xs font-mono text-text-tertiary px-2 py-0.5 rounded-sm bg-bg-elevated/60 border border-border-subtle shrink-0 group-hover:text-text-primary transition-colors">
                         {cat.count} {cat.count === 1 ? 'icon' : 'icons'}
                       </span>
                     </div>
 
-                    {/* Bottom Row: Description */}
-                    <p className="text-xs text-text-secondary/90 leading-snug line-clamp-2">
+                    {/* Lower Area: Description */}
+                    <p className="text-xs sm:text-[13px] text-text-secondary leading-relaxed line-clamp-2 pt-3">
                       {cat.description}
                     </p>
                   </div>
