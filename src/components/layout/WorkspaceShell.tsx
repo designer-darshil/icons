@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
+import { CommandPalette } from '@/features/search/CommandPalette';
+import { useNavigate } from 'react-router-dom';
+import type { Icon } from '@/types/icon';
 
 interface WorkspaceShellProps {
   children: React.ReactNode;
@@ -11,13 +14,45 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   children,
   onOpenSearch,
 }) => {
+  const [internalSearchOpen, setInternalSearchOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleOpenSearch = () => {
+    if (onOpenSearch) {
+      onOpenSearch();
+    } else {
+      setInternalSearchOpen(true);
+    }
+  };
+
+  const handleSelectIcon = (icon: Icon) => {
+    navigate(`/icons/${icon.slug}`);
+    setInternalSearchOpen(false);
+  };
+
+  const handleSelectCategory = (category: string) => {
+    navigate(`/categories/${category.toLowerCase()}`);
+    setInternalSearchOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col selection:bg-accent selection:text-white antialiased">
-      <Header onOpenSearch={onOpenSearch} />
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-8 md:px-12 py-8 md:py-14 pb-28 md:pb-20">
+      <Header onOpenSearch={handleOpenSearch} />
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-8 md:px-12 py-5 sm:py-8 md:py-14 pb-28 md:pb-20">
         {children}
       </main>
       <MobileNav />
+
+      {/* Internal Command Palette fallback when parent route doesn't render its own */}
+      {!onOpenSearch && (
+        <CommandPalette
+          isOpen={internalSearchOpen}
+          onClose={() => setInternalSearchOpen(false)}
+          onSelectIcon={handleSelectIcon}
+          onSelectCategory={handleSelectCategory}
+        />
+      )}
     </div>
   );
 };
+

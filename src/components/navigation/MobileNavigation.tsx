@@ -206,7 +206,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
             </div>
 
             {/* Footer / Theme & Studio Meta */}
-            <div className="p-6 sm:p-8 border-t border-border-subtle/30 bg-bg-secondary/30 flex items-center justify-between">
+            <div className="p-6 sm:p-8 pb-safe border-t border-border-subtle/30 bg-bg-secondary/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SkiperThemeToggle size="md" />
                 <div className="flex flex-col">

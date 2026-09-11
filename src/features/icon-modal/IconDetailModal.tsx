@@ -155,7 +155,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
       <AnimatePresence>
         <div
           data-lenis-prevent="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-6 overflow-y-auto"
         >
           {/* Dimmed & Softly Blurred Backdrop */}
           <motion.div
@@ -174,26 +174,26 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
             animate="animate"
             exit="exit"
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-4xl bg-bg-elevated border border-border-default rounded-2xl shadow-modal z-10 my-auto overflow-hidden text-text-primary"
+            className="relative w-full max-w-4xl max-h-[92vh] md:max-h-none overflow-y-auto md:overflow-visible bg-bg-elevated border border-border-default rounded-2xl shadow-modal z-10 my-auto text-text-primary"
           >
             {/* Top-Right Close Button */}
             <button
               type="button"
               onClick={onClose}
               aria-label="Close dialog"
-              className="absolute top-4 right-4 z-30 p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition-colors cursor-pointer touch-manipulation"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 w-10 h-10 rounded-full flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition-colors cursor-pointer touch-manipulation"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Main Two-Column Content Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 p-5 sm:p-7">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-8 p-4 sm:p-7">
               
               {/* ===================================================================
                   LEFT COLUMN: LARGE ICON PREVIEW CANVAS
                   =================================================================== */}
               <div className="md:col-span-6 flex flex-col">
-                <div className="relative w-full aspect-square sm:aspect-auto sm:h-full min-h-[280px] sm:min-h-[360px] rounded-xl bg-bg-secondary border border-border-subtle flex items-center justify-center p-6 overflow-hidden select-none">
+                <div className="relative w-full min-h-[220px] sm:min-h-[280px] md:min-h-[360px] rounded-xl bg-bg-secondary border border-border-subtle flex items-center justify-center p-6 overflow-hidden select-none">
                   {/* Subtle 24×24 Dotted Grid Matrix */}
                   <div
                     className="absolute inset-0 opacity-35 pointer-events-none"
@@ -236,7 +236,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsCodeModalOpen(true)}
-                    className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-bg-elevated hover:bg-bg-secondary border border-border-default hover:border-border-strong text-[11px] font-mono text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs"
+                    className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-bg-elevated hover:bg-bg-secondary border border-border-default hover:border-border-strong text-[11px] font-mono text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs touch-manipulation"
                     title="Inspect TSX, SVG and React code"
                   >
                     <Code className="w-3.5 h-3.5 text-accent" />
@@ -322,14 +322,14 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
 
                 {/* 2. Compact Variant Selector (Only real authentic variants) */}
                 <div className="pt-2 border-t border-border-subtle">
-                  <div className="flex items-center gap-1.5 select-none">
+                  <div className="flex items-center gap-2 select-none flex-wrap">
                     {icon.variants.map((v) => (
                       <button
                         key={v.id}
                         type="button"
                         onClick={() => setSelectedStyle(v.style)}
                         className={cn(
-                          'px-3 py-1 text-xs font-mono rounded-md border transition-all cursor-pointer',
+                          'px-3 py-1.5 text-xs font-mono rounded-md border transition-all cursor-pointer touch-manipulation min-h-[36px]',
                           activeVariant.id === v.id
                             ? 'bg-text-primary text-text-inverse font-bold border-text-primary shadow-xs'
                             : 'bg-transparent text-text-tertiary border-border-default hover:text-text-primary hover:border-border-strong'
@@ -352,7 +352,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                         {customization.color === 'currentColor' ? 'Default' : customization.color}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       {COLOR_PRESETS.map((p) => (
                         <button
                           key={p.value}
@@ -360,7 +360,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                           onClick={() => setCustomization((prev) => ({ ...prev, color: p.value }))}
                           title={p.label}
                           className={cn(
-                            'w-5 h-5 rounded-full border transition-all cursor-pointer shrink-0',
+                            'w-6 h-6 rounded-full border transition-all cursor-pointer shrink-0 touch-manipulation min-w-[24px] min-h-[24px]',
                             customization.color === p.value
                               ? 'ring-2 ring-accent ring-offset-2 ring-offset-bg-elevated scale-110 border-text-primary'
                               : 'border-border-default hover:scale-105'
@@ -375,7 +375,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                           type="color"
                           value={customization.color === 'currentColor' ? '#FF5024' : customization.color}
                           onChange={(e) => setCustomization((prev) => ({ ...prev, color: e.target.value }))}
-                          className="w-5 h-5 rounded-full border border-border-default bg-transparent cursor-pointer p-0 appearance-none overflow-hidden"
+                          className="w-6 h-6 rounded-full border border-border-default bg-transparent cursor-pointer p-0 appearance-none overflow-hidden touch-manipulation min-w-[24px] min-h-[24px]"
                           title="Custom color picker"
                         />
                       </div>
@@ -388,14 +388,14 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       <span className="uppercase tracking-wider font-medium">Size</span>
                       <span className="text-text-secondary text-[10px]">{customization.size}px</span>
                     </div>
-                    <div className="grid grid-cols-5 gap-1">
+                    <div className="grid grid-cols-5 gap-1.5">
                       {SIZE_PRESETS.map((sz) => (
                         <button
                           key={sz}
                           type="button"
                           onClick={() => setCustomization((prev) => ({ ...prev, size: sz }))}
                           className={cn(
-                            'py-1 text-center text-xs font-mono rounded border transition-all cursor-pointer',
+                            'py-1.5 text-center text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
                             customization.size === sz
                               ? 'bg-bg-secondary text-text-primary font-bold border-border-strong shadow-xs'
                               : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
@@ -415,14 +415,14 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                         <span className="uppercase tracking-wider font-medium">Padding</span>
                         <span className="text-text-secondary text-[10px]">{padding}px</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-1">
+                      <div className="grid grid-cols-3 gap-1.5">
                         {PADDING_PRESETS.map((opt) => (
                           <button
                             key={opt.value}
                             type="button"
                             onClick={() => setPadding(opt.value)}
                             className={cn(
-                              'py-1 text-center text-xs font-mono rounded border transition-all cursor-pointer',
+                              'py-1.5 text-center text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
                               padding === opt.value
                                 ? 'bg-bg-secondary text-text-primary font-bold border-border-strong shadow-xs'
                                 : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
@@ -442,7 +442,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       <select
                         value={animation}
                         onChange={(e) => setAnimation(e.target.value as AnimationType)}
-                        className="w-full bg-bg-secondary border border-border-default hover:border-border-strong focus:border-accent text-xs font-mono text-text-secondary focus:text-text-primary py-1 px-2 rounded cursor-pointer outline-none transition-colors"
+                        className="w-full h-[36px] bg-bg-secondary border border-border-default hover:border-border-strong focus:border-accent text-xs font-mono text-text-secondary focus:text-text-primary py-1.5 px-2 rounded cursor-pointer outline-none transition-colors touch-manipulation"
                       >
                         <option value="none" className="bg-bg-elevated text-text-primary">No Animation</option>
                         <option value="spin" className="bg-bg-elevated text-text-primary">Spin</option>
@@ -460,12 +460,12 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       <span className="text-[11px] font-mono text-text-tertiary uppercase tracking-wider font-medium block">
                         Flip
                       </span>
-                      <div className="grid grid-cols-2 gap-1">
+                      <div className="grid grid-cols-2 gap-1.5">
                         <button
                           type="button"
                           onClick={() => setCustomization((prev) => ({ ...prev, flipX: !prev.flipX }))}
                           className={cn(
-                            'flex items-center justify-center gap-1 py-1 text-xs font-mono rounded border transition-all cursor-pointer',
+                            'flex items-center justify-center gap-1 py-1.5 text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
                             customization.flipX
                               ? 'bg-bg-secondary text-accent font-bold border-border-strong'
                               : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
@@ -479,7 +479,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                           type="button"
                           onClick={() => setCustomization((prev) => ({ ...prev, flipY: !prev.flipY }))}
                           className={cn(
-                            'flex items-center justify-center gap-1 py-1 text-xs font-mono rounded border transition-all cursor-pointer',
+                            'flex items-center justify-center gap-1 py-1.5 text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
                             customization.flipY
                               ? 'bg-bg-secondary text-accent font-bold border-border-strong'
                               : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
@@ -498,13 +498,13 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                         <span className="uppercase tracking-wider font-medium">Rotate</span>
                         <span className="text-text-secondary text-[10px]">{customization.rotation}°</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-1">
+                      <div className="grid grid-cols-3 gap-1.5">
                         <button
                           type="button"
                           onClick={() =>
                             setCustomization((prev) => ({ ...prev, rotation: (prev.rotation - 90 + 360) % 360 }))
                           }
-                          className="flex items-center justify-center py-1 text-xs font-mono rounded border bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer"
+                          className="flex items-center justify-center py-1.5 text-xs font-mono rounded border bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation min-h-[36px]"
                           title="Rotate 90° Left"
                         >
                           -90°
@@ -513,7 +513,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                           type="button"
                           onClick={() => setCustomization((prev) => ({ ...prev, rotation: 0 }))}
                           className={cn(
-                            'flex items-center justify-center py-1 text-xs font-mono rounded border transition-all cursor-pointer',
+                            'flex items-center justify-center py-1.5 text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
                             customization.rotation === 0
                               ? 'bg-bg-secondary text-text-primary font-bold border-border-strong'
                               : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
@@ -525,7 +525,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setCustomization((prev) => ({ ...prev, rotation: (prev.rotation + 90) % 360 }))}
-                          className="flex items-center justify-center py-1 text-xs font-mono rounded border bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer"
+                          className="flex items-center justify-center py-1.5 text-xs font-mono rounded border bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation min-h-[36px]"
                           title="Rotate 90° Right"
                         >
                           +90°
@@ -542,7 +542,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleCopySvg}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-bg-secondary dark:bg-[#F6F3EC] text-text-primary dark:text-[#141311] border border-border-default dark:border-transparent hover:bg-bg-secondary/80 dark:hover:bg-white active:scale-[0.98] transition-all shadow-xs cursor-pointer"
+                      className="flex-1 min-h-[46px] flex items-center justify-center gap-2 py-3 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-bg-secondary dark:bg-[#F6F3EC] text-text-primary dark:text-[#141311] border border-border-default dark:border-transparent hover:bg-bg-secondary/80 dark:hover:bg-white active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
                     >
                       {copiedSvg ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
                       <span>{copiedSvg ? 'COPIED!' : 'SVG CODE'}</span>
@@ -551,7 +551,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleDownloadSvg}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer"
+                      className="flex-1 min-h-[46px] flex items-center justify-center gap-2 py-3 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
                     >
                       {downloaded ? <Check className="w-4 h-4 text-white" /> : <Download className="w-4 h-4" />}
                       <span>{downloaded ? 'DOWNLOADED!' : 'DOWNLOAD SVG'}</span>
@@ -563,7 +563,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsCollectionModalOpen(true)}
-                      className="flex items-center gap-1.5 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 min-h-[36px] text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-accent" />
                       <span>Add to Collection</span>
@@ -571,7 +571,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="flex items-center gap-1 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer"
+                      className="flex items-center gap-1 min-h-[36px] text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation"
                     >
                       <RotateCcw className="w-3 h-3" />
                       <span>Reset</span>

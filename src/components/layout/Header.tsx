@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { useCollections } from '@/features/collections/useCollections';
 import { useLenis } from '@/hooks/useLenis';
 import { MobileNavigation } from '@/components/navigation/MobileNavigation';
 import { SkiperThemeToggle, SkiperTooltip } from '@/components/ui/skiper';
-import { Heart, FolderHeart, Menu } from 'lucide-react';
+import { Heart, FolderHeart, Menu, Search } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 interface HeaderProps {
   onOpenSearch?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenSearch: _onOpenSearch }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const { count: favoritesCount } = useFavorites();
   const { count: collectionsCount } = useCollections();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const lenis = useLenis();
+  const location = useLocation();
 
   const handleLogoClick = () => {
     if (lenis) {
@@ -33,22 +34,85 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch: _onOpenSearch }) =
         : 'text-text-secondary hover:text-text-primary'
     );
 
+  const getSectionContext = () => {
+    const path = location.pathname;
+    if (path === '/' || path.startsWith('/icons')) return 'Archive';
+    if (path.startsWith('/categories')) return 'Domains';
+    if (path.startsWith('/styles')) return 'Styles';
+    if (path.startsWith('/favorites')) return 'Saved';
+    if (path.startsWith('/collections')) return 'Sets';
+    if (path.startsWith('/design-system') || path.startsWith('/dev/design-system')) return 'Design';
+    if (path.includes('qa') || path.includes('iconoir') || path.includes('rendering')) return 'QA';
+    return 'Archive';
+  };
+
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-bg-primary transition-colors">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-10 md:px-14 h-20 sm:h-24 flex items-center justify-between gap-4 sm:gap-10">
-          {/* Left: Brand & Studio Wordmark */}
-          <div className="flex items-center gap-6 sm:gap-10 lg:gap-14">
-            {/* Mobile Menu Button (<768px) */}
+      <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-bg-primary/95 backdrop-blur-xs transition-colors">
+        {/* =========================================================================
+            1. MOBILE HEADER (< md): 52–60px Compact Dedicated Structure
+            LEFT: Gridframe Mark/Logo
+            CENTER: Current Section/Page Context
+            RIGHT: Search, Theme, Menu
+            ========================================================================= */}
+        <div className="flex md:hidden h-14 items-center justify-between px-4 sm:px-6 w-full">
+          {/* Left: Compact Logo Mark */}
+          <Link
+            to="/icons"
+            onClick={handleLogoClick}
+            className="flex items-center gap-2.5 group select-none cursor-pointer shrink-0"
+            aria-label="Gridframe Studio"
+          >
+            <div className="w-6 h-6 border border-border-strong rounded-xs flex items-center justify-center p-1 bg-bg-secondary group-hover:border-accent transition-colors">
+              <div className="w-full h-full bg-accent rounded-3xs group-hover:scale-90 transition-transform" />
+            </div>
+            <span className="text-xs font-extrabold font-mono tracking-widest text-text-primary uppercase leading-none">
+              GRIDFRAME
+            </span>
+          </Link>
+
+          {/* Center: Context Badge */}
+          <div className="flex items-center justify-center px-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-bg-secondary/80 border border-border-subtle/80 text-[10px] font-mono font-medium text-text-secondary uppercase tracking-wider select-none truncate max-w-[120px]">
+              {getSectionContext()}
+            </span>
+          </div>
+
+          {/* Right: Search, Theme, Menu with comfortable touch targets */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            {/* Search Trigger */}
+            <button
+              type="button"
+              onClick={onOpenSearch}
+              aria-label="Open search command palette"
+              className="w-10 h-10 text-text-secondary hover:text-text-primary hover:bg-bg-secondary/60 rounded-full flex items-center justify-center transition-colors cursor-pointer touch-manipulation min-w-[40px] min-h-[40px]"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Theme Toggle */}
+            <div className="w-10 h-10 flex items-center justify-center">
+              <SkiperThemeToggle />
+            </div>
+
+            {/* Menu Trigger */}
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
-              aria-label="Open navigation menu"
-              className="md:hidden p-2.5 -ml-2 text-text-secondary hover:text-text-primary hover:bg-bg-secondary rounded-xs transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+              aria-label="Open navigation drawer"
+              className="w-10 h-10 text-text-secondary hover:text-text-primary hover:bg-bg-secondary/60 rounded-full flex items-center justify-center transition-colors cursor-pointer touch-manipulation min-w-[40px] min-h-[40px]"
             >
               <Menu className="w-5 h-5" />
             </button>
+          </div>
+        </div>
 
+        {/* =========================================================================
+            2. DESKTOP HEADER (>= md): Full Approved Layout Preserved
+            ========================================================================= */}
+        <div className="hidden md:flex max-w-[1600px] mx-auto px-4 sm:px-10 md:px-14 h-20 sm:h-24 items-center justify-between gap-4 sm:gap-10">
+          {/* Left: Brand & Studio Wordmark */}
+          <div className="flex items-center gap-6 sm:gap-10 lg:gap-14">
             {/* Studio Wordmark Logo */}
             <Link
               to="/icons"
@@ -75,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch: _onOpenSearch }) =
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+            <nav className="flex items-center gap-6 lg:gap-8">
               <NavLink to="/icons" className={navLinkClass}>
                 {({ isActive }) => (
                   <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider">
@@ -106,27 +170,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch: _onOpenSearch }) =
             </nav>
           </div>
 
-          {/* Right: Sleek Search Trigger, Saved Counter & Theme Toggle */}
+          {/* Right: Saved Counter, Collections & Theme Toggle */}
           <div className="flex items-center gap-4 sm:gap-6">
-            {/* Header search trigger commented out to keep the in-page Primary Search as the single visual focal point */}
-            {/* 
-            <SkiperTooltip content="Press ⌘K to open command search" side="bottom">
-              <button
-                type="button"
-                onClick={onOpenSearch}
-                className="group flex items-center gap-3.5 h-11 px-4 text-xs font-mono text-text-tertiary bg-bg-secondary/40 hover:bg-bg-secondary border border-border-subtle/70 hover:border-border-strong rounded-full hover:text-text-secondary transition-all cursor-pointer w-40 sm:w-64 md:w-72 justify-between shadow-2xs"
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <Search className="w-4 h-4 shrink-0 text-text-tertiary group-hover:text-accent transition-colors" />
-                  <span className="truncate text-text-secondary text-[12px]">Search archive...</span>
-                </div>
-                <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 bg-bg-elevated/80 border border-border-subtle/80 rounded-full text-[10px] font-mono text-text-muted shrink-0 group-hover:border-border-strong transition-colors">
-                  ⌘K
-                </kbd>
-              </button>
-            </SkiperTooltip>
-            */}
-
             {/* Saved Items Link */}
             <SkiperTooltip content="Saved favorite icons" side="bottom">
               <NavLink
@@ -193,3 +238,4 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch: _onOpenSearch }) =
     </>
   );
 };
+
