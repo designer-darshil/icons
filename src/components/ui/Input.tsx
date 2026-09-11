@@ -24,7 +24,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           value={value}
           className={cn(
-            "flex h-9 w-full rounded-md border bg-bg-secondary px-3 py-1.5 text-xs text-text-primary placeholder:text-text-disabled transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium focus-visible:outline-none focus-visible:border-border-strong focus-visible:ring-1 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-40",
+            "flex h-9 w-full rounded-md border bg-bg-secondary px-3 py-1.5 text-xs text-text-primary placeholder:text-text-tertiary transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium focus-visible:outline-none focus-visible:border-border-strong focus-visible:ring-1 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-40",
             prefixIcon ? "pl-8" : "pl-3",
             suffixIcon || (onClear && hasValue) ? "pr-8" : "pr-3",
             error ? "border-status-error-border text-status-error-text" : "border-border-default hover:border-border-strong",

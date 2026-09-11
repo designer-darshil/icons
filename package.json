@@ -4,9 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "vite --open --host --port 5173",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 tsc && vite build",
+    "preview": "vite preview",
+    "icons:build": "npx tsx scripts/build-gridframe-catalog.ts",
+    "icons:validate": "npx tsx scripts/validate-gridframe-icons.ts",
+    "icons:qa": "npx tsx scripts/validate-gridframe-icons.ts",
+    "icons:report": "npx tsx scripts/report-gridframe-icons.ts",
+    "lint:icons": "npx tsx scripts/validate-gridframe-icons.ts",
+    "lint:icons:all": "npx tsx scripts/validate-gridframe-icons.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -20,12 +26,15 @@
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
     "@tabler/icons": "^3.46.0",
     "@types/node": "^22.13.9",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "heroicons": "^2.2.0",
+    "lucide-static": "^1.44.0",
     "postcss": "^8.5.3",
     "sass": "^1.85.1",
     "tailwindcss": "^3.4.17",

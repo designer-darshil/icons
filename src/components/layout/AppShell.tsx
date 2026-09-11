@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
+import { ScrollRestoration } from './ScrollRestoration';
+import { AppLoader } from '@/components/system/AppLoader';
 
 export const AppShell: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary antialiased">
+      <ScrollRestoration />
       {/* Accessible Skip Link */}
       <a
         href="#main-content"
@@ -12,7 +15,11 @@ export const AppShell: React.FC = () => {
         Skip to main content
       </a>
 
-      <Outlet />
+      <Suspense fallback={<AppLoader fullscreen label="LOADING ROUTE" sublabel="Fetching route assets..." />}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 };
+
+

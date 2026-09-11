@@ -1,53 +1,51 @@
-import type { IconStyle } from "@/types/icon";
+import type { CanonicalIconVariant, IconStyle } from "@/types/icon";
 
 export interface StyleMetadata {
-  id: IconStyle;
+  id: CanonicalIconVariant;
   name: string;
   description: string;
   defaultStrokeWidth: number;
+  isCanonical: boolean;
 }
 
 export const ICON_STYLES: StyleMetadata[] = [
   {
-    id: "linear",
-    name: "Linear (Outline)",
-    description: "Crisp vector stroke outlines with customizable stroke weights",
-    defaultStrokeWidth: 2,
+    id: "light",
+    name: "Light",
+    description: "Lightweight 1.5px stroke outline with minimal visual weight and airy interior",
+    defaultStrokeWidth: 1.5,
+    isCanonical: true,
   },
   {
-    id: "bold",
-    name: "Bold",
-    description: "Heavy solid strokes for strong visual emphasis in dense UI",
-    defaultStrokeWidth: 2.75,
+    id: "regular",
+    name: "Regular",
+    description: "Canonical reference 2.0px stroke outline with balanced visual weight and round geometry",
+    defaultStrokeWidth: 2.0,
+    isCanonical: true,
   },
   {
     id: "filled",
     name: "Filled",
-    description: "Solid filled geometry with maximum visual mass",
+    description: "Solid geometric fill interpretation preserving silhouette and interior counters",
     defaultStrokeWidth: 0,
+    isCanonical: true,
   },
   {
     id: "duotone",
     name: "Duotone",
-    description: "Dual-tone layered geometry with 20% opacity primary fill",
-    defaultStrokeWidth: 1.75,
+    description: "Two-tone visual hierarchy with 2.0px primary stroke and 20% opacity subordinate fill",
+    defaultStrokeWidth: 2.0,
+    isCanonical: true,
   },
   {
-    id: "two-tone",
-    name: "Two-Tone",
-    description: "High-contrast dual-colored accents with secondary tone support",
-    defaultStrokeWidth: 2,
-  },
-  {
-    id: "broken",
-    name: "Broken",
-    description: "Interrupted vector geometry for distinct architectural personality",
-    defaultStrokeWidth: 2,
-  },
-  {
-    id: "mono",
-    name: "Monochrome",
-    description: "Uniform flat mono vectors optimized for glyph fonts",
-    defaultStrokeWidth: 2,
+    id: "duotone-line",
+    name: "Duotone Line",
+    description: "Outlined dual-layer treatment with 2.0px primary stroke and 25% secondary line detail",
+    defaultStrokeWidth: 2.0,
+    isCanonical: true,
   },
 ];
+
+export function getStyleMetadata(style: IconStyle): StyleMetadata | undefined {
+  return ICON_STYLES.find((s) => s.id === style);
+}

@@ -20,17 +20,17 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
     <div
       role="alert"
       className={cn(
-        'rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 p-8 sm:p-12 text-center max-w-md mx-auto space-y-4 my-8',
+        'rounded-xs border border-dashed border-border-default bg-bg-secondary/40 p-8 sm:p-12 text-center max-w-md mx-auto space-y-4 my-8 font-mono',
         className
       )}
     >
-      <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto shadow-inner">
-        <AlertCircle className="w-6 h-6" />
+      <div className="w-10 h-10 rounded-xs bg-bg-elevated text-accent flex items-center justify-center mx-auto border border-border-default">
+        <AlertCircle className="w-5 h-5" />
       </div>
 
-      <div className="space-y-1.5">
-        <h3 className="text-sm font-bold text-foreground">{title}</h3>
-        <p className="text-xs text-foreground-muted leading-relaxed max-w-xs mx-auto">
+      <div className="space-y-1.5 font-sans">
+        <h3 className="text-sm font-bold text-text-primary">{title}</h3>
+        <p className="text-xs text-text-secondary leading-relaxed max-w-xs mx-auto">
           {description}
         </p>
       </div>
@@ -41,7 +41,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
             variant="outline"
             size="sm"
             onClick={onRetry}
-            className="text-xs gap-1.5 border-rose-500/30 text-rose-500 hover:bg-rose-500/10 hover:text-rose-600"
+            className="text-xs gap-1.5 font-mono"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Retry Action</span>
@@ -51,3 +51,4 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
     </div>
   );
 };
+

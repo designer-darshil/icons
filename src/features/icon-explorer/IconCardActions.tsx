@@ -27,7 +27,7 @@ export const IconCardActions: React.FC<IconCardActionsProps> = ({
       role="toolbar"
       aria-label="Icon Actions"
       className={cn(
-        "absolute top-1.5 right-1.5 flex items-center gap-1 transition-opacity z-10 bg-surface/90 backdrop-blur-xs p-0.5 rounded-md border border-border/80 shadow-xs",
+        "absolute top-1.5 right-1.5 flex items-center gap-1 transition-opacity z-10 bg-bg-elevated p-0.5 rounded-md border border-border-subtle shadow-xs",
         isFavorite
           ? "opacity-100"
           : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 max-sm:opacity-0 max-sm:group-active:opacity-100",

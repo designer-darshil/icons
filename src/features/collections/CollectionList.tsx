@@ -5,7 +5,7 @@ import { CollectionDialog } from './CollectionDialog';
 import { CollectionWithIcons } from '@/types/collection';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { FolderHeart, Plus, Search, FolderPlus } from 'lucide-react';
+import { Plus, Search, FolderPlus } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 export const CollectionList: React.FC = () => {
@@ -54,18 +54,20 @@ export const CollectionList: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-default pb-4">
-        <div className="flex items-center gap-3">
-          <FolderHeart className="w-4 h-4 text-text-tertiary" />
-          <h1 className="text-base font-bold font-mono tracking-tight text-text-primary uppercase">
-            Collections
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle/70 pb-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="type-section-label text-accent font-bold">Icon Sets</span>
+          </div>
+          <h1 className="type-h1 text-text-primary">
+            Custom Collections
           </h1>
-          <span className="text-xs font-mono text-text-tertiary">
-            {count} {count === 1 ? 'custom set' : 'custom sets'}
-          </span>
+          <p className="type-body text-text-secondary">
+            {count === 1 ? '1 organized collection' : `${count} organized icon suites for your projects.`}
+          </p>
         </div>
 
-        <Button variant="primary" size="sm" onClick={handleOpenCreate}>
+        <Button variant="primary" size="sm" className="type-button-sm" onClick={handleOpenCreate}>
           <Plus className="w-3.5 h-3.5 mr-1.5" />
           <span>New Collection</span>
         </Button>

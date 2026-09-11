@@ -12,9 +12,9 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   onOpenSearch,
 }) => {
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col selection:bg-bg-elevated selection:text-text-primary">
+    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col selection:bg-accent selection:text-white antialiased">
       <Header onOpenSearch={onOpenSearch} />
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-20 md:pb-12">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-8 md:px-12 py-8 md:py-14 pb-28 md:pb-20">
         {children}
       </main>
       <MobileNav />

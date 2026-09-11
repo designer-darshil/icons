@@ -23,58 +23,60 @@
 
 ### Dark Theme (Default)
 ```css
---color-background-primary: #050505;
---color-background-secondary: #0B0B0B;
---color-background-elevated: #141414;
+--color-background-primary: #11110F;
+--color-background-secondary: #1A1916;
+--color-background-elevated: #24221E;
 --color-background-overlay: rgba(0, 0, 0, 0.75);
 
---color-text-primary: #F5F5F2;
---color-text-secondary: #B8B8B2;
---color-text-tertiary: #8E8E8E;
---color-text-inverse: #050505;
---color-text-disabled: #555555;
+--color-text-primary: #F7F3EA;
+--color-text-secondary: #C6C0B5;
+--color-text-tertiary: #969087;
+--color-text-inverse: #11110F;
+--color-text-disabled: #615E57;
 
---color-border-default: #292929;
---color-border-subtle: #1C1C1C;
---color-border-strong: #3A3A3A;
+--color-border-default: #35322D;
+--color-border-subtle: #292722;
+--color-border-strong: #4A463D;
 
---color-action-primary: #F5F5F2;
---color-action-primary-hover: #E2E2DE;
---color-action-primary-active: #D0D0CC;
---color-action-secondary: #1C1C1C;
---color-action-secondary-hover: #292929;
---color-action-destructive: #EF4444;
---color-action-destructive-hover: #DC2626;
+--color-action-primary: #F7F3EA;
+--color-action-primary-hover: #E6E1D5;
+--color-action-primary-active: #D6D0C3;
+--color-action-secondary: #1A1916;
+--color-action-secondary-hover: #24221E;
+--color-action-destructive: #D64545;
 
---color-focus-default: #FFFFFF;
+--color-accent: #FF5A36;
+--color-accent-secondary: #F4C95D;
+--color-focus-default: #FF5A36;
 ```
 
 ### Light Theme
 ```css
---color-background-primary: #F3F2EE;
---color-background-secondary: #EAE9E4;
---color-background-elevated: #FFFFFF;
---color-background-overlay: rgba(17, 17, 17, 0.6);
+--color-background-primary: #F4F1EA;
+--color-background-secondary: #E9E4D9;
+--color-background-elevated: #FFFDF8;
+--color-background-overlay: rgba(22, 22, 22, 0.6);
 
---color-text-primary: #111111;
---color-text-secondary: #555550;
---color-text-tertiary: #6F6F6A;
---color-text-inverse: #F5F5F2;
---color-text-disabled: #A5A59E;
+--color-text-primary: #161616;
+--color-text-secondary: #51504A;
+--color-text-tertiary: #76736C;
+--color-text-inverse: #F7F3EA;
+--color-text-disabled: #A5A096;
 
---color-border-default: #C9C8C2;
---color-border-subtle: #DCDBCF;
---color-border-strong: #A9A8A2;
+--color-border-default: #D0CBC1;
+--color-border-subtle: #DED9CF;
+--color-border-strong: #AAA49A;
 
---color-action-primary: #111111;
---color-action-primary-hover: #222222;
---color-action-primary-active: #333333;
---color-action-secondary: #E0DFD8;
---color-action-secondary-hover: #D5D4CC;
---color-action-destructive: #DC2626;
---color-action-destructive-hover: #B91C1C;
+--color-action-primary: #161616;
+--color-action-primary-hover: #2A2A28;
+--color-action-primary-active: #383734;
+--color-action-secondary: #E9E4D9;
+--color-action-secondary-hover: #DED9CF;
+--color-action-destructive: #D64545;
 
---color-focus-default: #111111;
+--color-accent: #FF5A36;
+--color-accent-secondary: #F4C95D;
+--color-focus-default: #FF5A36;
 ```
 
 ---

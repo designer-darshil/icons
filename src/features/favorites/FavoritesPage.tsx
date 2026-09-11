@@ -63,15 +63,17 @@ export const FavoritesPage: React.FC = () => {
     <WorkspaceShell>
       <div className="space-y-6">
         {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-default pb-4">
-          <div className="flex items-center gap-3">
-            <Heart className="w-4 h-4 text-action-destructive fill-current" />
-            <h1 className="text-base font-bold font-mono tracking-tight text-text-primary uppercase">
-              Favorites
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-subtle/70 pb-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="type-section-label text-accent font-bold">Curation</span>
+            </div>
+            <h1 className="type-h1 text-text-primary">
+              Saved Favorites
             </h1>
-            <span className="text-xs font-mono text-text-tertiary">
-              {count} {count === 1 ? 'saved icon' : 'saved icons'}
-            </span>
+            <p className="type-body text-text-secondary">
+              {count === 1 ? '1 pinned vector concept' : `${count} pinned vector concepts across your sessions.`}
+            </p>
           </div>
 
           {count > 0 && (
@@ -79,6 +81,7 @@ export const FavoritesPage: React.FC = () => {
               <Button
                 variant="secondary"
                 size="sm"
+                className="type-button-sm"
                 onClick={handleExportAll}
                 disabled={isDownloading}
               >
@@ -89,12 +92,12 @@ export const FavoritesPage: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
+                className="type-button-sm text-action-destructive hover:bg-status-error-bg"
                 onClick={() => {
                   if (window.confirm('Clear all favorite icons?')) {
                     clearFavorites();
                   }
                 }}
-                className="text-action-destructive hover:bg-status-error-bg"
               >
                 <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                 <span>Clear All</span>

@@ -6,24 +6,19 @@ import { IconDetailModal } from '@/features/icon-modal/IconDetailModal';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
-import { Palette, ArrowLeft } from 'lucide-react';
+import { ICON_STYLES, getStyleMetadata } from '@/data/styles';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import type { Icon, IconStyle } from '@/types/icon';
 
-const ALL_STYLES: { id: IconStyle; name: string; desc: string; sample: string }[] = [
-  {
-    id: 'outline',
-    name: 'Outline (Linear)',
-    desc: 'Crisp 2px vector stroke outlines with rounded caps and joins. The standard Tabler design grid specimen style.',
-    sample: '2px stroke',
-  },
-  {
-    id: 'filled',
-    name: 'Filled (Solid)',
-    desc: 'Solid filled geometry with maximum visual mass and instant silhouette recognition.',
-    sample: 'Solid fill',
-  },
-];
+function resolveCanonicalStyle(styleParam?: string): IconStyle | null {
+  if (!styleParam) return null;
+  const lower = styleParam.toLowerCase();
+  if (lower === 'outline' || lower === 'linear') return 'regular';
+  if (lower === 'thin') return 'light';
+  if (lower === 'bold') return 'regular';
+  return lower as IconStyle;
+}
 
 export const StylesRoute: React.FC = () => {
   const { style } = useParams<{ style?: string }>();
@@ -31,11 +26,13 @@ export const StylesRoute: React.FC = () => {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
-  const activeStyle = (style as IconStyle) || null;
+  const activeStyle = resolveCanonicalStyle(style);
+  const activeStyleMeta = activeStyle ? getStyleMetadata(activeStyle) : undefined;
+  const styleDisplayName = activeStyleMeta?.name || (activeStyle ? activeStyle.toUpperCase() : '');
 
   useDocumentTitle(
-    activeStyle ? `${activeStyle.toUpperCase()} Style` : 'Icon Styles',
-    'Filter vector icons by rendering style: Linear, Bold, Filled, Duotone, Two-tone, Broken, Mono.'
+    activeStyle ? `${styleDisplayName} Style` : 'Icon Styles',
+    'Filter vector icons by canonical rendering styles: Light, Regular, Filled, Duotone, Duotone Line.'
   );
 
   const styleIcons = useMemo(() => {
@@ -47,23 +44,27 @@ export const StylesRoute: React.FC = () => {
 
   return (
     <WorkspaceShell>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header Navigation */}
-        <div className="flex items-center justify-between border-b border-border-default pb-4">
-          <div className="flex items-center gap-3">
-            <Palette className="w-4 h-4 text-text-tertiary" />
-            <h1 className="text-base font-bold font-mono tracking-tight text-text-primary uppercase">
-              {activeStyle ? `${activeStyle} Icons` : 'Vector Styles Directory'}
+        <div className="flex items-center justify-between border-b border-border-subtle/70 pb-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="type-section-label text-accent font-bold">Vector Styles</span>
+            </div>
+            <h1 className="type-h1 text-text-primary">
+              {activeStyle ? `${styleDisplayName} Style` : 'Vector Styles Directory'}
             </h1>
-            <span className="text-xs font-mono text-text-tertiary">
-              {activeStyle ? `${styleIcons.length} icons` : `${ALL_STYLES.length} styles`}
-            </span>
+            <p className="type-body text-text-secondary max-w-xl">
+              {activeStyle
+                ? activeStyleMeta?.description || `Showing all glyphs rendered in the ${styleDisplayName} stylistic execution.`
+                : `Explore vector geometry rendered across ${ICON_STYLES.length} distinct stroke weights, solid fills, and duotone layers.`}
+            </p>
           </div>
 
           {activeStyle && (
             <Link to="/styles">
-              <Button variant="ghost" size="xs">
-                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+              <Button variant="ghost" size="sm" className="type-button-sm">
+                <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
                 <span>All Styles</span>
               </Button>
             </Link>
@@ -72,38 +73,46 @@ export const StylesRoute: React.FC = () => {
 
         {/* If viewing single style, show specimen grid */}
         {activeStyle ? (
-          <SpecimenGrid
-            icons={styleIcons}
-            selectedIconId={selectedIcon?.id}
-            favoriteIds={favoriteSet}
-            onSelectIcon={(icon) => setSelectedIcon(icon)}
-            onToggleFavorite={(icon) => toggleFavorite(icon.id)}
-          />
+          <div className="space-y-6">
+            <div className="flex items-center justify-between text-xs font-mono text-text-tertiary">
+              <span>{styleIcons.length} {styleIcons.length === 1 ? 'icon concept' : 'icon concepts'} in {styleDisplayName} style</span>
+            </div>
+            <SpecimenGrid
+              icons={styleIcons}
+              activeStyle={activeStyle}
+              selectedIconId={selectedIcon?.id}
+              favoriteIds={favoriteSet}
+              onSelectIcon={(icon) => setSelectedIcon(icon)}
+              onToggleFavorite={(icon) => toggleFavorite(icon.id)}
+            />
+          </div>
         ) : (
           /* Style cards directory */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {ALL_STYLES.map((st) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
+            {ICON_STYLES.map((st) => {
               const count = GRIDFRAME_ICONS.filter((i) =>
                 i.variants.some((v) => v.style === st.id)
               ).length;
 
               return (
                 <Link key={st.id} to={`/styles/${st.id}`}>
-                  <div className="p-4 rounded-md border border-border-default bg-bg-primary hover:border-border-strong hover:bg-bg-secondary transition-colors text-left space-y-2 group">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold font-mono text-text-primary uppercase">
-                        {st.name}
-                      </span>
-                      <span className="text-[10px] font-mono text-text-tertiary">
-                        {count} icons
-                      </span>
+                  <div className="p-6 rounded-xs border border-border-subtle/70 bg-bg-secondary/30 hover:bg-bg-secondary/80 hover:border-border-strong hover:shadow-dropdown hover:-translate-y-1 transition-all duration-200 text-left space-y-3 group cursor-pointer h-full flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="type-h3 text-text-primary group-hover:text-accent transition-colors">
+                          {st.name}
+                        </span>
+                        <span className="type-metadata-sm text-text-tertiary px-2 py-0.5 rounded-3xs bg-bg-elevated border border-border-subtle">
+                          {count} icons
+                        </span>
+                      </div>
+                      <p className="type-body-sm text-text-secondary leading-relaxed">
+                        {st.description}
+                      </p>
                     </div>
-                    <p className="text-[11px] text-text-tertiary leading-relaxed">
-                      {st.desc}
-                    </p>
-                    <div className="pt-1">
-                      <span className="text-[10px] font-mono text-text-secondary bg-bg-elevated px-2 py-0.5 rounded-xs border border-border-default">
-                        {st.sample}
+                    <div className="pt-2">
+                      <span className="type-metadata-sm text-accent font-semibold bg-accent/10 px-2 py-1 rounded-3xs border border-accent/20">
+                        {st.defaultStrokeWidth ? `${st.defaultStrokeWidth}px stroke` : 'Solid fill'}
                       </span>
                     </div>
                   </div>
@@ -125,3 +134,4 @@ export const StylesRoute: React.FC = () => {
   );
 };
 export default StylesRoute;
+

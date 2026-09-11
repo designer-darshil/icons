@@ -4,6 +4,9 @@ import { Search, Tag, X, ArrowRight, CornerDownLeft } from 'lucide-react';
 import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
 import { searchIconsWithScore, getSearchSuggestions } from '@/lib/icon-search';
 import type { Icon } from '@/types/icon';
+import { useScrollLock } from '@/hooks/useScrollLock';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { modalOverlayVariants, commandPaletteVariants } from '@/lib/motion';
 import { cn } from '@/lib/cn';
 
 export interface CommandPaletteProps {
@@ -23,6 +26,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Lock body scroll and pause Lenis while command palette is active
+  useScrollLock(isOpen);
 
   // Focus input when opened & clear query
   useEffect(() => {
@@ -87,20 +94,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 overflow-hidden">
           {/* Overlay Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
+            variants={prefersReducedMotion ? undefined : modalOverlayVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             onClick={onClose}
-            className="fixed inset-0 bg-bg-overlay backdrop-blur-xs cursor-pointer"
+            className="fixed inset-0 bg-bg-overlay cursor-pointer"
           />
 
           {/* Dialog Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -8 }}
-            transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            variants={prefersReducedMotion ? undefined : commandPaletteVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-xl bg-bg-primary border border-border-default rounded-lg shadow-modal overflow-hidden z-10"
           >
@@ -110,13 +117,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search 5,000+ vector icons, categories, tags..."
+                placeholder="Search vector icons, categories, tags..."
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
                   setSelectedIndex(0);
                 }}
-                className="w-full bg-transparent text-sm text-text-primary placeholder:text-text-disabled focus-visible:outline-none font-mono"
+                className="w-full bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus-visible:outline-none font-mono"
               />
               {query ? (
                 <button
@@ -136,7 +143,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             {/* Results / Suggestions List */}
             <div
               ref={listRef}
-              className="max-h-[60vh] overflow-y-auto native-scroll p-2 space-y-1"
+              data-lenis-prevent="true"
+              className="max-h-[60vh] overflow-y-auto native-scroll p-2 space-y-1 overscroll-contain"
             >
               {query.trim() ? (
                 results.length === 0 ? (

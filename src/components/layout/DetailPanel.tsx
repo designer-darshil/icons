@@ -59,7 +59,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
               role="dialog"
               aria-modal="true"
               aria-label={title}
-              className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs"
+              className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 bg-black/60"
               onClick={onClose}
             >
               <motion.div
@@ -71,7 +71,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Mobile Drawer Header */}
-                <div className="p-4 border-b border-border/80 flex items-center justify-between bg-surface/95 backdrop-blur-md sticky top-0 z-20">
+                <div className="p-4 border-b border-border/80 flex items-center justify-between bg-surface sticky top-0 z-20">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-brand-500/10 text-brand-500">
                       <Sliders className="w-4 h-4" />
@@ -108,7 +108,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
         )}
       >
         {/* Detail Panel Header */}
-        <div className="p-4 border-b border-border/70 flex items-center justify-between sticky top-0 bg-surface/90 backdrop-blur-md z-10">
+        <div className="p-4 border-b border-border/70 flex items-center justify-between sticky top-0 bg-surface z-10">
           <div className="flex items-center gap-2">
             <Sliders className="w-4 h-4 text-brand-500" />
             <h2 className="text-sm font-semibold tracking-tight text-foreground">{title}</h2>

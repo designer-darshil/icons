@@ -107,9 +107,15 @@ export const CodeModal: React.FC<CodeModalProps> = ({
           </Button>
         </div>
 
-        {/* Code Content Frame: native scrolling, selectable, no Lenis interference */}
-        <div className="relative rounded-md border border-border-default bg-bg-secondary p-4 overflow-hidden">
-          <pre className="text-xs font-mono text-text-primary max-h-[50vh] overflow-auto native-scroll select-text leading-relaxed whitespace-pre font-normal">
+        {/* Code Content Frame: native scrolling, selectable, zero Lenis interference */}
+        <div
+          data-lenis-prevent="true"
+          className="relative rounded-md border border-border-default bg-bg-secondary p-4 overflow-hidden"
+        >
+          <pre
+            data-lenis-prevent="true"
+            className="text-xs font-mono text-text-primary max-h-[50vh] overflow-auto native-scroll select-text leading-relaxed whitespace-pre font-normal overscroll-contain"
+          >
             <code>{formattedCode}</code>
           </pre>
         </div>

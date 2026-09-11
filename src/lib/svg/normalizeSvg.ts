@@ -1,7 +1,9 @@
 /**
- * SVG Normalizer for Tabler Icons & Gridframe Catalog
+ * SVG Normalizer for Gridframe Catalog
+ * Normalizes all geometry to canonical 24×24 coordinates (viewBox="0 0 24 24").
  */
-import { sanitizeSvgMarkup, extractInnerSvg, extractViewBox } from './sanitizeSvg';
+import { sanitizeSvgMarkup } from './sanitizeSvg';
+import { normalizeSvgGeometry, type BoundingBox } from './geometryNormalizer';
 import type { SvgCapability, IconStyle } from '@/types/icon';
 
 export interface NormalizedSvgResult {
@@ -12,15 +14,21 @@ export interface NormalizedSvgResult {
   strokeWidth: number;
   strokeLinecap: string;
   strokeLinejoin: string;
+  bounds: BoundingBox;
 }
 
 export function normalizeSvg(rawSvg: string, defaultStyle: IconStyle = 'outline'): NormalizedSvgResult {
   const sanitized = sanitizeSvgMarkup(rawSvg);
-  const viewBox = extractViewBox(sanitized) || '0 0 24 24';
+  const { normalizedInnerSvg, viewBox, bounds } = normalizeSvgGeometry(sanitized);
 
   // Detect style
   let style: IconStyle = defaultStyle;
-  const isFilled = defaultStyle === 'filled' || sanitized.includes('icons-tabler-filled') || sanitized.includes('fill="currentColor"');
+  const isFilled =
+    defaultStyle === 'filled' ||
+    sanitized.includes('icons-tabler-filled') ||
+    sanitized.includes('fill="currentColor"') ||
+    (!sanitized.includes('stroke="currentColor"') && sanitized.includes('fill='));
+
   if (isFilled) {
     style = 'filled';
   }
@@ -40,21 +48,14 @@ export function normalizeSvg(rawSvg: string, defaultStyle: IconStyle = 'outline'
     flip: true,
   };
 
-  // Clean inner SVG
-  let innerSvg = extractInnerSvg(sanitized);
-
-  // Remove the invisible 0 0h24v24H0z bounding box path if redundant, or leave cleanly
-  // Tabler includes <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-  // We can strip it or keep it clean; removing it saves ~40 bytes per icon across 6,000 icons (~240KB bundle savings!)
-  innerSvg = innerSvg.replace(/<path\s+stroke="none"\s+d="M0\s+0h24v24H0z"\s+fill="none"\s*\/>/gi, '').trim();
-
   return {
-    innerSvg,
+    innerSvg: normalizedInnerSvg,
     viewBox,
     style,
     capabilities,
-    strokeWidth: 2,
+    strokeWidth: supportsStroke ? 2 : 0,
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
+    bounds,
   };
 }

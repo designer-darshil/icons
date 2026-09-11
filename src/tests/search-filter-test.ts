@@ -2,7 +2,7 @@ import { searchIconsWithScore, getSearchSuggestions } from '../lib/icon-search';
 import { filterAndSortIcons } from '../lib/icon-filtering';
 import { GRIDFRAME_ICONS } from '../data/icons/gridframe-catalog';
 
-console.log(`--- Testing Search Engine & Scoring (${GRIDFRAME_ICONS.length.toLocaleString()} Tabler Icons) ---`);
+console.log(`--- Testing Search Engine & Scoring (${GRIDFRAME_ICONS.length.toLocaleString()} Golden Library Concepts) ---`);
 
 // 1. Exact name match
 const searchArrow = searchIconsWithScore(GRIDFRAME_ICONS, 'Arrow Right');

@@ -102,7 +102,8 @@ function validateCatalog() {
     }
 
     // 6. Check Source
-    if (!icon.source || icon.source.id !== 'tabler' || !icon.source.version) {
+    const validSourceIds = ['tabler', 'phosphor', 'lucide', 'heroicons', 'gridframe'];
+    if (!icon.source || !validSourceIds.includes(icon.source.id) || !icon.source.version) {
       console.error(`${prefix} Missing or malformed source metadata`);
       totalErrors++;
     }

@@ -59,7 +59,7 @@ export const IconPreviewCanvas: React.FC<IconPreviewCanvasProps> = ({
       <div
         role="group"
         aria-label="Canvas background selector"
-        className="absolute top-3 left-3 flex items-center bg-bg-surface/85 backdrop-blur-md border border-border-default rounded-md p-0.5 shadow-xs z-10"
+        className="absolute top-3 left-3 flex items-center bg-bg-surface border border-border-default rounded-md p-0.5 shadow-xs z-10"
       >
         <IconButton
           aria-label="Dots Grid Canvas"
@@ -105,7 +105,7 @@ export const IconPreviewCanvas: React.FC<IconPreviewCanvasProps> = ({
 
       {/* Primary SVG Vector Presentation */}
       <div className="flex flex-col items-center justify-center my-4">
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-bg-surface/70 border border-border-subtle flex items-center justify-center shadow-md p-4 backdrop-blur-xs">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-bg-surface border border-border-subtle flex items-center justify-center shadow-md p-4">
           <SafeSvg
             svgContent={svgMarkup}
             viewBox={viewBox}
@@ -123,7 +123,7 @@ export const IconPreviewCanvas: React.FC<IconPreviewCanvasProps> = ({
       </div>
 
       {/* Bottom Info Pill */}
-      <div className="flex items-center gap-2 text-[11px] text-text-muted font-mono bg-bg-surface/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-border-subtle shadow-xs">
+      <div className="flex items-center gap-2 text-[11px] text-text-muted font-mono bg-bg-surface px-2.5 py-1 rounded-full border border-border-subtle shadow-xs">
         <Eye className="w-3 h-3 text-primary" />
         <span>{customization?.size ?? 24}px Scale</span>
         <span>•</span>

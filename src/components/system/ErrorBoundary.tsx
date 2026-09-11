@@ -1,5 +1,5 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react';
-import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { AlertTriangle, RotateCcw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 interface Props {
@@ -40,39 +40,41 @@ export class ErrorBoundary extends Component<Props, State> {
         <div
           role="alert"
           aria-live="assertive"
-          className="flex flex-col items-center justify-center p-8 sm:p-12 text-center rounded-2xl border border-rose-500/20 bg-rose-500/5 my-8 max-w-lg mx-auto space-y-4 shadow-sm"
+          className="flex flex-col items-center justify-center p-8 sm:p-12 text-center rounded-xs border border-border-default bg-bg-secondary/40 my-8 max-w-lg mx-auto space-y-5 shadow-dropdown font-mono"
         >
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
-            <AlertTriangle className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xs bg-bg-elevated text-accent flex items-center justify-center border border-border-default">
+            <AlertTriangle className="w-5 h-5" />
           </div>
 
-          <div className="space-y-1.5">
-            <h2 className="text-base font-bold text-foreground">
+          <div className="space-y-1.5 font-sans">
+            <h2 className="text-base font-bold text-text-primary">
               Something went wrong
             </h2>
-            <p className="text-xs text-foreground-muted leading-relaxed max-w-sm">
-              {this.state.error?.message || 'An unexpected rendering error occurred in this workspace component.'}
+            <p className="text-xs text-text-secondary leading-relaxed max-w-sm">
+              An unexpected error occurred while rendering this workspace component.
             </p>
           </div>
 
-          <div className="pt-2 flex items-center gap-2">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={this.handleReset}
-              className="text-xs gap-1.5"
+              className="text-xs gap-1.5 font-mono"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Try Again</span>
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => window.location.reload()}
-              className="text-xs"
-            >
-              Reload Workspace
-            </Button>
+            <a href="/icons">
+              <Button
+                variant="primary"
+                size="sm"
+                className="text-xs gap-1.5 font-mono"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Archive</span>
+              </Button>
+            </a>
           </div>
         </div>
       );
@@ -81,3 +83,4 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+

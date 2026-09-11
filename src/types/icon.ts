@@ -1,12 +1,19 @@
+export type CanonicalIconVariant =
+  | "light"
+  | "regular"
+  | "filled"
+  | "duotone"
+  | "duotone-line";
+
 export type IconStyle =
+  | CanonicalIconVariant
   | "linear"
   | "outline"
   | "bold"
-  | "filled"
-  | "duotone"
   | "two-tone"
   | "broken"
-  | "mono";
+  | "mono"
+  | "thin";
 
 export type IconCategory =
   | "Navigation"
@@ -57,6 +64,21 @@ export type IconSource = {
   license: string;
 };
 
+export type VariantQualityStatus = 'validated' | 'warning' | 'manual-review' | 'invalid';
+
+export interface VariantQualityReport {
+  variantStyle: CanonicalIconVariant;
+  status: VariantQualityStatus;
+  score: number; // 0 to 100
+  isTopologySafe: boolean;
+  issues: string[];
+  opticalDelta?: {
+    centerDelta: { dx: number; dy: number };
+    occupiedAreaDeltaPct: number;
+    boundingDelta: { dw: number; dh: number };
+  };
+}
+
 export type IconVariant = {
   id: string;
   style: IconStyle;
@@ -67,12 +89,48 @@ export type IconVariant = {
   supportsStroke: boolean;
   supportsColor: boolean;
   defaultStrokeWidth?: number;
+  qualityStatus?: VariantQualityStatus;
+  qualityReport?: VariantQualityReport;
 };
 
+export type KeyshapeType = "circle" | "square" | "vertical" | "horizontal" | "custom";
+
+export type OpticalBounds = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type StrokeWeightTier = "light" | "regular" | "medium" | "bold";
+
+export interface OpticalMetrics {
+  bounds: OpticalBounds;
+  keyshape: KeyshapeType;
+  opticalSize: number;
+  visualWeight: StrokeWeightTier;
+  isCentered: boolean;
+  centerScore: number; // 0 to 100 score of optical balance
+  centerOffset: { x: number; y: number };
+  occupiedAreaPercentage: number;
+  densityScore: number;
+  safeZoneCompliant: boolean;
+  minInternalGap?: number;
+  baseline: number;
+  centerX: number;
+}
+
 export type IconMetadata = {
-  strokeWidth?: number;
-  strokeLinecap?: string;
-  strokeLinejoin?: string;
+  viewBox?: string;
+  opticalBounds?: OpticalBounds;
+  opticalMetrics?: OpticalMetrics;
+  baseline?: number; // Canonical visual baseline (typically y = 20 on 24x24 canvas)
+  centerX?: number; // Canonical center axis (typically x = 12 on 24x24 canvas)
+  strokeWidth?: number; // Canonical stroke width in px (1, 1.5, 2, 2.5)
+  strokeLinecap?: "butt" | "round" | "square" | string;
+  strokeLinejoin?: "miter" | "round" | "bevel" | string;
+  keyshape?: KeyshapeType;
+  overlapSafeZone?: number; // Default 1.5px optical cutout clearance
   unicode?: string;
   version?: string;
   author?: string;
@@ -82,15 +140,30 @@ export type IconMetadata = {
   updatedAt?: string;
 };
 
+export type IconFamily = {
+  id: string;
+  name: string;
+  baseIconSlug: string;
+  members: string[]; // icon slugs in this family
+  categories: string[];
+  description?: string;
+};
+
 export type Icon = {
   id: string;
   name: string;
   slug: string;
+  family?: string;
   familyId?: string;
+  baseIcon?: string;
+  modifier?: string;
   category: string;
   subcategory?: string;
   tags: string[];
   keywords: string[];
+  useCases?: string[];
+  aliases?: string[];
+  legacySlugs?: string[];
   style: IconStyle;
   variants: IconVariant[];
   svg: string;
@@ -103,6 +176,9 @@ export type Icon = {
   relatedIconIds: string[];
   source?: IconSource;
   metadata?: IconMetadata;
+  opticalMetrics?: OpticalMetrics;
+  qualityScore?: number; // 0 to 100 overall health score
+  variantReports?: Partial<Record<CanonicalIconVariant, VariantQualityReport>>;
 };
 
 export type IconCustomization = {
@@ -129,4 +205,3 @@ export interface IconRepository {
   getCategories(): Promise<string[]>;
   getStyles(): Promise<string[]>;
 }
-

@@ -19,11 +19,32 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
   body {
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: #ffffff;
   }
 
   /* Accessible Precision Focus Ring */
@@ -56,7 +77,7 @@
   /* Precision Canvas Dot Pattern */
   .gridframe-dot-matrix {
     background-size: 16px 16px;
-    background-image: radial-gradient(circle, var(--color-border-default) 1px, transparent 1px);
+    background-image: radial-gradient(circle, var(--color-border-subtle) 1px, transparent 1px);
   }
 
   /* High performance containment for grid rendering */
@@ -80,6 +101,138 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Editorial Typography Utilities (General Sans + Mono) */
+  .type-hero {
+    font-size: var(--type-hero-size);
+    line-height: var(--type-hero-line);
+    letter-spacing: var(--type-hero-spacing);
+    font-weight: var(--type-hero-weight);
+  }
+
+  .type-display {
+    font-size: var(--type-display-size);
+    line-height: var(--type-display-line);
+    letter-spacing: var(--type-display-spacing);
+    font-weight: var(--type-display-weight);
+  }
+
+  .type-h1 {
+    font-size: var(--type-h1-size);
+    line-height: var(--type-h1-line);
+    letter-spacing: var(--type-h1-spacing);
+    font-weight: var(--type-h1-weight);
+  }
+
+  .type-h2 {
+    font-size: var(--type-h2-size);
+    line-height: var(--type-h2-line);
+    letter-spacing: var(--type-h2-spacing);
+    font-weight: var(--type-h2-weight);
+  }
+
+  .type-h3 {
+    font-size: var(--type-h3-size);
+    line-height: var(--type-h3-line);
+    letter-spacing: var(--type-h3-spacing);
+    font-weight: var(--type-h3-weight);
+  }
+
+  .type-section-label {
+    font-size: var(--type-section-label-size);
+    line-height: var(--type-section-label-line);
+    letter-spacing: var(--type-section-label-spacing);
+    font-weight: var(--type-section-label-weight);
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .type-body-lead {
+    font-size: var(--type-body-lead-size);
+    line-height: var(--type-body-lead-line);
+    letter-spacing: var(--type-body-lead-spacing);
+    font-weight: var(--type-body-lead-weight);
+  }
+
+  .type-body {
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-line);
+    letter-spacing: var(--type-body-spacing);
+    font-weight: var(--type-body-weight);
+  }
+
+  .type-body-sm {
+    font-size: var(--type-body-sm-size);
+    line-height: var(--type-body-sm-line);
+    letter-spacing: var(--type-body-sm-spacing);
+    font-weight: var(--type-body-sm-weight);
+  }
+
+  .type-metadata {
+    font-size: var(--type-metadata-size);
+    line-height: var(--type-metadata-line);
+    letter-spacing: var(--type-metadata-spacing);
+    font-weight: var(--type-metadata-weight);
+    font-family: var(--font-mono);
+  }
+
+  .type-metadata-sm {
+    font-size: var(--type-metadata-sm-size);
+    line-height: var(--type-metadata-sm-line);
+    letter-spacing: var(--type-metadata-sm-spacing);
+    font-weight: var(--type-metadata-sm-weight);
+    font-family: var(--font-mono);
+  }
+
+  .type-nav {
+    font-size: var(--type-nav-size);
+    line-height: var(--type-nav-line);
+    letter-spacing: var(--type-nav-spacing);
+    font-weight: var(--type-nav-weight);
+  }
+
+  .type-button {
+    font-size: var(--type-button-size);
+    line-height: var(--type-button-line);
+    letter-spacing: var(--type-button-spacing);
+    font-weight: var(--type-button-weight);
+  }
+
+  .type-button-sm {
+    font-size: var(--type-button-sm-size);
+    line-height: var(--type-button-sm-line);
+    letter-spacing: var(--type-button-sm-spacing);
+    font-weight: var(--type-button-sm-weight);
+  }
+
+  .type-search-hero {
+    font-size: var(--type-search-hero-size);
+    line-height: var(--type-search-hero-line);
+    letter-spacing: var(--type-search-hero-spacing);
+    font-weight: var(--type-search-hero-weight);
+  }
+
+  .type-search-header {
+    font-size: var(--type-search-header-size);
+    line-height: var(--type-search-header-line);
+    letter-spacing: var(--type-search-header-spacing);
+    font-weight: var(--type-search-header-weight);
+  }
+
+  .type-icon-label {
+    font-size: var(--type-icon-label-size);
+    line-height: var(--type-icon-label-line);
+    letter-spacing: var(--type-icon-label-spacing);
+    font-weight: var(--type-icon-label-weight);
+  }
+
+  .type-icon-count {
+    font-size: var(--type-icon-count-size);
+    line-height: var(--type-icon-count-line);
+    letter-spacing: var(--type-icon-count-spacing);
+    font-weight: var(--type-icon-count-weight);
+    font-family: var(--font-mono);
   }
 
   /* Native scrolling for code blocks with zero Lenis interference */

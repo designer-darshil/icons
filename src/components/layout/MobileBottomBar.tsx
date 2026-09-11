@@ -21,7 +21,7 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     <nav
       aria-label="Mobile Quick Actions"
       className={cn(
-        "md:hidden fixed bottom-0 left-0 right-0 z-30 min-h-[56px] pb-safe bg-surface/90 backdrop-blur-lg border-t border-border/70 flex items-center justify-around px-2 shadow-lg",
+        "md:hidden fixed bottom-0 left-0 right-0 z-30 min-h-[56px] pb-safe bg-surface border-t border-border flex items-center justify-around px-2 shadow-lg",
         className
       )}
     >

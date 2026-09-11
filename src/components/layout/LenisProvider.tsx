@@ -19,13 +19,20 @@ export const LenisProvider: React.FC<LenisProviderProps> = ({ children }) => {
     }
 
     const instance = new Lenis({
-      duration: 0.9,
+      duration: 0.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 1.1,
-      touchMultiplier: 1,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.0,
+      prevent: (node: Node) => {
+        if (node && node.nodeType === Node.ELEMENT_NODE) {
+          const el = node as HTMLElement;
+          return el.hasAttribute('data-lenis-prevent') || el.closest('[data-lenis-prevent]') !== null;
+        }
+        return false;
+      },
     });
 
     setLenis(instance);

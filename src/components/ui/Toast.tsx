@@ -73,35 +73,35 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               animate="animate"
               exit="exit"
               className={cn(
-                'pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md text-xs font-medium',
-                toast.type === 'success' && 'bg-surface/95 text-foreground border-emerald-500/30 dark:border-emerald-500/20 shadow-emerald-500/5',
-                toast.type === 'error' && 'bg-surface/95 text-rose-500 border-rose-500/30 shadow-rose-500/5',
-                toast.type === 'info' && 'bg-surface/95 text-foreground border-brand-500/30'
+                'pointer-events-auto flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xs border shadow-dropdown text-xs font-mono select-none',
+                toast.type === 'success' && 'bg-bg-elevated text-text-primary border-status-success-border',
+                toast.type === 'error' && 'bg-bg-elevated text-status-error-text border-status-error-border',
+                toast.type === 'info' && 'bg-bg-elevated text-text-primary border-status-info-border'
               )}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 {toast.type === 'success' && (
-                  <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                  <div className="w-4 h-4 rounded-3xs bg-status-success-bg text-status-success flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3" />
                   </div>
                 )}
                 {toast.type === 'error' && (
-                  <div className="w-5 h-5 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+                  <div className="w-4 h-4 rounded-3xs bg-status-error-bg text-status-error flex items-center justify-center shrink-0">
                     <AlertCircle className="w-3 h-3" />
                   </div>
                 )}
                 {toast.type === 'info' && (
-                  <div className="w-5 h-5 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0">
+                  <div className="w-4 h-4 rounded-3xs bg-status-info-bg text-status-info flex items-center justify-center shrink-0">
                     <Info className="w-3 h-3" />
                   </div>
                 )}
-                <span className="truncate leading-relaxed">{toast.message}</span>
+                <span className="truncate leading-tight text-[11px]">{toast.message}</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => removeToast(toast.id)}
-                className="p-1 text-foreground-muted hover:text-foreground rounded-lg transition-colors"
+                className="p-1 text-text-tertiary hover:text-text-primary rounded-3xs transition-colors"
                 aria-label="Dismiss notification"
               >
                 <X className="w-3.5 h-3.5" />

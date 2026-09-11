@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
-import type { Icon } from '@/types/icon';
-import { Heart, Check } from 'lucide-react';
+import type { Icon, IconStyle } from '@/types/icon';
+import { Heart, Check, Copy, Download, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
@@ -11,33 +11,40 @@ export interface SpecimenCardProps {
   icon: Icon;
   isSelected?: boolean;
   isFavorite?: boolean;
+  activeStyle?: IconStyle | 'all';
   onSelect: (icon: Icon) => void;
   onToggleFavorite?: (icon: Icon) => void;
+  className?: string;
 }
 
 export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
   icon,
   isSelected,
   isFavorite,
+  activeStyle,
   onSelect,
   onToggleFavorite,
+  className,
 }) => {
   const { success } = useToast();
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
-  const getActiveSvgMarkup = useCallback(() => {
-    const variant = icon.variants[0] || {
+  const variant =
+    (activeStyle && activeStyle !== 'all' && icon.variants.find((v) => v.style === activeStyle)) ||
+    icon.variants[0] || {
       id: icon.id,
-      style: 'linear',
-      label: 'Linear',
+      style: 'outline',
+      label: 'Outline',
       svg: icon.svg,
-      viewBox: icon.viewBox,
+      viewBox: icon.viewBox || '0 0 24 24',
       supportsStroke: true,
       supportsColor: true,
     };
+
+  const getActiveSvgMarkup = useCallback(() => {
     return transformSvgMarkup(variant, DEFAULT_CUSTOMIZATION);
-  }, [icon]);
+  }, [variant]);
 
   const handleCopySvg = useCallback(
     (e: React.MouseEvent) => {
@@ -55,13 +62,12 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
     (e: React.MouseEvent) => {
       e.stopPropagation();
       const svgCode = getActiveSvgMarkup();
-      const variant = icon.variants[0];
-      downloadFile(svgCode, `${icon.slug}-${variant?.style || 'linear'}.svg`, 'image/svg+xml');
+      downloadFile(svgCode, `${icon.slug}-${variant.style || 'outline'}.svg`, 'image/svg+xml');
       setDownloaded(true);
       success(`Downloaded ${icon.slug}.svg`);
       setTimeout(() => setDownloaded(false), 1400);
     },
-    [icon, getActiveSvgMarkup, success]
+    [icon.slug, variant.style, getActiveSvgMarkup, success]
   );
 
   const handleToggleFav = useCallback(
@@ -72,120 +78,117 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
     [icon, onToggleFavorite]
   );
 
-  const variant = icon.variants[0];
-  const innerSvg = variant?.svg || icon.svg;
+  const innerSvg = variant.svg || icon.svg;
+  const isFilled = variant.style === 'filled';
+  const variantCount = icon.variants?.length || 1;
 
   return (
-    <div className="group flex flex-col items-center select-none w-full">
-      {/* CAD Specimen Tile */}
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => onSelect(icon)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onSelect(icon);
-          }
-        }}
-        aria-label={`View icon ${icon.name}`}
-        className={cn(
-          'relative w-full aspect-square rounded-2xl flex flex-col items-center justify-center transition-all duration-120 cursor-pointer overflow-visible',
-          'border bg-bg-elevated',
-          isSelected
-            ? 'border-text-primary ring-2 ring-focus'
-            : 'border-border-default hover:border-text-primary'
-        )}
-      >
-        {/* Style / Variant Badge (e.g. SOLID) at top right */}
-        {variant?.style && variant.style !== 'linear' && (
-          <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 text-[8.5px] font-bold font-mono uppercase tracking-wider rounded-md bg-bg-secondary text-text-tertiary border border-border-subtle group-hover:opacity-0 transition-opacity z-10">
-            {variant.style}
-          </span>
-        )}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(icon)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(icon);
+        }
+      }}
+      aria-label={`Inspect ${icon.name} vector specimen`}
+      className={cn(
+        'group relative flex flex-col justify-between aspect-[4/4.8] sm:aspect-[4/4.6] p-4 sm:p-5 rounded-xs transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] select-none cursor-pointer overflow-hidden',
+        // Open, subtle surface with soft hairline border
+        'bg-bg-secondary/30 hover:bg-bg-secondary/70 border border-border-subtle hover:border-border-strong hover:-translate-y-1 hover:shadow-dropdown',
+        isSelected && 'border-accent bg-bg-secondary/90 ring-1 ring-accent shadow-dropdown',
+        className
+      )}
+    >
+      {/* Editorial Plate Corner Marks */}
+      <span className="absolute top-1.5 left-1.5 w-1.5 h-1.5 border-t border-l border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-all duration-200 pointer-events-none" />
+      <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 border-b border-r border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-all duration-200 pointer-events-none" />
 
-        {/* Favorite Heart (top-left) */}
+      {/* Top Floating Strip: Subtle Domain Tag + Minimal Favorite Toggle */}
+      <div className="w-full flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-text-tertiary select-none">
+        <span className="truncate max-w-[65%] font-medium opacity-70 group-hover:opacity-100 transition-opacity">
+          {icon.category}
+        </span>
         <button
           type="button"
           onClick={handleToggleFav}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Bookmark icon'}
           className={cn(
-            'absolute top-2 left-2 p-1 rounded-md transition-all z-10',
+            'p-2 -mr-2 -mt-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 z-20 cursor-pointer touch-manipulation',
             isFavorite
-              ? 'text-action-destructive opacity-100'
-              : 'text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary hover:bg-bg-secondary'
+              ? 'text-accent opacity-100 scale-110'
+              : 'text-text-tertiary opacity-70 sm:opacity-0 group-hover:opacity-100 hover:text-accent hover:scale-110 active:scale-95'
           )}
         >
-          <Heart className={cn('w-3.5 h-3.5', isFavorite && 'fill-current')} />
+          <Heart className={cn('w-3.5 h-3.5', isFavorite && 'fill-current text-accent')} />
         </button>
+      </div>
 
-        {/* Normal State: Centered 24x24 Vector Icon */}
-        <div className="w-full h-full flex items-center justify-center p-4 group-hover:opacity-0 transition-opacity duration-100 text-text-primary">
+      {/* Main Specimen Stage: Hero Scale with Smooth Optical Floating */}
+      <div className="relative flex-1 flex items-center justify-center my-2 select-none">
+        {/* Subtle crosshair reference guides on hover */}
+        <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+        <div className="relative z-10 flex items-center justify-center text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox={icon.viewBox || '0 0 24 24'}
-            width="28"
-            height="28"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
+            width="44"
+            height="44"
+            fill={isFilled ? 'currentColor' : 'none'}
+            stroke={isFilled ? 'none' : 'currentColor'}
+            strokeWidth={isFilled ? 0 : 1.6}
             strokeLinecap="round"
             strokeLinejoin="round"
             dangerouslySetInnerHTML={{ __html: innerSvg }}
-            className="w-7 h-7 shrink-0 transition-transform duration-120 group-hover:scale-105"
+            className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
           />
-        </div>
-
-        {/* 4 CAD Anchor Point Handles (Visible on Hover) */}
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none z-30">
-          <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full border border-text-primary bg-bg-elevated shadow-xs" />
-          <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full border border-text-primary bg-bg-elevated shadow-xs" />
-          <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full border border-text-primary bg-bg-elevated shadow-xs" />
-          <div className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full border border-text-primary bg-bg-elevated shadow-xs" />
-        </div>
-
-        {/* Hover Action Split: Top "Copy SVG" / Bottom "Download" */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-100 z-20">
-          {/* Top Half: Copy SVG */}
-          <button
-            type="button"
-            onClick={handleCopySvg}
-            aria-label="Copy SVG Code"
-            className="flex-1 w-full flex items-center justify-center font-sans font-semibold text-[12px] bg-white text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200 transition-colors border-b border-neutral-300"
-          >
-            {copied ? (
-              <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Copied</span>
-              </span>
-            ) : (
-              <span>Copy SVG</span>
-            )}
-          </button>
-
-          {/* Bottom Half: Download */}
-          <button
-            type="button"
-            onClick={handleDownload}
-            aria-label="Download SVG file"
-            className="flex-1 w-full flex items-center justify-center font-sans font-semibold text-[12px] bg-[#1E232A] text-white hover:bg-[#282F38] active:bg-[#15191E] transition-colors"
-          >
-            {downloaded ? (
-              <span className="flex items-center gap-1 text-emerald-400 font-medium">
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Saved</span>
-              </span>
-            ) : (
-              <span>Download</span>
-            )}
-          </button>
         </div>
       </div>
 
-      {/* Centered Icon Name Label Underneath */}
-      <span className="mt-2 text-[11px] font-mono text-text-secondary group-hover:text-text-primary transition-colors truncate max-w-full text-center px-1 tracking-tight">
-        {icon.slug || icon.name}
-      </span>
+      {/* Floating Hover Action Pill */}
+      <div className="absolute inset-x-4 bottom-14 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 ease-out pointer-events-auto z-20">
+        <button
+          type="button"
+          onClick={handleCopySvg}
+          title="Copy SVG markup"
+          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-accent text-white rounded-full hover:bg-accent-hover transition-colors shadow-sm"
+        >
+          {copied ? <Check className="w-3 h-3 text-white" /> : <Copy className="w-3 h-3" />}
+          <span>{copied ? 'Copied' : 'SVG'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleDownload}
+          title="Download SVG file"
+          className="p-1.5 text-[10px] font-mono bg-bg-elevated border border-border-default text-text-secondary hover:text-text-primary rounded-full hover:border-border-strong transition-colors shadow-sm"
+        >
+          {downloaded ? <Check className="w-3 h-3 text-accent" /> : <Download className="w-3 h-3" />}
+        </button>
+      </div>
+
+      {/* Bottom Editorial Footnote: Typographic Hierarchy */}
+      <div className="w-full pt-3 border-t border-border-subtle/30 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-sm font-medium tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
+            {icon.name}
+          </span>
+          <ArrowUpRight className="w-3 h-3 text-text-tertiary opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200 shrink-0" />
+        </div>
+
+        {variantCount > 1 ? (
+          <span className="shrink-0 type-icon-count text-text-tertiary px-1.5 py-0.5 rounded-full bg-bg-elevated/60 border border-border-subtle/60">
+            {variantCount} styles
+          </span>
+        ) : isFilled ? (
+          <span className="shrink-0 type-icon-count text-text-tertiary px-1.5 py-0.5 rounded-full bg-bg-elevated/60 border border-border-subtle/60">
+            fill
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 });

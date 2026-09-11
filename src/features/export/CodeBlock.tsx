@@ -32,32 +32,25 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   return (
     <div
       className={cn(
-        'relative flex flex-col rounded-xl border border-border/80 bg-surface-subtle/80 dark:bg-zinc-950 overflow-hidden font-mono text-xs shadow-inner',
+        'relative flex flex-col rounded-xs border border-border-default bg-bg-secondary overflow-hidden font-mono text-xs',
         className
       )}
     >
       {/* Code Block Header */}
-      <div className="flex items-center justify-between px-3.5 py-2 border-b border-border/60 bg-surface-muted/50 dark:bg-zinc-900/80 backdrop-blur-sm select-none">
+      <div className="flex items-center justify-between px-3.5 py-2 border-b border-border-subtle bg-bg-elevated select-none">
         <div className="flex items-center gap-2 overflow-hidden">
-          {/* Mac-style subtle window dots */}
-          <div className="flex items-center gap-1.5 mr-1.5 opacity-60">
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-          </div>
-
           {filename && (
-            <span className="font-mono text-[11px] font-medium text-foreground truncate max-w-[180px] sm:max-w-[240px]">
+            <span className="font-mono text-[11px] font-medium text-text-primary truncate max-w-[180px] sm:max-w-[240px]">
               {filename}
             </span>
           )}
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface/80 text-foreground-muted border border-border/40 uppercase tracking-wider font-semibold">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-3xs bg-bg-secondary text-text-tertiary border border-border-subtle uppercase tracking-wider font-semibold">
               {language}
             </span>
             {formattedSize && (
-              <span className="text-[10px] text-foreground-subtle hidden sm:inline-block">
+              <span className="text-[10px] text-text-tertiary hidden sm:inline-block">
                 {formattedSize}
               </span>
             )}
@@ -71,18 +64,21 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
             size="sm"
             variant="ghost"
             label="Copy"
-            className="h-7 px-2.5 text-xs"
+            className="h-6 px-2 text-[11px]"
           />
         </div>
       </div>
 
       {/* Code Block Content with Line Numbers */}
-      <div className="relative overflow-x-auto max-h-[260px] sm:max-h-[300px] p-3 text-left scrollbar-thin scrollbar-thumb-border">
-        <pre className="flex leading-relaxed font-mono">
+      <div
+        data-lenis-prevent="true"
+        className="relative overflow-auto max-h-[260px] sm:max-h-[300px] p-3 text-left native-scroll overscroll-contain select-text"
+      >
+        <pre className="flex leading-relaxed font-mono select-text">
           {/* Line Numbers */}
           <div
             aria-hidden="true"
-            className="flex flex-col text-right select-none text-foreground-subtle/50 pr-3 mr-3 border-r border-border/30"
+            className="flex flex-col text-right select-none text-text-tertiary/60 pr-3 mr-3 border-r border-border-subtle shrink-0"
           >
             {lines.map((_, i) => (
               <span key={i} className="text-[11px]">
@@ -92,7 +88,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           </div>
 
           {/* Actual Code */}
-          <code className="text-[11.5px] text-foreground/90 whitespace-pre font-mono block w-full">
+          <code className="text-[11.5px] text-text-primary whitespace-pre font-mono block select-text">
             {code}
           </code>
         </pre>

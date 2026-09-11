@@ -6,6 +6,10 @@ import { CollectionsRoute } from "@/routes/CollectionsRoute";
 import { CategoriesRoute } from "@/routes/CategoriesRoute";
 import { StylesRoute } from "@/routes/StylesRoute";
 import { IconDetailRoute } from "@/routes/IconDetailRoute";
+import { DesignSystemRoute } from "@/routes/DesignSystemRoute";
+import { QARoute } from "@/routes/QARoute";
+import { IconRenderingQARoute } from "@/routes/IconRenderingQARoute";
+import { NotFoundRoute } from "@/routes/NotFoundRoute";
 
 export const router = createBrowserRouter([
   {
@@ -53,8 +57,28 @@ export const router = createBrowserRouter([
         element: <CollectionsRoute />,
       },
       {
+        path: "dev/design-system",
+        element: <DesignSystemRoute />,
+      },
+      {
+        path: "design-system",
+        element: <DesignSystemRoute />,
+      },
+      {
+        path: "dev/icon-rendering",
+        element: <IconRenderingQARoute />,
+      },
+      {
+        path: "icon-rendering",
+        element: <IconRenderingQARoute />,
+      },
+      {
+        path: "qa",
+        element: <QARoute />,
+      },
+      {
         path: "*",
-        element: <Navigate to="/icons" replace />,
+        element: <NotFoundRoute />,
       },
     ],
   },

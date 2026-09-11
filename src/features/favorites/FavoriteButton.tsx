@@ -31,7 +31,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       }}
       className={cn(
         'transition-all duration-200',
-        isFavorite && 'text-rose-500 bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20',
+        isFavorite && 'text-accent bg-accent/10 border-accent/20 hover:bg-accent/20',
         className
       )}
       aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
@@ -40,7 +40,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       <Heart
         className={cn(
           'w-4 h-4 transition-transform duration-200',
-          isFavorite ? 'fill-rose-500 text-rose-500 scale-110' : 'text-foreground-muted'
+          isFavorite ? 'fill-accent text-accent scale-110' : 'text-text-tertiary'
         )}
       />
       {showLabel && (

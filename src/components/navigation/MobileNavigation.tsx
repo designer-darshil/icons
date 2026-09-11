@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ThemeToggle } from "./ThemeToggle";
-import { IconButton } from "@/components/ui/IconButton";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useFavorites } from "@/features/favorites/useFavorites";
-import { useCollections } from "@/features/collections/useCollections";
-import { X, Zap, Grid, Tag, Palette, Heart, FolderHeart } from "lucide-react";
-import { cn } from "@/lib/cn";
+import React, { useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SkiperThemeToggle } from '@/components/ui/skiper';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useFavorites } from '@/features/favorites/useFavorites';
+import { useCollections } from '@/features/collections/useCollections';
+import { useScrollLock } from '@/hooks/useScrollLock';
+import { X, Heart, FolderHeart } from 'lucide-react';
+import { cn } from '@/lib/cn';
 
 export interface MobileNavigationProps {
   isOpen: boolean;
@@ -19,58 +19,37 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
   const { count: favoriteCount } = useFavorites();
   const { count: collectionCount } = useCollections();
 
+  // Unified scroll lock coordinates Lenis & body overflow
+  useScrollLock(isOpen);
+
   const navItems = [
     {
-      label: "Icons",
-      href: "/icons",
-      icon: <Grid className="w-4 h-4" />,
+      label: 'Archive',
+      sublabel: '7,508 Vector Concepts',
+      href: '/icons',
     },
     {
-      label: "Categories",
-      href: "/categories",
-      icon: <Tag className="w-4 h-4" />,
+      label: 'Categories',
+      sublabel: 'Domain taxonomies & systems',
+      href: '/categories',
     },
     {
-      label: "Styles",
-      href: "/styles",
-      icon: <Palette className="w-4 h-4" />,
-    },
-    {
-      label: "Favorites",
-      href: "/favorites",
-      icon: <Heart className="w-4 h-4" />,
-      badge: favoriteCount > 0 ? favoriteCount : undefined,
-    },
-    {
-      label: "Collections",
-      href: "/collections",
-      icon: <FolderHeart className="w-4 h-4" />,
-      badge: collectionCount > 0 ? collectionCount : undefined,
+      label: 'Styles',
+      sublabel: 'Line, Filled, Bold & Duotone',
+      href: '/styles',
     },
   ];
 
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
-
-  // Lock body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   const overlayVariants = {
     closed: { opacity: 0 },
@@ -78,17 +57,22 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
   };
 
   const drawerVariants = {
-    closed: { x: "-100%" },
+    closed: { x: '100%' },
     open: { x: 0 },
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+        <div
+          className="fixed inset-0 z-50 flex justify-end"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Editorial Studio Navigation Menu"
+        >
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-bg-overlay cursor-pointer"
             initial="closed"
             animate="open"
             exit="closed"
@@ -97,84 +81,143 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
             onClick={onClose}
           />
 
-          {/* Drawer Content */}
+          {/* Editorial Drawer Content */}
           <motion.div
-            className="relative w-4/5 max-w-xs bg-bg-surface border-r border-border-subtle h-full flex flex-col shadow-dialog z-10"
+            className="relative w-full max-w-sm sm:max-w-md bg-bg-primary border-l border-border-subtle/50 h-full flex flex-col justify-between shadow-2xl z-10"
             initial="closed"
             animate="open"
             exit="closed"
             variants={prefersReducedMotion ? undefined : drawerVariants}
-            transition={{ type: "spring", damping: 25, stiffness: 280 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           >
-            {/* Header */}
-            <div className="p-4 border-b border-border-subtle flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm">
-                  <Zap className="w-4 h-4" />
+            {/* Drawer Top / Header */}
+            <div className="p-6 sm:p-8 flex items-center justify-between border-b border-border-subtle/30">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 border border-border-strong rounded-xs flex items-center justify-center p-1 bg-bg-secondary">
+                  <div className="w-full h-full bg-accent rounded-3xs" />
                 </div>
-                <span className="font-semibold tracking-tight text-base">Glyphroom</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-extrabold font-mono tracking-widest text-text-primary uppercase leading-tight">
+                    GRIDFRAME
+                  </span>
+                  <span className="text-[9px] font-mono tracking-widest text-text-tertiary uppercase">
+                    STUDIO ARCHIVE
+                  </span>
+                </div>
               </div>
-              <IconButton
-                aria-label="Close menu"
-                variant="ghost"
-                size="sm"
+
+              <button
+                type="button"
+                aria-label="Close navigation"
                 onClick={onClose}
+                className="w-11 h-11 rounded-full flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-secondary/80 border border-border-subtle/60 transition-colors cursor-pointer touch-manipulation"
               >
                 <X className="w-4 h-4" />
-              </IconButton>
+              </button>
             </div>
 
-            {/* Navigation Links */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-1">
-              <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted px-3 block mb-2">
-                Workspace
-              </span>
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.href}
-                  to={item.href}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors select-none",
-                      isActive
-                        ? "bg-bg-subtle text-primary border border-border-default shadow-sm"
-                        : "text-text-secondary hover:text-text-primary hover:bg-bg-subtle/50"
-                    )
-                  }
-                >
-                  <div className="flex items-center gap-3">
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span className="text-xs bg-bg-surface-elevated px-2 py-0.5 rounded-full border border-border-subtle font-mono text-text-muted">
-                      {item.badge}
-                    </span>
-                  )}
-                </NavLink>
-              ))}
-            </div>
+            {/* Main Navigation Links */}
+            <div
+              data-lenis-prevent="true"
+              className="flex-1 px-6 sm:px-8 py-8 overflow-y-auto space-y-6 overscroll-contain native-scroll"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-text-tertiary block mb-4">
+                  Archive Index
+                </span>
 
-            {/* Footer with Theme Selector */}
-            <div className="p-4 border-t border-border-subtle bg-bg-surface-subtle space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-text-secondary">Theme</span>
-                <ThemeToggle />
+                <nav className="space-y-2">
+                  {navItems.map((item) => (
+                    <NavLink
+                      key={item.href}
+                      to={item.href}
+                      onClick={onClose}
+                      className={({ isActive }) =>
+                        cn(
+                          'group flex items-center justify-between py-3 px-3 rounded-sm transition-all duration-200',
+                          isActive
+                            ? 'bg-bg-secondary text-text-primary font-semibold'
+                            : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary/40'
+                        )
+                      }
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-lg tracking-tight font-medium group-hover:translate-x-0.5 transition-transform">
+                          {item.label}
+                        </span>
+                        <span className="text-xs font-mono text-text-tertiary font-normal">
+                          {item.sublabel}
+                        </span>
+                      </div>
+                      <span className="text-xs font-mono text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity">
+                        →
+                      </span>
+                    </NavLink>
+                  ))}
+                </nav>
               </div>
-              <div className="pt-2 flex items-center justify-between text-xs text-text-muted">
-                <span>v0.1.0 • Workstation</span>
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-text-primary flex items-center gap-1 transition-colors"
-                >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                  </svg>
-                  GitHub
-                </a>
+
+              {/* Collections & Saved Section */}
+              <div className="pt-6 border-t border-border-subtle/30 space-y-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-text-tertiary block mb-3">
+                  Curation & Storage
+                </span>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <NavLink
+                    to="/favorites"
+                    onClick={onClose}
+                    className="p-3.5 rounded-sm border border-border-subtle/60 hover:border-border-strong bg-bg-secondary/30 hover:bg-bg-secondary flex flex-col gap-2 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <Heart className="w-4 h-4 text-text-secondary" />
+                      {favoriteCount > 0 && (
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/20">
+                          {favoriteCount}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-text-primary">Saved</div>
+                      <div className="text-[10px] font-mono text-text-tertiary">Pinned icons</div>
+                    </div>
+                  </NavLink>
+
+                  <NavLink
+                    to="/collections"
+                    onClick={onClose}
+                    className="p-3.5 rounded-sm border border-border-subtle/60 hover:border-border-strong bg-bg-secondary/30 hover:bg-bg-secondary flex flex-col gap-2 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <FolderHeart className="w-4 h-4 text-text-secondary" />
+                      {collectionCount > 0 && (
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/20">
+                          {collectionCount}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-text-primary">Sets</div>
+                      <div className="text-[10px] font-mono text-text-tertiary">Custom suites</div>
+                    </div>
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer / Theme & Studio Meta */}
+            <div className="p-6 sm:p-8 border-t border-border-subtle/30 bg-bg-secondary/30 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <SkiperThemeToggle size="md" />
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-text-primary">Theme Mode</span>
+                  <span className="text-[10px] font-mono text-text-tertiary">Light / Dark Monochrome</span>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="text-[10px] font-mono text-text-tertiary block">GRIDFRAME V2</span>
+                <span className="text-[9px] font-mono text-text-muted">7,508 Vectors</span>
               </div>
             </div>
           </motion.div>
@@ -183,3 +226,4 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
     </AnimatePresence>
   );
 };
+

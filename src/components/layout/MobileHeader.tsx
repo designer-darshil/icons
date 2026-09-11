@@ -14,7 +14,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ onSearchClick }) => 
 
   return (
     <>
-      <header className="flex md:hidden h-14 border-b border-border-subtle bg-bg-surface/90 backdrop-blur-md sticky top-0 z-30 px-4 items-center justify-between">
+      <header className="flex md:hidden h-14 border-b border-border-subtle bg-bg-surface sticky top-0 z-30 px-4 items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-2">
           <IconButton

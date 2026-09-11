@@ -8,7 +8,6 @@ import { CommandPalette } from '@/features/search/CommandPalette';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
-import { searchIconsWithScore } from '@/lib/icon-search';
 import type { Icon, IconStyle } from '@/types/icon';
 import type { SortOption } from '@/types/filters';
 
@@ -66,6 +65,15 @@ export const IconDetailRoute: React.FC = () => {
 
   const filteredIcons = useMemo(() => {
     let list = [...GRIDFRAME_ICONS];
+    if (query.trim()) {
+      const q = query.toLowerCase().trim();
+      list = list.filter(
+        (i) =>
+          i.name.toLowerCase().includes(q) ||
+          i.tags.some((t) => t.toLowerCase().includes(q)) ||
+          i.category.toLowerCase().includes(q)
+      );
+    }
     if (category !== 'all') {
       const catLower = category.toLowerCase();
       list = list.filter((i) => i.category.toLowerCase() === catLower);
@@ -73,11 +81,8 @@ export const IconDetailRoute: React.FC = () => {
     if (style !== 'all') {
       list = list.filter((i) => i.variants.some((v) => v.style === style));
     }
-    if (query.trim()) {
-      list = searchIconsWithScore(list, query);
-    }
     return list;
-  }, [category, style, query]);
+  }, [query, category, style]);
 
   return (
     <WorkspaceShell onOpenSearch={() => setIsCommandPaletteOpen(true)}>
@@ -96,6 +101,7 @@ export const IconDetailRoute: React.FC = () => {
 
       <SpecimenGrid
         icons={filteredIcons}
+        activeStyle={style}
         selectedIconId={selectedIcon?.id}
         favoriteIds={favoriteSet}
         onSelectIcon={handleSelectIcon}

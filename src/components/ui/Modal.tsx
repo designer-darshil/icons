@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
+import { useScrollLock } from '@/hooks/useScrollLock';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { modalOverlayVariants, modalDialogVariants } from '@/lib/motion';
+
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -35,6 +39,10 @@ export const Modal: React.FC<ModalProps> = ({
   showCloseButton = true,
 }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Unified scroll lock coordinates Lenis & document body overflow
+  useScrollLock(isOpen);
 
   // Close on Escape key press
   useEffect(() => {
@@ -47,50 +55,39 @@ export const Modal: React.FC<ModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
   return (
     <AnimatePresence>
       {isOpen && (
         <div
           ref={overlayRef}
+          data-lenis-prevent="true"
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
         >
           {/* Overlay Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            variants={prefersReducedMotion ? undefined : modalOverlayVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             onClick={onClose}
-            className="fixed inset-0 bg-bg-overlay backdrop-blur-xs cursor-pointer"
+            className="fixed inset-0 bg-bg-overlay cursor-pointer"
           />
 
           {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            variants={prefersReducedMotion ? undefined : modalDialogVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              'relative w-full bg-bg-primary border border-border-default rounded-lg shadow-modal overflow-hidden z-10 my-auto',
+              'relative w-full bg-bg-primary border border-border-default rounded-lg shadow-modal flex flex-col max-h-[90vh] overflow-hidden z-10 my-auto',
               maxWidthClasses[maxWidth],
               className
             )}
           >
             {(title || showCloseButton) && (
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-subtle bg-bg-secondary">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-subtle bg-bg-secondary shrink-0">
                 <div>
                   {typeof title === 'string' ? (
                     <h2 className="text-sm font-semibold tracking-tight text-text-primary">
@@ -108,14 +105,19 @@ export const Modal: React.FC<ModalProps> = ({
                     type="button"
                     onClick={onClose}
                     aria-label="Close dialog"
-                    className="p-1 rounded-sm text-text-tertiary hover:text-text-primary hover:bg-bg-elevated transition-colors"
+                    className="p-2 -mr-2 -my-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-sm text-text-tertiary hover:text-text-primary hover:bg-bg-elevated transition-colors cursor-pointer touch-manipulation"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
             )}
-            <div className="p-5 max-h-[85vh] overflow-y-auto native-scroll">{children}</div>
+            <div
+              data-lenis-prevent="true"
+              className="p-5 flex-1 min-h-0 overflow-y-auto native-scroll overscroll-contain"
+            >
+              {children}
+            </div>
           </motion.div>
         </div>
       )}

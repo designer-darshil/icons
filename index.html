@@ -7,7 +7,7 @@
     <title>GRIDFRAME — Precision Icon Workstation</title>
     <meta name="description" content="A precision vector icon workstation for designers and developers: search, inspect, customize, and export production-ready vector icons." />
     <meta name="keywords" content="svg icons, vector icons, react icon export, icon workstation, gridframe, design system, ui icons, icon customizer" />
-    <meta name="theme-color" content="#050505" />
+    <meta name="theme-color" content="#11110F" />
     <meta name="color-scheme" content="dark light" />
 
     <!-- Open Graph / Facebook -->
@@ -21,13 +21,29 @@
     <meta name="twitter:title" content="GRIDFRAME — Precision Icon Workstation" />
     <meta name="twitter:description" content="Discover, customize, and export production-ready 24px vector icons with live code generation." />
 
-    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <!-- Typography: General Sans (Fontshare) & JetBrains Mono (Google Fonts) -->
+    <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-bg-primary text-text-primary antialiased min-h-screen">
-    <div id="root"></div>
+    <div id="root">
+      <div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#11110F;color:#EDEDEC;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;z-index:99999;">
+        <div style="width:48px;height:48px;border:1px solid #2B2B28;background-color:#171715;border-radius:2px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;position:relative;">
+          <div style="width:20px;height:20px;background-color:#FF5500;border-radius:2px;animation:gridframe-pulse 1.6s ease-in-out infinite;"></div>
+        </div>
+        <div style="font-weight:700;letter-spacing:0.2em;">GRIDFRAME</div>
+        <div style="color:#7D7D76;font-size:9px;margin-top:6px;letter-spacing:0.12em;">INITIALIZING ARCHIVE...</div>
+      </div>
+      <style>
+        @keyframes gridframe-pulse {
+          0%, 100% { transform: scale(0.85) rotate(0deg); opacity: 0.85; }
+          50% { transform: scale(1.05) rotate(90deg); opacity: 1; }
+        }
+      </style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

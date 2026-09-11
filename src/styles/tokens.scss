@@ -1,0 +1,329 @@
+/**
+ * ==============================================================================
+ * GRIDFRAME V2 DESIGN TOKENS (SCSS)
+ * ==============================================================================
+ * Warm Editorial Neutral Foundation + Expressive Accents (MadeByShape-inspired)
+ */
+
+:root {
+  /* ============================================================================
+     1. TYPOGRAPHY HIERARCHY (General Sans + Fluid Editorial High-Contrast Scale)
+     ============================================================================ */
+  --font-sans: 'General Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  /* 1.1 Hero Heading */
+  --type-hero-size: clamp(56px, 7vw + 4px, 112px);
+  --type-hero-line: 0.90;
+  --type-hero-weight: 700;
+  --type-hero-spacing: -0.045em;
+
+  /* 1.2 Display Heading */
+  --type-display-size: clamp(48px, 6vw + 2px, 88px);
+  --type-display-line: 0.94;
+  --type-display-weight: 700;
+  --type-display-spacing: -0.04em;
+
+  /* 1.3 H1 Major Heading */
+  --type-h1-size: clamp(40px, 5vw, 72px);
+  --type-h1-line: 0.98;
+  --type-h1-weight: 700;
+  --type-h1-spacing: -0.035em;
+
+  /* 1.4 H2 Section Heading */
+  --type-h2-size: clamp(28px, 3.2vw + 4px, 48px);
+  --type-h2-line: 1.08;
+  --type-h2-weight: 600;
+  --type-h2-spacing: -0.025em;
+
+  /* 1.5 H3 Subsection / Card Heading */
+  --type-h3-size: clamp(20px, 2vw + 2px, 28px);
+  --type-h3-line: 1.20;
+  --type-h3-weight: 600;
+  --type-h3-spacing: -0.02em;
+
+  /* 1.6 Section Eyebrow / Label */
+  --type-section-label-size: 11px;
+  --type-section-label-line: 1.2;
+  --type-section-label-weight: 600;
+  --type-section-label-spacing: 0.14em;
+
+  /* 1.7 Body Hierarchy */
+  --type-body-lead-size: clamp(17px, 1.2vw + 12px, 20px);
+  --type-body-lead-line: 1.50;
+  --type-body-lead-weight: 400;
+  --type-body-lead-spacing: -0.01em;
+
+  --type-body-size: 16px;
+  --type-body-line: 1.60;
+  --type-body-weight: 400;
+  --type-body-spacing: -0.005em;
+
+  --type-body-sm-size: 14px;
+  --type-body-sm-line: 1.50;
+  --type-body-sm-weight: 400;
+  --type-body-sm-spacing: 0;
+
+  /* 1.8 Metadata / Footnotes */
+  --type-metadata-size: 12px;
+  --type-metadata-line: 1.40;
+  --type-metadata-weight: 500;
+  --type-metadata-spacing: 0.04em;
+
+  --type-metadata-sm-size: 11px;
+  --type-metadata-sm-line: 1.35;
+  --type-metadata-sm-weight: 500;
+  --type-metadata-sm-spacing: 0.05em;
+
+  /* 1.9 Navigation Links */
+  --type-nav-size: 14px;
+  --type-nav-line: 1.20;
+  --type-nav-weight: 500;
+  --type-nav-spacing: -0.01em;
+
+  /* 1.10 Buttons & Controls */
+  --type-button-size: 14px;
+  --type-button-line: 1.20;
+  --type-button-weight: 600;
+  --type-button-spacing: -0.01em;
+
+  --type-button-sm-size: 12px;
+  --type-button-sm-line: 1.20;
+  --type-button-sm-weight: 600;
+  --type-button-sm-spacing: -0.005em;
+
+  /* 1.11 Search Inputs */
+  --type-search-hero-size: clamp(16px, 1.2vw + 10px, 20px);
+  --type-search-hero-line: 1.40;
+  --type-search-hero-weight: 400;
+  --type-search-hero-spacing: -0.01em;
+
+  --type-search-header-size: 13px;
+  --type-search-header-line: 1.30;
+  --type-search-header-weight: 400;
+  --type-search-header-spacing: 0;
+
+  /* 1.12 Icon Labels & Badges */
+  --type-icon-label-size: 13px;
+  --type-icon-label-line: 1.25;
+  --type-icon-label-weight: 500;
+  --type-icon-label-spacing: -0.01em;
+
+  --type-icon-count-size: 11px;
+  --type-icon-count-line: 1.20;
+  --type-icon-count-weight: 500;
+  --type-icon-count-spacing: 0.04em;
+
+  /* ============================================================================
+     2. SPACING SCALE (4px Base Unit)
+     ============================================================================ */
+  --space-1: 4px;     /* Micro gap */
+  --space-2: 8px;     /* Tight control spacing */
+  --space-3: 12px;    /* Label / group spacing */
+  --space-4: 16px;    /* Standard internal spacing */
+  --space-5: 20px;    /* Intermediate padding */
+  --space-6: 24px;    /* Component separation */
+  --space-8: 32px;    /* Section spacing */
+  --space-10: 40px;   /* Medium section spacing */
+  --space-12: 48px;   /* Major section spacing */
+  --space-16: 64px;   /* Editorial block separation */
+  --space-20: 80px;   /* Editorial rhythm spacing */
+  --space-24: 96px;   /* Major visual transition */
+  --space-30: 120px;  /* Rare major section transition */
+  --space-40: 160px;  /* Hero editorial transition */
+
+  /* ============================================================================
+     3. RADIUS SCALE
+     ============================================================================ */
+  --radius-xs: 2px;
+  --radius-sm: 4px;   /* Controls & tags */
+  --radius-md: 6px;   /* Cards & dropdowns */
+  --radius-lg: 8px;   /* Dialogs & sheets */
+  --radius-xl: 12px;  /* Major surfaces */
+
+  /* ============================================================================
+     4. BORDERS
+     ============================================================================ */
+  --border-width-default: 1px;
+  --border-width-focus: 1.5px;
+
+  /* ============================================================================
+     5. MOTION & EASING
+     ============================================================================ */
+  --motion-micro: 120ms;
+  --motion-ui: 180ms;
+  --motion-modal: 240ms;
+  --motion-editorial: 380ms;
+  --ease-gridframe: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* ============================================================================
+     6. LAYOUT & Z-INDEX
+     ============================================================================ */
+  --layout-max-width: 1440px;
+  --gutter-desktop: 40px;
+  --gutter-tablet: 24px;
+  --gutter-mobile: 16px;
+
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-header: 30;
+  --z-dropdown: 40;
+  --z-drawer: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-popover: 80;
+  --z-toast: 90;
+  --z-command: 100;
+}
+
+/* ==============================================================================
+   DARK THEME (Default) — Warm Obsidian Editorial Neutral + Restrained Accent
+   Art Direction: Warm near-black obsidian, warm white typography, soft borders
+   ============================================================================== */
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  color-scheme: dark;
+
+  /* Backgrounds: Warm near-black obsidian */
+  --color-background-primary: #0D0D0B;
+  --color-background-secondary: #171614;
+  --color-background-elevated: #21201C;
+  --color-background-overlay: rgba(13, 13, 11, 0.85);
+
+  /* Typography: Warm white, slate neutrals, subtle metadata */
+  --color-text-primary: #F6F3EC;
+  --color-text-secondary: #AAA497;
+  --color-text-tertiary: #726D63;
+  --color-text-inverse: #0D0D0B;
+  --color-text-disabled: #48453E;
+
+  /* Borders: Soft warm neutrals with optical subtlety */
+  --color-border-default: #2C2A24;
+  --color-border-subtle: #1E1D19;
+  --color-border-strong: #423F37;
+
+  /* Actions: Crisp monochrome foundation */
+  --color-action-primary: #F6F3EC;
+  --color-action-primary-hover: #EAE5DB;
+  --color-action-primary-active: #DDD8CC;
+  --color-action-secondary: #171614;
+  --color-action-secondary-hover: #21201C;
+  --color-action-destructive: #E5484D;
+  --color-action-destructive-hover: #F2555A;
+
+  /* Dominant Editorial Accent: Refined Warm Vermilion */
+  --color-accent: #FF5024;
+  --color-accent-hover: #FF6740;
+  --color-accent-active: #FF7D5C;
+  --color-accent-subtle: rgba(255, 80, 36, 0.12);
+
+  /* Secondary Accent: Reserved for Favorites / Selected / Micro stars */
+  --color-accent-secondary: #E8A938;
+  --color-accent-secondary-subtle: rgba(232, 169, 56, 0.12);
+  --color-accent-lime: #B4E642;
+
+  /* Semantic Status Colors: Restrained & Sophisticated */
+  --color-status-success: #30A46C;
+  --color-status-success-bg: rgba(48, 164, 108, 0.12);
+  --color-status-success-border: rgba(48, 164, 108, 0.28);
+  --color-status-success-text: #4CC38A;
+
+  --color-status-warning: #D48D1C;
+  --color-status-warning-bg: rgba(212, 141, 28, 0.12);
+  --color-status-warning-border: rgba(212, 141, 28, 0.28);
+  --color-status-warning-text: #E8A938;
+
+  --color-status-error: #E5484D;
+  --color-status-error-bg: rgba(229, 72, 77, 0.12);
+  --color-status-error-border: rgba(229, 72, 77, 0.28);
+  --color-status-error-text: #FF6369;
+
+  --color-status-info: #3B82F6;
+  --color-status-info-bg: rgba(59, 130, 246, 0.12);
+  --color-status-info-border: rgba(59, 130, 246, 0.28);
+  --color-status-info-text: #60A5FA;
+
+  /* Focus Ring */
+  --color-focus-default: #FF5024;
+
+  /* Elevation Shadows */
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px #2C2A24;
+  --shadow-dropdown: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 0 1px #2C2A24;
+  --shadow-popover: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px #2C2A24;
+}
+
+/* ==============================================================================
+   LIGHT THEME — Warm Ivory / Fine Art Monograph + Deep Black Typography
+   Art Direction: Warm ivory paper tone, deep black typography, soft neutral borders
+   ============================================================================== */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Backgrounds: Warm ivory & paper stone */
+  --color-background-primary: #F8F6F0;
+  --color-background-secondary: #ECE8DD;
+  --color-background-elevated: #FFFFFF;
+  --color-background-overlay: rgba(20, 19, 17, 0.55);
+
+  /* Typography: Deep warm black, warm slate neutral */
+  --color-text-primary: #141311;
+  --color-text-secondary: #5A564C;
+  --color-text-tertiary: #8A8477;
+  --color-text-inverse: #F8F6F0;
+  --color-text-disabled: #B5AF9F;
+
+  /* Borders: Soft warm neutral borders */
+  --color-border-default: #D6D0C1;
+  --color-border-subtle: #E7E2D5;
+  --color-border-strong: #ABA494;
+
+  /* Actions: Deep black foundation */
+  --color-action-primary: #141311;
+  --color-action-primary-hover: #282622;
+  --color-action-primary-active: #3B3934;
+  --color-action-secondary: #ECE8DD;
+  --color-action-secondary-hover: #E2DDD0;
+  --color-action-destructive: #C93B3B;
+  --color-action-destructive-hover: #B52F2F;
+
+  /* Dominant Editorial Accent: Deep Warm Vermilion */
+  --color-accent: #E03E16;
+  --color-accent-hover: #C6330E;
+  --color-accent-active: #AD2B0A;
+  --color-accent-subtle: rgba(224, 62, 22, 0.10);
+
+  /* Secondary Accent: Reserved for Favorites / Selected / Micro stars */
+  --color-accent-secondary: #B87B14;
+  --color-accent-secondary-subtle: rgba(184, 123, 20, 0.12);
+  --color-accent-lime: #6A8E18;
+
+  /* Semantic Status Colors: Restrained & Harmonious */
+  --color-status-success: #1D7C4D;
+  --color-status-success-bg: rgba(29, 124, 77, 0.10);
+  --color-status-success-border: rgba(29, 124, 77, 0.25);
+  --color-status-success-text: #115E38;
+
+  --color-status-warning: #B87B14;
+  --color-status-warning-bg: rgba(184, 123, 20, 0.10);
+  --color-status-warning-border: rgba(184, 123, 20, 0.25);
+  --color-status-warning-text: #8C5906;
+
+  --color-status-error: #C93B3B;
+  --color-status-error-bg: rgba(201, 59, 59, 0.10);
+  --color-status-error-border: rgba(201, 59, 59, 0.25);
+  --color-status-error-text: #9B2424;
+
+  --color-status-info: #2563EB;
+  --color-status-info-bg: rgba(37, 99, 235, 0.10);
+  --color-status-info-border: rgba(37, 99, 235, 0.25);
+  --color-status-info-text: #1D4ED8;
+
+  /* Focus Ring */
+  --color-focus-default: #E03E16;
+
+  /* Elevation Shadows */
+  --shadow-modal: 0 24px 64px rgba(20, 19, 17, 0.14), 0 0 0 1px #D6D0C1;
+  --shadow-dropdown: 0 8px 24px rgba(20, 19, 17, 0.08), 0 0 0 1px #D6D0C1;
+  --shadow-popover: 0 4px 16px rgba(20, 19, 17, 0.05), 0 0 0 1px #D6D0C1;
+}

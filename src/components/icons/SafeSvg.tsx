@@ -45,15 +45,24 @@ export const SafeSvg: React.FC<SafeSvgProps> = React.memo(
       return transforms.length > 0 ? transforms.join(" ") : undefined;
     }, [rotation, flipX, flipY]);
 
+    const isFilled = useMemo(() => {
+      return (
+        strokeWidth === 0 ||
+        sanitizedInner.includes('fill="currentColor"') ||
+        sanitizedInner.includes('fill="#') ||
+        (sanitizedInner.includes('stroke="none"') && !sanitizedInner.includes('stroke="currentColor"'))
+      );
+    }, [strokeWidth, sanitizedInner]);
+
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox={viewBox}
         width={size}
         height={size}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
+        fill={isFilled ? color : "none"}
+        stroke={isFilled ? "none" : color}
+        strokeWidth={isFilled ? 0 : strokeWidth}
         strokeLinecap={strokeLinecap}
         strokeLinejoin={strokeLinejoin}
         className={cn("inline-block shrink-0 select-none", className)}
