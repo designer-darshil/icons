@@ -190,6 +190,7 @@
   --color-background-secondary: #171614;
   --color-background-elevated: #21201C;
   --color-background-overlay: rgba(13, 13, 11, 0.85);
+  --color-header-bg: #141311;
 
   /* Typography: Warm white, slate neutrals, subtle metadata */
   --color-text-primary: #F6F3EC;
@@ -265,6 +266,7 @@
   --color-background-secondary: #ECE8DD;
   --color-background-elevated: #FFFFFF;
   --color-background-overlay: rgba(20, 19, 17, 0.55);
+  --color-header-bg: #F2EFE6;
 
   /* Typography: Deep warm black, warm slate neutral */
   --color-text-primary: #141311;

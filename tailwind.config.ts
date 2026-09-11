@@ -14,6 +14,7 @@ const config: Config = {
           secondary: "var(--color-background-secondary)",
           elevated: "var(--color-background-elevated)",
           overlay: "var(--color-background-overlay)",
+          header: "var(--color-header-bg)",
         },
         text: {
           primary: "var(--color-text-primary)",

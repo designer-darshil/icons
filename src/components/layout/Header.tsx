@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-bg-primary/95 backdrop-blur-xs transition-colors">
+      <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-bg-header transition-colors duration-150">
         {/* =========================================================================
             1. MOBILE HEADER (< md): 52–60px Compact Dedicated Structure
             LEFT: Gridframe Mark/Logo

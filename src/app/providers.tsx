@@ -36,6 +36,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-theme", newTheme);
+    }
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newTheme);
     } catch (e) {

@@ -104,7 +104,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
       }}
       aria-label={`Inspect ${icon.name} vector specimen`}
       className={cn(
-        'group relative flex flex-col justify-between aspect-[4/4.8] sm:aspect-[4/4.6] p-4 sm:p-5 rounded-xs transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] select-none cursor-pointer overflow-hidden',
+        'group relative flex flex-col justify-between aspect-[4/4.8] sm:aspect-[4/4.6] p-4 sm:p-5 rounded-xs transition-[transform,box-shadow,background-color,border-color] duration-150 select-none cursor-pointer overflow-hidden',
         // Open, subtle surface with soft hairline border
         'bg-bg-secondary/30 hover:bg-bg-secondary/70 border border-border-subtle hover:border-border-strong hover:-translate-y-1 hover:shadow-dropdown',
         isSelected && 'border-accent bg-bg-secondary/90 ring-1 ring-accent shadow-dropdown',
@@ -112,8 +112,8 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
       )}
     >
       {/* Editorial Plate Corner Marks */}
-      <span className="absolute top-1.5 left-1.5 w-1.5 h-1.5 border-t border-l border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-all duration-200 pointer-events-none" />
-      <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 border-b border-r border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-all duration-200 pointer-events-none" />
+      <span className="absolute top-1.5 left-1.5 w-1.5 h-1.5 border-t border-l border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-[border-color,opacity] duration-150 pointer-events-none" />
+      <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 border-b border-r border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-[border-color,opacity] duration-150 pointer-events-none" />
 
       {/* Top Floating Strip: Subtle Domain Tag + Minimal Favorite Toggle */}
       <div className="w-full flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-text-tertiary select-none">
@@ -141,7 +141,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
         <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-        <div className="relative z-10 flex items-center justify-center text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div className="relative z-10 flex items-center justify-center text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-transform duration-150">
           <IconPreviewSvg
             variant={variant}
             icon={icon}
@@ -152,7 +152,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
       </div>
 
       {/* Floating Hover Action Pill */}
-      <div className="absolute inset-x-4 bottom-14 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 ease-out pointer-events-auto z-20">
+      <div className="absolute inset-x-4 bottom-14 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-[opacity,transform] duration-150 ease-out pointer-events-auto z-20">
         <button
           type="button"
           onClick={handleCopySvg}
@@ -178,7 +178,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
           <span className="text-sm font-medium tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
             {icon.name}
           </span>
-          <ArrowUpRight className="w-3 h-3 text-text-tertiary opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200 shrink-0" />
+          <ArrowUpRight className="w-3 h-3 text-text-tertiary opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-[opacity,transform] duration-150 shrink-0" />
         </div>
 
         {variantCount > 1 ? (
