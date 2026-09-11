@@ -15,8 +15,7 @@ function resolveCanonicalStyle(styleParam?: string): IconStyle | null {
   if (!styleParam) return null;
   const lower = styleParam.toLowerCase();
   if (lower === 'outline' || lower === 'linear') return 'regular';
-  if (lower === 'thin') return 'light';
-  if (lower === 'bold') return 'regular';
+  if (lower === 'solid') return 'filled';
   return lower as IconStyle;
 }
 

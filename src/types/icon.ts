@@ -153,14 +153,15 @@ export type Icon = {
   id: string;
   name: string;
   slug: string;
-  family?: string;
   familyId?: string;
+  family?: string;
   baseIcon?: string;
   modifier?: string;
   category: string;
   subcategory?: string;
   tags: string[];
   keywords: string[];
+  defaultVariantId?: string;
   useCases?: string[];
   aliases?: string[];
   legacySlugs?: string[];

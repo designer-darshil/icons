@@ -7,12 +7,13 @@
     "dev": "vite --open --host --port 5173",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 tsc && vite build",
     "preview": "vite preview",
-    "icons:build": "npx tsx scripts/build-gridframe-catalog.ts",
-    "icons:validate": "npx tsx scripts/validate-gridframe-icons.ts",
-    "icons:qa": "npx tsx scripts/validate-gridframe-icons.ts",
+    "icons:import": "npx tsx scripts/import-iconoir.ts",
+    "icons:build": "npx tsx scripts/import-iconoir.ts",
+    "icons:validate": "npx tsx scripts/validate-icon-catalog.ts",
+    "icons:qa": "npx tsx scripts/validate-icon-catalog.ts",
     "icons:report": "npx tsx scripts/report-gridframe-icons.ts",
-    "lint:icons": "npx tsx scripts/validate-gridframe-icons.ts",
-    "lint:icons:all": "npx tsx scripts/validate-gridframe-icons.ts"
+    "lint:icons": "npx tsx scripts/validate-icon-catalog.ts",
+    "lint:icons:all": "npx tsx scripts/validate-icon-catalog.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -34,6 +35,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "heroicons": "^2.2.0",
+    "iconoir": "^7.12.1",
     "lucide-static": "^1.44.0",
     "postcss": "^8.5.3",
     "sass": "^1.85.1",

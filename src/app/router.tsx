@@ -65,6 +65,10 @@ export const router = createBrowserRouter([
         element: <DesignSystemRoute />,
       },
       {
+        path: "dev/icons",
+        element: <IconRenderingQARoute />,
+      },
+      {
         path: "dev/icon-rendering",
         element: <IconRenderingQARoute />,
       },

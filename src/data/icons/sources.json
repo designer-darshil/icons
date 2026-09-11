@@ -1,9 +1,9 @@
 [
   {
-    "id": "tabler",
-    "name": "Tabler Icons",
-    "version": "3.46.0",
-    "sourcePath": "@tabler/icons",
+    "id": "iconoir",
+    "name": "Iconoir",
+    "version": "7.12.1",
+    "sourcePath": "node_modules/iconoir",
     "license": "MIT"
   }
 ]

@@ -74,17 +74,17 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
           <SearchX className="w-5 h-5" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary">
-            No Specimen Found
+          <h3 className="text-sm font-bold uppercase tracking-wider text-text-primary">
+            No icons found
           </h3>
-          <p className="text-[11px] text-text-tertiary">
-            No icon matches the active query or filter criteria.
+          <p className="text-xs text-text-tertiary">
+            Try another search or clear your filters.
           </p>
         </div>
         {onResetFilters && (
           <Button variant="secondary" size="xs" onClick={onResetFilters}>
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-            <span>Reset Filters</span>
+            <span>Clear Filters</span>
           </Button>
         )}
       </div>

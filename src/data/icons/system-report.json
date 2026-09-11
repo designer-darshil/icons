@@ -1,27 +1,15 @@
 {
-  "generatedAt": "2026-09-11T05:53:02.734Z",
-  "edition": "GRIDFRAME Golden Reference Library v2.0",
-  "totalConcepts": 50,
-  "totalVariants": 250,
-  "variantsPerConcept": 5,
-  "categories": [
-    "Arrows",
-    "Communication",
-    "Files",
-    "Interface",
-    "Maps",
-    "Media",
-    "Navigation",
-    "People",
-    "Security",
-    "Social",
-    "System",
-    "Time"
-  ],
-  "familyCount": 40,
-  "statusSummary": {
-    "totalAudited": 50,
-    "averageQualityScore": 88,
-    "allFiveVariantsPresent": true
+  "source": "Iconoir",
+  "version": "7.12.1",
+  "totalConcepts": 1383,
+  "totalVariants": 1671,
+  "solidVariantsCount": 288,
+  "categoriesCount": 25,
+  "generatedAt": "2026-09-11T11:06:11.455Z",
+  "compliance": {
+    "canonicalViewBox24": true,
+    "singleCardPerConcept": true,
+    "zeroFabricatedStyles": true,
+    "sanitized": true
   }
 }

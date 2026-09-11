@@ -285,28 +285,28 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                 ===================================================================== */}
             <div className="lg:col-span-6 space-y-6">
               
-              {/* 1. Canonical Variant Switcher */}
+              {/* 1. Canonical Variant Switcher (Authentic Source Variants Only) */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-mono">
                   <span className="font-bold uppercase tracking-widest text-text-tertiary">
-                    1. Visual Variant
+                    1. Source Variant
                   </span>
-                  <span className="text-accent font-bold uppercase">{selectedStyle}</span>
+                  <span className="text-accent font-bold uppercase">{activeVariant.label || activeVariant.style}</span>
                 </div>
-                <div className="grid grid-cols-5 gap-1 bg-bg-secondary/40 p-1 border border-border-subtle rounded-xl text-xs font-mono select-none">
-                  {(['light', 'regular', 'filled', 'duotone', 'duotone-line'] as IconStyle[]).map((st) => (
+                <div className="flex items-center gap-1.5 bg-bg-secondary/40 p-1 border border-border-subtle rounded-xl text-xs font-mono select-none">
+                  {icon.variants.map((v) => (
                     <button
-                      key={st}
+                      key={v.id}
                       type="button"
-                      onClick={() => setSelectedStyle(st)}
+                      onClick={() => setSelectedStyle(v.style)}
                       className={cn(
-                        'py-2 px-1 rounded-lg uppercase tracking-wider transition-all text-center cursor-pointer text-[10px] sm:text-[11px] truncate',
-                        selectedStyle === st
+                        'flex-1 py-2 px-3 rounded-lg uppercase tracking-wider transition-all text-center cursor-pointer text-xs truncate',
+                        activeVariant.id === v.id
                           ? 'bg-bg-elevated text-text-primary font-bold shadow-xs border border-border-strong'
                           : 'text-text-tertiary hover:text-text-primary'
                       )}
                     >
-                      {st.replace('-', ' ')}
+                      {v.label || v.style}
                     </button>
                   ))}
                 </div>

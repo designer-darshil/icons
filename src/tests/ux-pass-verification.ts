@@ -43,38 +43,35 @@ if (arrowCategory.length === 0) {
 
 // 2.2 Style filter "filled"
 const filledIcons = GRIDFRAME_ICONS.filter((i) => i.variants.some((v) => v.style === 'filled'));
-console.log(`  ✓ Style "filled" matches ${filledIcons.length} of ${GRIDFRAME_ICONS.length} icons`);
-if (filledIcons.length !== GRIDFRAME_ICONS.length) {
-  throw new Error(`Expected all golden icons to have 'filled' variant, found ${filledIcons.length}`);
+console.log(`  ✓ Style "filled" matches ${filledIcons.length} of ${GRIDFRAME_ICONS.length} icons with true source artwork`);
+if (filledIcons.length === 0) {
+  throw new Error('Expected solid/filled icons in catalog');
 }
 
-// 2.3 Style filter "light"
-const lightIcons = GRIDFRAME_ICONS.filter((i) => i.variants.some((v) => v.style === 'light'));
-console.log(`  ✓ Style "light" matches ${lightIcons.length} of ${GRIDFRAME_ICONS.length} icons`);
+// 2.3 Style filter "regular"
+const regularIcons = GRIDFRAME_ICONS.filter((i) => i.variants.some((v) => v.style === 'regular'));
+console.log(`  ✓ Style "regular" matches ${regularIcons.length} of ${GRIDFRAME_ICONS.length} icons\n`);
 
-// 2.4 Style filter "duotone"
-const duotoneIcons = GRIDFRAME_ICONS.filter((i) => i.variants.some((v) => v.style === 'duotone'));
-console.log(`  ✓ Style "duotone" matches ${duotoneIcons.length} of ${GRIDFRAME_ICONS.length} icons`);
-
-// 2.5 Style filter "duotone-line"
-const duotoneLineIcons = GRIDFRAME_ICONS.filter((i) => i.variants.some((v) => v.style === 'duotone-line'));
-console.log(`  ✓ Style "duotone-line" matches ${duotoneLineIcons.length} of ${GRIDFRAME_ICONS.length} icons\n`);
-
-// TEST 3: All 50 Icons Variant Quality & Slugs
+// TEST 3: Icon Data Model Integrity
 console.log('--- TEST 3: Icon Data Model Integrity ---');
-const requiredStyles = ['light', 'regular', 'filled', 'duotone', 'duotone-line'];
 for (const icon of GRIDFRAME_ICONS) {
   if (!icon.slug || !icon.name || !icon.category) {
     throw new Error(`Icon missing required metadata: ${JSON.stringify(icon)}`);
   }
-  for (const st of requiredStyles) {
-    const hasVariant = icon.variants.some((v) => v.style === st);
-    if (!hasVariant) {
-      throw new Error(`Icon ${icon.slug} missing variant style: ${st}`);
-    }
+  if (icon.viewBox !== '0 0 24 24') {
+    throw new Error(`Icon ${icon.slug} has invalid viewBox: ${icon.viewBox}`);
+  }
+  if (!icon.source || icon.source.id !== 'iconoir') {
+    throw new Error(`Icon ${icon.slug} missing canonical source: iconoir`);
+  }
+  if (!icon.capabilities) {
+    throw new Error(`Icon ${icon.slug} missing capabilities`);
+  }
+  if (!icon.variants || icon.variants.length === 0) {
+    throw new Error(`Icon ${icon.slug} has no variants`);
   }
 }
-console.log(`✓ All ${GRIDFRAME_ICONS.length} icons contain all 5 canonical variant styles (light, regular, filled, duotone, duotone-line).\n`);
+console.log(`✓ All ${GRIDFRAME_ICONS.length} icons strictly adhere to the canonical Iconoir 24×24 data model.\n`);
 
 console.log(`======================================================`);
 console.log(`🏆 ALL UX & DATA INTEGRITY VERIFICATION CHECKS PASSED!`);

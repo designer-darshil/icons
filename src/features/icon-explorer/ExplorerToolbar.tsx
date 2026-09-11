@@ -16,6 +16,7 @@ export interface ExplorerToolbarProps {
   onSortChange: (sort: SortOption) => void;
   totalCount: number;
   filteredCount: number;
+  onResetFilters?: () => void;
   onOpenFilterDrawer?: () => void;
   onOpenCommandPalette?: () => void;
 }
@@ -25,10 +26,7 @@ const CATEGORIES = ['ALL', ...ICON_CATEGORIES.map((c) => c.name.toUpperCase())];
 const STYLES: { id: IconStyle | 'all'; label: string }[] = [
   { id: 'all', label: 'All Styles' },
   { id: 'regular', label: 'Regular' },
-  { id: 'light', label: 'Light' },
-  { id: 'filled', label: 'Filled' },
-  { id: 'duotone', label: 'Duotone' },
-  { id: 'duotone-line', label: 'Duotone Line' },
+  { id: 'filled', label: 'Solid' },
 ];
 
 export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
@@ -42,6 +40,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   onSortChange,
   totalCount,
   filteredCount,
+  onResetFilters,
   onOpenFilterDrawer,
   onOpenCommandPalette,
 }) => {
@@ -55,7 +54,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   };
 
   const currentCatUpper = selectedCategory.toUpperCase();
-  const isFiltered = query.trim() !== '' || selectedCategory !== 'all' || selectedStyle !== 'all';
+  const isFiltered = query.trim() !== '' || (selectedCategory !== 'all' && selectedCategory !== 'ALL') || selectedStyle !== 'all';
 
   return (
     <div className="space-y-6 mb-12">
@@ -89,7 +88,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
             {query ? (
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline text-xs font-mono text-accent font-semibold">
-                  {filteredCount.toLocaleString()} {filteredCount === 1 ? 'match' : 'matches'}
+                  {filteredCount.toLocaleString()} {filteredCount === 1 ? 'result' : 'results'}
                 </span>
                 <button
                   type="button"
@@ -108,7 +107,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
               <div className="flex items-center gap-2">
                 <span className="hidden md:inline-flex items-center gap-1.5 text-xs font-mono text-text-tertiary">
                   <Sparkles className="w-3.5 h-3.5 text-accent opacity-80" />
-                  <span>{totalCount.toLocaleString()} concepts</span>
+                  <span>{totalCount.toLocaleString()} icons</span>
                 </span>
                 <kbd
                   onClick={(e) => {
@@ -236,7 +235,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
         <div className="flex items-center gap-2">
           <span className="uppercase tracking-widest font-medium">
             {selectedCategory === 'all' || selectedCategory === 'ALL'
-              ? 'Archive / All Domains'
+              ? 'Archive / All Icons'
               : `Archive / ${selectedCategory.toUpperCase()}`}
           </span>
           {selectedStyle !== 'all' && (
@@ -248,22 +247,26 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
 
         <div className="flex items-center gap-3">
           <span className="font-semibold text-text-secondary">
-            {filteredCount === totalCount
-              ? `${totalCount.toLocaleString()} vector concepts`
-              : `${filteredCount.toLocaleString()} of ${totalCount.toLocaleString()} concepts`}
+            {isFiltered
+              ? `${filteredCount.toLocaleString()} ${filteredCount === 1 ? 'result' : 'results'}`
+              : `${totalCount.toLocaleString()} icons`}
           </span>
 
           {isFiltered && (
             <button
               type="button"
               onClick={() => {
-                onQueryChange('');
-                onCategoryChange('all');
-                onStyleChange('all');
+                if (onResetFilters) {
+                  onResetFilters();
+                } else {
+                  onQueryChange('');
+                  onCategoryChange('all');
+                  onStyleChange('all');
+                }
               }}
               className="text-accent hover:underline cursor-pointer"
             >
-              Reset Filters
+              Clear Filters
             </button>
           )}
         </div>

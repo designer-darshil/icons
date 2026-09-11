@@ -1,26 +1,127 @@
-{
-  "Development": 136,
-  "Editor": 472,
-  "Devices": 421,
-  "Health": 163,
-  "Weather": 108,
-  "Design": 364,
-  "System": 781,
-  "Communication": 117,
-  "Transportation": 90,
-  "Maps": 262,
-  "Media": 253,
-  "Text": 214,
-  "Interface": 54,
-  "Food": 96,
-  "Files": 203,
-  "Buildings": 95,
-  "Arrows": 333,
-  "Commerce": 154,
-  "Nature": 18,
-  "Home": 40,
-  "Shapes": 195,
-  "Social": 428,
-  "Finance": 115,
-  "Users": 18
-}
+[
+  {
+    "id": "accessibility",
+    "name": "Accessibility",
+    "count": 10
+  },
+  {
+    "id": "arrows",
+    "name": "Arrows",
+    "count": 136
+  },
+  {
+    "id": "buildings",
+    "name": "Buildings",
+    "count": 7
+  },
+  {
+    "id": "commerce",
+    "name": "Commerce",
+    "count": 74
+  },
+  {
+    "id": "communication",
+    "name": "Communication",
+    "count": 78
+  },
+  {
+    "id": "design",
+    "name": "Design",
+    "count": 57
+  },
+  {
+    "id": "development",
+    "name": "Development",
+    "count": 44
+  },
+  {
+    "id": "devices",
+    "name": "Devices",
+    "count": 33
+  },
+  {
+    "id": "editor",
+    "name": "Editor",
+    "count": 32
+  },
+  {
+    "id": "files",
+    "name": "Files",
+    "count": 46
+  },
+  {
+    "id": "finance",
+    "name": "Finance",
+    "count": 27
+  },
+  {
+    "id": "food",
+    "name": "Food",
+    "count": 9
+  },
+  {
+    "id": "health",
+    "name": "Health",
+    "count": 7
+  },
+  {
+    "id": "home",
+    "name": "Home",
+    "count": 18
+  },
+  {
+    "id": "maps",
+    "name": "Maps",
+    "count": 8
+  },
+  {
+    "id": "media",
+    "name": "Media",
+    "count": 46
+  },
+  {
+    "id": "navigation",
+    "name": "Navigation",
+    "count": 53
+  },
+  {
+    "id": "security",
+    "name": "Security",
+    "count": 57
+  },
+  {
+    "id": "shapes",
+    "name": "Shapes",
+    "count": 75
+  },
+  {
+    "id": "social",
+    "name": "Social",
+    "count": 63
+  },
+  {
+    "id": "system",
+    "name": "System",
+    "count": 381
+  },
+  {
+    "id": "time",
+    "name": "Time",
+    "count": 8
+  },
+  {
+    "id": "transportation",
+    "name": "Transportation",
+    "count": 24
+  },
+  {
+    "id": "users",
+    "name": "Users",
+    "count": 27
+  },
+  {
+    "id": "weather",
+    "name": "Weather",
+    "count": 63
+  }
+]

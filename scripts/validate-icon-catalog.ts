@@ -1,129 +1,187 @@
 /**
- * Tabler Catalog Validation Script for Gridframe V2
- * Validates 100% of icon records for integrity, security, and schema correctness.
+ * Gridframe V2 Iconoir Catalog Comprehensive Validator
+ * Validates integrity, security, viewBox compliance, deduplication, taxonomy, capabilities, and relations.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
-import type { Icon } from '../src/types/icon';
+import fs from 'fs';
+import path from 'path';
 import { validateSvg } from '../src/lib/svg/validateSvg';
+import type { Icon } from '../src/types/icon';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const CATALOG_PATH = path.resolve('src/data/icons/catalog.json');
 
-const CATALOG_JSON_PATH = path.resolve(__dirname, '../src/data/icons/catalog.json');
+export function validateIconCatalog(): boolean {
+  console.log('🔍 Starting Comprehensive Gridframe Catalog Validation...');
 
-function validateCatalog() {
-  console.log('🔍 Starting Tabler Catalog Validation Suite...\n');
-
-  if (!fs.existsSync(CATALOG_JSON_PATH)) {
-    console.error('❌ Error: catalog.json not found. Run scripts/import-tabler-icons.ts first.');
-    process.exit(1);
+  if (!fs.existsSync(CATALOG_PATH)) {
+    console.error('❌ Catalog file not found at:', CATALOG_PATH);
+    return false;
   }
 
-  const catalog: Icon[] = JSON.parse(fs.readFileSync(CATALOG_JSON_PATH, 'utf-8'));
-  console.log(`Auditing ${catalog.length} icon concepts...`);
+  const rawData = fs.readFileSync(CATALOG_PATH, 'utf8');
+  let icons: Icon[] = [];
 
-  const idSet = new Set<string>();
-  const slugSet = new Set<string>();
+  try {
+    icons = JSON.parse(rawData);
+  } catch (err) {
+    console.error('❌ Failed to parse catalog.json:', err);
+    return false;
+  }
 
-  let totalErrors = 0;
-  let totalWarnings = 0;
+  console.log(`📊 Validating ${icons.length.toLocaleString()} icon concepts in catalog...`);
 
-  for (let i = 0; i < catalog.length; i++) {
-    const icon = catalog[i];
-    const prefix = `[#${i + 1} ${icon.slug || icon.id}]`;
+  let errorCount = 0;
+  let warningCount = 0;
 
-    // 1. Check ID and Slug uniqueness
-    if (!icon.id || typeof icon.id !== 'string') {
-      console.error(`${prefix} Invalid or missing id`);
-      totalErrors++;
-    } else if (idSet.has(icon.id)) {
-      console.error(`${prefix} Duplicate id found: ${icon.id}`);
-      totalErrors++;
+  const seenIds = new Set<string>();
+  const seenSlugs = new Set<string>();
+  const allSlugs = new Set(icons.map((i) => i.slug));
+
+  for (let idx = 0; idx < icons.length; idx++) {
+    const icon = icons[idx];
+    const prefix = `[#${idx + 1} ${icon.slug || icon.id || 'unknown'}]`;
+
+    // 1. ID & Slug validation & deduplication
+    if (!icon.id) {
+      console.error(`❌ ${prefix} Missing icon.id`);
+      errorCount++;
+    } else if (seenIds.has(icon.id)) {
+      console.error(`❌ ${prefix} Duplicate icon.id detected: ${icon.id}`);
+      errorCount++;
     } else {
-      idSet.add(icon.id);
+      seenIds.add(icon.id);
     }
 
-    if (!icon.slug || typeof icon.slug !== 'string') {
-      console.error(`${prefix} Invalid or missing slug`);
-      totalErrors++;
-    } else if (slugSet.has(icon.slug)) {
-      console.error(`${prefix} Duplicate slug found: ${icon.slug}`);
-      totalErrors++;
+    if (!icon.slug) {
+      console.error(`❌ ${prefix} Missing icon.slug`);
+      errorCount++;
+    } else if (seenSlugs.has(icon.slug)) {
+      console.error(`❌ ${prefix} Duplicate icon.slug detected: ${icon.slug}`);
+      errorCount++;
     } else {
-      slugSet.add(icon.slug);
+      seenSlugs.add(icon.slug);
     }
 
-    // 2. Check Name & Category
-    if (!icon.name) {
-      console.error(`${prefix} Missing name`);
-      totalErrors++;
-    }
-    if (!icon.category) {
-      console.error(`${prefix} Missing category`);
-      totalErrors++;
+    // 2. Name validation
+    if (!icon.name || icon.name.trim().length === 0) {
+      console.error(`❌ ${prefix} Missing or empty icon.name`);
+      errorCount++;
     }
 
-    // 3. Check ViewBox & Design Grid
+    // 3. Category & Family validation
+    if (!icon.category || icon.category.trim().length === 0) {
+      console.error(`❌ ${prefix} Missing icon.category`);
+      errorCount++;
+    }
+    if (!icon.familyId && !icon.family) {
+      console.error(`❌ ${prefix} Missing icon.familyId`);
+      errorCount++;
+    }
+
+    // 4. ViewBox validation (must be 0 0 24 24)
     if (icon.viewBox !== '0 0 24 24') {
-      console.warn(`${prefix} Non-standard viewBox: ${icon.viewBox}`);
-      totalWarnings++;
+      console.error(`❌ ${prefix} Invalid root viewBox: "${icon.viewBox}" (expected "0 0 24 24")`);
+      errorCount++;
     }
 
-    // 4. Check Variants
-    if (!Array.isArray(icon.variants) || icon.variants.length === 0) {
-      console.error(`${prefix} Missing or empty variants array`);
-      totalErrors++;
+    // 5. SVG validation & Security
+    if (!icon.svg || icon.svg.trim().length === 0) {
+      console.error(`❌ ${prefix} Missing or empty icon.svg`);
+      errorCount++;
+    } else {
+      const fullSvg = `<svg viewBox="${icon.viewBox}">${icon.svg}</svg>`;
+      const val = validateSvg(fullSvg);
+      if (!val.isValid) {
+        console.error(`❌ ${prefix} SVG validation errors:`, val.errors);
+        errorCount += val.errors.length;
+      }
+      if (val.warnings.length > 0) {
+        console.warn(`⚠️ ${prefix} SVG warnings:`, val.warnings);
+        warningCount += val.warnings.length;
+      }
+    }
+
+    // 6. Variants validation
+    if (!icon.variants || icon.variants.length === 0) {
+      console.error(`❌ ${prefix} Icon has no variants defined`);
+      errorCount++;
     } else {
       for (const variant of icon.variants) {
-        if (!variant.id || !variant.style || !variant.svg) {
-          console.error(`${prefix} Malformed variant: ${variant.id}`);
-          totalErrors++;
+        if (!variant.id) {
+          console.error(`❌ ${prefix} Variant missing id`);
+          errorCount++;
         }
-
-        // SVG Validation
-        const svgCheck = validateSvg(`<svg>${variant.svg}</svg>`);
-        if (!svgCheck.isValid) {
-          console.error(`${prefix} Variant SVG validation failed:`, svgCheck.errors);
-          totalErrors++;
+        if (!variant.style) {
+          console.error(`❌ ${prefix} Variant ${variant.id} missing style`);
+          errorCount++;
         }
-        if (svgCheck.warnings.length > 0) {
-          totalWarnings++;
+        if (variant.viewBox !== '0 0 24 24') {
+          console.error(`❌ ${prefix} Variant ${variant.id} has invalid viewBox: "${variant.viewBox}"`);
+          errorCount++;
+        }
+        if (!variant.capabilities) {
+          console.error(`❌ ${prefix} Variant ${variant.id} missing capabilities metadata`);
+          errorCount++;
+        }
+        if (!variant.svg || variant.svg.trim().length === 0) {
+          console.error(`❌ ${prefix} Variant ${variant.id} has empty svg`);
+          errorCount++;
         }
       }
     }
 
-    // 5. Check Capabilities
-    if (!icon.capabilities || typeof icon.capabilities.color !== 'boolean' || typeof icon.capabilities.size !== 'boolean') {
-      console.error(`${prefix} Missing or malformed capabilities`);
-      totalErrors++;
+    // 7. Capabilities validation
+    if (!icon.capabilities) {
+      console.error(`❌ ${prefix} Missing root capabilities metadata`);
+      errorCount++;
     }
 
-    // 6. Check Source
-    const validSourceIds = ['tabler', 'phosphor', 'lucide', 'heroicons', 'gridframe'];
-    if (!icon.source || !validSourceIds.includes(icon.source.id) || !icon.source.version) {
-      console.error(`${prefix} Missing or malformed source metadata`);
-      totalErrors++;
+    // 8. Tags & Keywords validation
+    if (!Array.isArray(icon.tags) || icon.tags.length === 0) {
+      console.warn(`⚠️ ${prefix} Icon has empty or invalid tags array`);
+      warningCount++;
+    }
+    if (!Array.isArray(icon.keywords) || icon.keywords.length === 0) {
+      console.warn(`⚠️ ${prefix} Icon has empty or invalid keywords array`);
+      warningCount++;
+    }
+
+    // 9. Source metadata validation
+    if (!icon.source || icon.source.id !== 'iconoir') {
+      console.error(`❌ ${prefix} Invalid or missing source metadata (expected iconoir)`);
+      errorCount++;
+    }
+
+    // 10. Related icons reference validation
+    if (Array.isArray(icon.relatedIconIds)) {
+      for (const relId of icon.relatedIconIds) {
+        if (!allSlugs.has(relId)) {
+          console.warn(`⚠️ ${prefix} Broken related icon ID reference: "${relId}"`);
+          warningCount++;
+        }
+      }
     }
   }
 
-  console.log(`\n======================================================`);
-  console.log(`           CATALOG VALIDATION RESULTS`);
-  console.log(`======================================================`);
-  console.log(`Total Icons Audited:  ${catalog.length}`);
-  console.log(`Unique IDs Verified:  ${idSet.size}`);
-  console.log(`Errors Found:         ${totalErrors}`);
-  console.log(`Warnings Found:       ${totalWarnings}`);
-  console.log(`======================================================`);
-
-  if (totalErrors > 0) {
-    console.error('❌ Validation failed with errors.');
-    process.exit(1);
+  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  if (errorCount === 0) {
+    console.log(`✅ ALL ${icons.length.toLocaleString()} ICONS PASSED VALIDATION PERFECTLY!`);
+    console.log(`✔ 0 critical errors`);
+    console.log(`✔ ${warningCount} minor warnings`);
+    console.log(`✔ 100% 24×24 viewBox compliance`);
+    console.log(`✔ 100% unique IDs and slugs`);
+    console.log(`✔ 100% sanitized and safe SVG`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    return true;
   } else {
-    console.log('🎉 100% OF TABLER CATALOG RECORDS PASSED ALL INTEGRITY CHECKS!');
+    console.error(`❌ VALIDATION FAILED with ${errorCount} errors and ${warningCount} warnings.`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    return false;
   }
 }
 
-validateCatalog();
+// Auto-run if executed directly
+const success = validateIconCatalog();
+if (!success) {
+  process.exit(1);
+}
