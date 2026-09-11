@@ -153,22 +153,24 @@ export const CategoriesRoute: React.FC = () => {
                 <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-tertiary">
                   Adjacent Domains in Taxonomy
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {relatedCategories.map((rel) => (
                     <Link key={rel.slug} to={`/categories/${rel.slug}`}>
-                      <div className="p-4 rounded-xl border border-border-subtle bg-bg-secondary/30 hover:bg-bg-secondary hover:border-border-strong transition-all flex items-center justify-between group cursor-pointer">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono text-accent">Domain #{rel.order}</span>
-                            <span className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">
+                      <div className="p-3.5 rounded-md border border-border-subtle/60 bg-bg-secondary/30 hover:bg-bg-secondary/70 hover:border-border-default hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-between group cursor-pointer">
+                        <div className="space-y-1 min-w-0 pr-3">
+                          <div className="flex items-baseline gap-2 min-w-0">
+                            <span className="text-[10px] font-mono text-text-tertiary/70 group-hover:text-accent transition-colors font-semibold">
+                              #{rel.order.toString().padStart(2, '0')}
+                            </span>
+                            <span className="text-sm font-semibold text-text-primary group-hover:text-accent transition-colors truncate">
                               {rel.name}
                             </span>
                           </div>
-                          <p className="text-xs text-text-secondary line-clamp-1">{rel.description}</p>
+                          <p className="text-xs text-text-secondary/90 line-clamp-1">{rel.description}</p>
                         </div>
-                        <div className="flex items-center gap-2 text-text-tertiary group-hover:text-accent">
+                        <div className="flex items-center gap-2 text-text-tertiary group-hover:text-accent shrink-0">
                           <span className="text-xs font-mono">{rel.count} icons</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </div>
                       </div>
                     </Link>
@@ -179,29 +181,34 @@ export const CategoriesRoute: React.FC = () => {
           </div>
         ) : (
           /* Category cards directory in official canonical order */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5 md:gap-4">
             {ICON_CATEGORIES.map((cat) => {
               return (
-                <Link key={cat.id} to={`/categories/${cat.slug}`}>
-                  <div className="p-6 rounded-xl border border-border-subtle/70 bg-bg-secondary/30 hover:bg-bg-secondary/80 hover:border-border-strong hover:shadow-dropdown hover:-translate-y-1 transition-all duration-200 text-left space-y-3 group cursor-pointer h-full flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-accent/80 font-bold">
-                            #{cat.order.toString().padStart(2, '0')}
-                          </span>
-                          <span className="type-h3 text-text-primary group-hover:text-accent transition-colors">
-                            {cat.name}
-                          </span>
-                        </div>
-                        <span className="type-metadata-sm text-text-tertiary px-2 py-0.5 rounded-3xs bg-bg-elevated border border-border-subtle font-mono">
-                          {cat.count} {cat.count === 1 ? 'icon' : 'icons'}
+                <Link
+                  key={cat.id}
+                  to={`/categories/${cat.slug}`}
+                  className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-md"
+                >
+                  <div className="h-full p-3.5 sm:p-4 rounded-md border border-border-subtle/60 bg-bg-secondary/30 hover:bg-bg-secondary/70 hover:border-border-default hover:-translate-y-0.5 transition-all duration-150 flex flex-col justify-between gap-2 cursor-pointer select-none">
+                    {/* Top Row: Index + Title + Count */}
+                    <div className="flex items-baseline justify-between gap-2 min-w-0">
+                      <div className="flex items-baseline gap-2 min-w-0">
+                        <span className="text-[10px] font-mono text-text-tertiary/70 group-hover:text-accent transition-colors font-semibold tracking-wider shrink-0">
+                          #{cat.order.toString().padStart(2, '0')}
                         </span>
+                        <h2 className="text-sm font-semibold tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
+                          {cat.name}
+                        </h2>
                       </div>
-                      <p className="type-body-sm text-text-secondary leading-relaxed">
-                        {cat.description}
-                      </p>
+                      <span className="text-[11px] font-mono text-text-tertiary px-1.5 py-0.5 rounded bg-bg-elevated/50 border border-border-subtle/50 shrink-0 group-hover:text-text-secondary transition-colors">
+                        {cat.count} {cat.count === 1 ? 'icon' : 'icons'}
+                      </span>
                     </div>
+
+                    {/* Bottom Row: Description */}
+                    <p className="text-xs text-text-secondary/90 leading-snug line-clamp-2">
+                      {cat.description}
+                    </p>
                   </div>
                 </Link>
               );
