@@ -190,11 +190,11 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
         </div>
 
         {/* Vector Style & Sort Controls */}
-        <div className="flex items-center gap-3 shrink-0 justify-between lg:justify-end">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 justify-between lg:justify-end w-full lg:w-auto min-w-0">
           {/* Segmented Style Switcher */}
           <div
             data-lenis-prevent="true"
-            className="flex items-center bg-bg-secondary/50 p-1 border border-border-subtle/80 rounded-full text-xs font-mono select-none"
+            className="flex items-center bg-bg-secondary/50 p-1 border border-border-subtle/80 rounded-full text-xs font-mono select-none overflow-x-auto no-scrollbar touch-pan-x max-w-full"
           >
             {STYLES.map((st) => (
               <button
@@ -202,7 +202,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                 type="button"
                 onClick={() => onStyleChange(st.id)}
                 className={cn(
-                  'px-3 py-1 rounded-full transition-all cursor-pointer whitespace-nowrap',
+                  'px-3 py-1 rounded-full transition-all cursor-pointer whitespace-nowrap shrink-0',
                   selectedStyle === st.id
                     ? 'bg-bg-elevated text-text-primary font-bold shadow-2xs border border-border-strong'
                     : 'text-text-tertiary hover:text-text-primary'
@@ -216,28 +216,30 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           {/* =========================================================================
               TIER 3: TERTIARY SORT & FILTER CONTROLS
               ========================================================================= */}
-          <select
-            value={sort}
-            onChange={(e) => onSortChange(e.target.value as SortOption)}
-            aria-label="Sort icon catalog"
-            className="h-9 px-3.5 bg-bg-secondary/60 text-text-secondary border border-border-subtle/80 rounded-full text-xs font-mono focus-visible:outline-none focus-visible:border-accent cursor-pointer hover:border-border-strong transition-colors"
-          >
-            <option value="popular">Popular First</option>
-            <option value="newest">Recently Added</option>
-            <option value="name-asc">Alphabetical (A–Z)</option>
-            <option value="name-desc">Alphabetical (Z–A)</option>
-          </select>
-
-          {onOpenFilterDrawer && (
-            <button
-              type="button"
-              onClick={onOpenFilterDrawer}
-              aria-label="Open filter drawer"
-              className="lg:hidden p-2 bg-bg-secondary border border-border-default rounded-full text-text-secondary hover:text-text-primary"
+          <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
+            <select
+              value={sort}
+              onChange={(e) => onSortChange(e.target.value as SortOption)}
+              aria-label="Sort icon catalog"
+              className="h-9 px-3.5 bg-bg-secondary/60 text-text-secondary border border-border-subtle/80 rounded-full text-xs font-mono focus-visible:outline-none focus-visible:border-accent cursor-pointer hover:border-border-strong transition-colors flex-1 sm:flex-initial"
             >
-              <SlidersHorizontal className="w-4 h-4" />
-            </button>
-          )}
+              <option value="popular">Popular First</option>
+              <option value="newest">Recently Added</option>
+              <option value="name-asc">Alphabetical (A–Z)</option>
+              <option value="name-desc">Alphabetical (Z–A)</option>
+            </select>
+
+            {onOpenFilterDrawer && (
+              <button
+                type="button"
+                onClick={onOpenFilterDrawer}
+                aria-label="Open filter drawer"
+                className="lg:hidden p-2 bg-bg-secondary border border-border-default rounded-full text-text-secondary hover:text-text-primary shrink-0"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

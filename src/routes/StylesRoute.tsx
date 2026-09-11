@@ -45,7 +45,7 @@ export const StylesRoute: React.FC = () => {
     <WorkspaceShell>
       <div className="space-y-8">
         {/* Header Navigation */}
-        <div className="flex items-center justify-between border-b border-border-subtle/70 pb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-subtle/70 pb-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="type-section-label text-accent font-bold">Vector Styles</span>

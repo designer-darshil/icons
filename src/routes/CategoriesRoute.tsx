@@ -115,14 +115,17 @@ export const CategoriesRoute: React.FC = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex items-center bg-bg-secondary/50 p-1 border border-border-subtle/80 rounded-full text-xs font-mono select-none">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0">
+                <div
+                  data-lenis-prevent="true"
+                  className="flex items-center bg-bg-secondary/50 p-1 border border-border-subtle/80 rounded-full text-xs font-mono select-none overflow-x-auto no-scrollbar touch-pan-x max-w-full"
+                >
                   {(['all', 'light', 'regular', 'filled', 'duotone', 'duotone-line'] as const).map((st) => (
                     <button
                       key={st}
                       type="button"
                       onClick={() => setSelectedStyle(st)}
-                      className={`px-2.5 py-1 rounded-full transition-all cursor-pointer capitalize ${
+                      className={`px-2.5 py-1 rounded-full transition-all cursor-pointer capitalize shrink-0 ${
                         selectedStyle === st
                           ? 'bg-bg-elevated text-text-primary font-bold shadow-2xs border border-border-strong'
                           : 'text-text-tertiary hover:text-text-primary'
@@ -133,7 +136,7 @@ export const CategoriesRoute: React.FC = () => {
                   ))}
                 </div>
 
-                <span className="text-xs font-mono text-text-tertiary px-2 py-1 bg-bg-elevated rounded border border-border-subtle shrink-0">
+                <span className="text-xs font-mono text-text-tertiary px-2 py-1 bg-bg-elevated rounded border border-border-subtle shrink-0 text-center sm:text-left self-start sm:self-auto">
                   {categoryIcons.length} {categoryIcons.length === 1 ? 'concept' : 'concepts'}
                 </span>
               </div>

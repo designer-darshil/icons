@@ -82,15 +82,18 @@ export const CodeModal: React.FC<CodeModalProps> = ({
     >
       <div className="space-y-4">
         {/* Format Selector Tabs */}
-        <div className="flex items-center justify-between gap-2 border-b border-border-default pb-3">
-          <div className="flex items-center gap-1">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-border-default pb-3">
+          <div
+            data-lenis-prevent="true"
+            className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1 touch-pan-x flex-1 min-w-0"
+          >
             {FORMATS.map((fmt) => (
               <button
                 key={fmt.id}
                 type="button"
                 onClick={() => setActiveFormat(fmt.id)}
                 className={cn(
-                  'px-2.5 py-1 text-xs font-mono rounded-xs transition-colors border',
+                  'px-2.5 py-1.5 min-h-[32px] text-xs font-mono rounded-xs transition-colors border shrink-0 touch-manipulation cursor-pointer',
                   activeFormat === fmt.id
                     ? 'bg-action-primary text-text-inverse border-action-primary font-semibold'
                     : 'bg-bg-secondary text-text-secondary border-border-default hover:text-text-primary hover:border-border-strong'
@@ -101,7 +104,7 @@ export const CodeModal: React.FC<CodeModalProps> = ({
             ))}
           </div>
 
-          <Button variant="primary" size="sm" onClick={handleCopy} className="shrink-0">
+          <Button variant="primary" size="sm" onClick={handleCopy} className="shrink-0 min-h-[36px] touch-manipulation">
             {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
             <span>{copied ? 'Copied' : 'Copy Code'}</span>
           </Button>

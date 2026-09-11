@@ -206,7 +206,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted px-1 block">
                     Suggested Searches & Categories
                   </span>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                     {suggestions.map((sug, idx) => {
                       const isSelected = selectedIndex === idx;
                       return (
@@ -229,11 +229,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                               : 'bg-bg-secondary/40 border-border-default text-text-secondary hover:text-text-primary hover:border-border-strong'
                           )}
                         >
-                          <div className="flex items-center gap-2">
-                            <Tag className="w-3 h-3 text-text-tertiary" />
-                            <span className="text-xs font-medium">{sug.text}</span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Tag className="w-3 h-3 text-text-tertiary shrink-0" />
+                            <span className="text-xs font-medium truncate">{sug.text}</span>
                           </div>
-                          <ArrowRight className="w-3 h-3 text-text-disabled" />
+                          <ArrowRight className="w-3 h-3 text-text-disabled shrink-0" />
                         </button>
                       );
                     })}
@@ -244,11 +244,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
             {/* Footer Navigation Hints */}
             <div className="flex items-center justify-between px-3 py-2 border-t border-border-default bg-bg-secondary text-[10px] font-mono text-text-tertiary">
-              <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-3">
                 <span>↑↓ Navigate</span>
                 <span>↵ Select</span>
                 <span>ESC Close</span>
               </div>
+              <span className="sm:hidden">Tap to Select</span>
               <span>{GRIDFRAME_ICONS.length.toLocaleString()} Total Icons</span>
             </div>
           </motion.div>
