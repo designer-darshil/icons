@@ -1,10 +1,10 @@
 /**
- * GRIDFRAME V2 — Variant System & Path Safety Unit Tests
+ * GRIDFRAME V2 — Canonical Variant Integrity & Path Safety Unit Tests
  */
 
 import { isPathClosed, analyzePathTopology } from '../lib/svg/pathTopology';
-import { generateFiveVariants } from '../lib/svg/variantGenerators';
-import { validateIconConceptVariants } from '../lib/svg/variantValidator';
+import { GRIDFRAME_ICONS } from '../data/icons/gridframe-catalog';
+import { isValidSvgMarkup } from '../lib/icon-sanitizer';
 
 console.log('--- Testing Path Topology & Safety Analyzer ---');
 
@@ -42,42 +42,27 @@ if (mixedAnalysis.topology !== 'mixed' || mixedAnalysis.closedElements !== 1 || 
 
 console.log('✓ Topology classification passed (pure-stroke, closed-shapes, mixed)');
 
-// 3. Variant Generation
-console.log('--- Testing Five-Variant Generation Engine ---');
+// 3. Testing Canonical Variant Catalog Independence
+console.log('--- Testing Canonical Variant Catalog Independence ---');
 
-const fiveVariantsCircle = generateFiveVariants('circle', 'Circle', circleSvg);
-if (!fiveVariantsCircle.light || !fiveVariantsCircle.regular || !fiveVariantsCircle.filled || !fiveVariantsCircle.duotone || !fiveVariantsCircle.duotoneLine) {
-  throw new Error('Failed to generate all 5 canonical variants for circle');
-}
-if (!fiveVariantsCircle.duotone.svg.includes('opacity="0.2"')) {
-  throw new Error('Duotone missing 20% opacity subordinate fill layer');
-}
-
-// Test open stroke preservation
-const fiveVariantsBrackets = generateFiveVariants('brackets-curly', 'Brackets Curly', bracketsSvg);
-if (!fiveVariantsBrackets.filled.supportsStroke) {
-  throw new Error('Open stroke filled variant should preserve stroke representation rather than corrupting into 0-width fill');
-}
-
-// Test manual override for Bluetooth
-const fiveVariantsBt = generateFiveVariants('bluetooth', 'Bluetooth', '<path d="M7 8l10 8-5 4V4l5 4-10 8" />');
-if (fiveVariantsBt.filled.defaultStrokeWidth !== 2.5) {
-  throw new Error('Bluetooth manual override was not correctly applied');
+for (const icon of GRIDFRAME_ICONS.slice(0, 50)) {
+  const regVariant = icon.variants.find((v) => v.style === 'regular');
+  if (!regVariant) {
+    throw new Error(`Icon ${icon.slug} is missing regular variant`);
+  }
+  for (const v of icon.variants) {
+    if (!v.svg || v.svg.trim().length === 0) {
+      throw new Error(`Icon ${icon.slug} variant ${v.style} has empty SVG`);
+    }
+    if (!isValidSvgMarkup(v.svg)) {
+      throw new Error(`Icon ${icon.slug} variant ${v.style} has invalid SVG`);
+    }
+    if (v.viewBox !== '0 0 24 24') {
+      throw new Error(`Icon ${icon.slug} variant ${v.style} has non-standard viewBox "${v.viewBox}"`);
+    }
+  }
 }
 
-console.log('✓ Variant generation & manual overrides passed');
-
-// 4. Variant Quality Scoring & Validation
-console.log('--- Testing Variant Quality Scoring & Diagnostics ---');
-
-const circleValidation = validateIconConceptVariants('circle', fiveVariantsCircle.all);
-if (circleValidation.overallScore < 80) {
-  throw new Error(`Circle score unexpectedly low: ${circleValidation.overallScore}`);
-}
-if (!circleValidation.variantReports.regular || !circleValidation.variantReports.filled) {
-  throw new Error('Missing variant reports in validation result');
-}
-
-console.log('✓ Variant validation scoring & reports passed');
+console.log('✓ Verified canonical variant independence for sample catalog icons');
 
 console.log('\n🎉 ALL VARIANT SYSTEM & PATH SAFETY TESTS PASSED CLEANLY!\n');

@@ -13,7 +13,6 @@ import { sanitizeSvgMarkup, extractInnerSvg, extractViewBox } from '../src/lib/s
 import { normalizeSvgGeometry } from '../src/lib/svg/geometryNormalizer';
 import { validateSvg } from '../src/lib/svg/validateSvg';
 import { analyzeIconOpticalSystem } from '../src/lib/svg/opticalBounds';
-import { generateFiveVariants } from '../src/lib/svg/variantGenerators';
 import { validateIconConceptVariants } from '../src/lib/svg/variantValidator';
 import type { Icon, IconVariant, SvgCapability, IconSource, IconStyle } from '../src/types/icon';
 
@@ -576,25 +575,21 @@ async function runDeduplicationPipeline() {
     const rawVariants = Array.from(builder.variantsMap.values());
     if (rawVariants.length === 0 && !builder.opticalSvg) continue;
 
-    // Find base outline SVG and optional filled SVG
-    const baseOutlineVariant = rawVariants.find((v) => v.style === 'outline' || v.style === 'regular' || v.style === 'linear');
-    const filledVariant = rawVariants.find((v) => v.style === 'filled');
-
-    const primaryOutlineSvg = baseOutlineVariant ? baseOutlineVariant.svg : builder.opticalSvg;
-    const filledSvgOverride = filledVariant ? filledVariant.svg : undefined;
-
-    // Generate canonical 5 variants (Light, Regular, Filled, Duotone, Duotone Line + legacy outline alias)
-    const fiveVariants = generateFiveVariants(slug, builder.name, primaryOutlineSvg, filledSvgOverride);
-    const variants = fiveVariants.all;
+    // Use authentic source variants directly
+    const variants: IconVariant[] = rawVariants.map((v) => ({
+      ...v,
+      style: v.style === 'outline' || v.style === 'linear' ? 'regular' : v.style,
+      label: v.style === 'outline' || v.style === 'linear' ? 'Regular' : v.label,
+    }));
 
     totalVariantsCount += variants.length;
 
-    // Pick default variant: prefer 'regular', then 'outline'
+    // Pick default variant: prefer 'regular', then first available
     const defaultVariant = variants.find((v) => v.style === 'regular') || variants[0];
     const primarySvg = defaultVariant.svg;
     const optical = analyzeIconOpticalSystem(primarySvg, 2.0);
 
-    // Validate 5 variants against Regular baseline
+    // Validate variants
     const variantValidation = validateIconConceptVariants(slug, variants);
 
     const icon: Icon = {

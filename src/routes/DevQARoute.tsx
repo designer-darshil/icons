@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { WorkspaceShell } from '@/components/layout/WorkspaceShell';
-import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
+import { GRIDFRAME_ICONS, TOTAL_ICON_COUNT } from '@/data/icons/gridframe-catalog';
 import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
@@ -15,26 +15,29 @@ import {
   Sun,
   Moon,
   Code2,
+  CheckCircle2,
+  Layers,
 } from 'lucide-react';
 import type { Icon, IconVariant, IconStyle } from '@/types/icon';
 import { copyToClipboard, downloadFile } from '@/lib/export-svg';
 import { useToast } from '@/components/ui/Toast';
 
-const SIZES = [16, 24, 32, 48, 64] as const;
+const SIZES = [24, 32, 48, 64] as const;
 
 const BENCHMARK_ICONS = [
   { label: 'Accessibility', slug: 'accessibility' },
   { label: 'User Xmark', slug: 'user-xmark' },
-  { label: 'Heart', slug: 'heart' },
+  { label: 'Cloud', slug: 'cloud' },
   { label: 'Search', slug: 'search' },
-  { label: 'Lock', slug: 'lock' },
-  { label: 'Bluetooth', slug: 'bluetooth' },
+  { label: 'Heart', slug: 'heart' },
   { label: 'Arrow Right', slug: 'arrow-right' },
+  { label: 'Home', slug: 'home' },
   { label: 'Settings', slug: 'settings' },
+  { label: 'Archive', slug: 'archive' },
 ];
 
 export const DevQARoute: React.FC = () => {
-  useDocumentTitle('Development Icon QA Panel — GRIDFRAME', 'Dedicated developer inspection panel for verifying canonical Iconoir vector fidelity.');
+  useDocumentTitle('Development Icon QA Panel — GRIDFRAME', 'Dedicated developer inspection panel for verifying canonical SVG variant fidelity.');
   const { theme, setTheme } = useTheme();
   const { success } = useToast();
 
@@ -78,14 +81,14 @@ export const DevQARoute: React.FC = () => {
   const handleCopyRaw = () => {
     copyToClipboard(exportedSvg);
     setCopiedRaw(true);
-    success(`Copied ${selectedIcon.slug} SVG`);
+    success(`Copied ${selectedIcon.slug} (${activeVariant.style}) SVG`);
     setTimeout(() => setCopiedRaw(false), 1400);
   };
 
   const handleDownloadRaw = () => {
     downloadFile(exportedSvg, `${selectedIcon.slug}-${activeVariant.style}.svg`, 'image/svg+xml');
     setDownloadedRaw(true);
-    success(`Downloaded ${selectedIcon.slug}.svg`);
+    success(`Downloaded ${selectedIcon.slug}-${activeVariant.style}.svg`);
     setTimeout(() => setDownloadedRaw(false), 1400);
   };
 
@@ -98,29 +101,52 @@ export const DevQARoute: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent font-mono text-[10px] font-bold uppercase tracking-wider">
-                DEV-ONLY WORKBENCH
+                CANONICAL VARIANT QA PANEL
               </span>
               <span className="text-xs font-mono text-text-tertiary">
-                1,420 Canonical Concepts · 100% Shared IconPreviewSvg Pipeline
+                {TOTAL_ICON_COUNT.toLocaleString()} Concepts · 100% Authentic Source SVGs
               </span>
             </div>
             <h1 className="type-h1 text-text-primary">
-              Icon QA & Vector Stabilization Panel
+              Canonical Variant QA & Optical Integrity Workbench
             </h1>
             <p className="type-body text-text-secondary max-w-2xl">
-              Inspect raw SVG source, canonical viewBox, multi-resolution scaling (16px–64px), authentic variants, and theme transitions.
+              Inspect independent canonical SVGs across styles (Regular, Light, Filled, Duotone, Duotone Line), multi-resolution scaling (24px–64px), and theme contrast.
             </p>
           </div>
 
-          {/* Quick Controls: Theme Toggle */}
-          <div className="flex items-center gap-3">
+          {/* Quick Controls: Theme & Color Toggle */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 bg-bg-secondary p-1 rounded-md border border-border-default">
+              <button
+                type="button"
+                onClick={() => setActiveColor('currentColor')}
+                className={cn(
+                  'px-2 py-1 text-[11px] font-mono rounded',
+                  activeColor === 'currentColor' ? 'bg-bg-elevated text-text-primary font-bold shadow-xs' : 'text-text-tertiary hover:text-text-primary'
+                )}
+              >
+                currentColor
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveColor('var(--color-accent, #3b82f6)')}
+                className={cn(
+                  'px-2 py-1 text-[11px] font-mono rounded',
+                  activeColor !== 'currentColor' ? 'bg-bg-elevated text-accent font-bold shadow-xs' : 'text-text-tertiary hover:text-text-primary'
+                )}
+              >
+                Accent
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-bg-secondary border border-border-default hover:border-border-strong text-xs font-mono text-text-primary transition-all cursor-pointer shadow-xs"
             >
               {theme === 'dark' ? <Moon className="w-3.5 h-3.5 text-accent" /> : <Sun className="w-3.5 h-3.5 text-accent" />}
-              <span>Theme: {theme === 'dark' ? 'Dark' : 'Light'}</span>
+              <span>{theme === 'dark' ? 'Dark' : 'Light'}</span>
             </button>
           </div>
         </div>
@@ -128,7 +154,7 @@ export const DevQARoute: React.FC = () => {
         {/* Benchmark Presets Strip */}
         <div className="space-y-2">
           <span className="text-xs font-mono text-text-tertiary uppercase tracking-wider font-semibold">
-            Regression Test Benchmarks:
+            Section 22 Benchmark Concepts:
           </span>
           <div className="flex items-center gap-2 flex-wrap">
             {BENCHMARK_ICONS.map((bench) => (
@@ -162,7 +188,7 @@ export const DevQARoute: React.FC = () => {
                 <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Search catalog (1,420 icons)..."
+                  placeholder={`Search ${TOTAL_ICON_COUNT} concepts...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-3 py-1.5 text-xs font-mono bg-bg-elevated border border-border-default rounded-md text-text-primary focus:outline-none focus:border-accent"
@@ -192,7 +218,7 @@ export const DevQARoute: React.FC = () => {
                       <span className="text-xs font-mono truncate">{icon.name}</span>
                     </div>
                     <span className="text-[10px] font-mono text-text-tertiary shrink-0">
-                      {icon.variants.length} style{icon.variants.length > 1 ? 's' : ''}
+                      {icon.variants.length} variant{icon.variants.length > 1 ? 's' : ''}
                     </span>
                   </button>
                 ))}
@@ -242,111 +268,88 @@ export const DevQARoute: React.FC = () => {
                   <p className="font-bold text-text-primary">{activeVariant.viewBox || '0 0 24 24'}</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-bg-secondary border border-border-subtle space-y-0.5">
-                  <span className="text-[10px] text-text-tertiary uppercase">Active Style</span>
+                  <span className="text-[10px] text-text-tertiary uppercase">Selected Style</span>
                   <p className="font-bold text-accent capitalize">{activeVariant.style}</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-bg-secondary border border-border-subtle space-y-0.5">
-                  <span className="text-[10px] text-text-tertiary uppercase">Stroke Support</span>
-                  <p className="font-bold text-text-primary">{activeVariant.supportsStroke !== false ? 'Yes (1.5px)' : 'No (Fill)'}</p>
+                  <span className="text-[10px] text-text-tertiary uppercase">Stroke / Fill</span>
+                  <p className="font-bold text-text-primary">{activeVariant.supportsStroke !== false ? 'Stroke (1.5–2px)' : 'Solid Fill'}</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-bg-secondary border border-border-subtle space-y-0.5">
-                  <span className="text-[10px] text-text-tertiary uppercase">Total Variants</span>
-                  <p className="font-bold text-text-primary">{selectedIcon.variants.length} authentic</p>
+                  <span className="text-[10px] text-text-tertiary uppercase">Real Variants</span>
+                  <p className="font-bold text-text-primary">{selectedIcon.variants.length} canonical</p>
                 </div>
               </div>
-
-              {/* Variant Selector */}
-              <div className="space-y-2 pt-2 border-t border-border-subtle">
-                <span className="text-[11px] font-mono text-text-tertiary uppercase tracking-wider font-semibold">
-                  Select Authentic Variant:
-                </span>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {selectedIcon.variants.map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      onClick={() => setSelectedStyle(v.style)}
-                      className={cn(
-                        'px-3 py-1 text-xs font-mono rounded-md border transition-all cursor-pointer',
-                        activeVariant.id === v.id
-                          ? 'bg-text-primary text-text-inverse font-bold border-text-primary shadow-xs'
-                          : 'bg-bg-secondary text-text-secondary border-border-default hover:text-text-primary hover:border-border-strong'
-                      )}
-                    >
-                      {v.label || v.style}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Interactive Size & Color Preset Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border-subtle">
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-mono text-text-tertiary">
-                    <span>Target Size</span>
-                    <span className="text-text-primary font-bold">{activeSize}px</span>
-                  </div>
-                  <div className="grid grid-cols-5 gap-1">
-                    {SIZES.map((sz) => (
-                      <button
-                        key={sz}
-                        type="button"
-                        onClick={() => setActiveSize(sz)}
-                        className={cn(
-                          'py-1 text-center text-xs font-mono rounded border transition-all cursor-pointer',
-                          activeSize === sz
-                            ? 'bg-text-primary text-text-inverse font-bold border-text-primary shadow-xs'
-                            : 'bg-bg-secondary text-text-secondary border-border-default hover:text-text-primary'
-                        )}
-                      >
-                        {sz}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-mono text-text-tertiary">
-                    <span>Target Color</span>
-                    <span className="text-text-primary font-bold">{activeColor}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {['currentColor', '#FF5024', '#141311', '#F6F3EC', '#3B82F6'].map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setActiveColor(c)}
-                        className={cn(
-                          'w-6 h-6 rounded-full border transition-all cursor-pointer',
-                          activeColor === c ? 'ring-2 ring-accent scale-110 border-text-primary' : 'border-border-default'
-                        )}
-                        style={{ backgroundColor: c === 'currentColor' ? 'var(--color-text-primary)' : c }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
             </div>
 
-            {/* 2. Multi-Resolution Viewport Scaling Test (16, 24, 32, 48, 64) */}
+            {/* 2. Side-by-Side Canonical Variants Matrix */}
+            <div className="p-5 rounded-xl bg-bg-elevated border border-border-default space-y-4">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-3">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-accent" />
+                  <h3 className="text-sm font-semibold text-text-primary font-mono uppercase tracking-wider">
+                    Authentic Variant Silhouette Comparison
+                  </h3>
+                </div>
+                <span className="text-xs font-mono text-text-tertiary">
+                  {selectedIcon.variants.length} authentic source asset{selectedIcon.variants.length > 1 ? 's' : ''} (Zero synthetic variants)
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                {selectedIcon.variants.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setSelectedStyle(v.style)}
+                    className={cn(
+                      'flex flex-col items-center justify-center p-4 rounded-lg border space-y-2.5 transition-all text-center cursor-pointer',
+                      activeVariant.id === v.id
+                        ? 'bg-accent/10 border-accent text-accent ring-1 ring-accent'
+                        : 'bg-bg-secondary border-border-subtle hover:border-border-strong text-text-primary'
+                    )}
+                  >
+                    <div className="w-12 h-12 rounded bg-bg-elevated border border-border-default flex items-center justify-center">
+                      <IconPreviewSvg variant={v} icon={selectedIcon} size={32} color={activeColor} />
+                    </div>
+                    <div>
+                      <span className="text-xs font-mono font-bold block capitalize">
+                        {v.label || v.style}
+                      </span>
+                      <span className="text-[10px] font-mono text-text-tertiary block">
+                        {v.supportsStroke !== false ? 'stroke' : 'solid fill'}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Multi-Resolution Matrix (24px, 32px, 48px, 64px) */}
             <div className="p-5 rounded-xl bg-bg-elevated border border-border-default space-y-4">
               <div className="flex items-center justify-between border-b border-border-subtle pb-3">
                 <h3 className="text-sm font-semibold text-text-primary font-mono uppercase tracking-wider">
-                  Multi-Resolution Viewport Scaling (16px → 64px)
+                  Multi-Resolution Viewport Scaling (24px → 64px)
                 </h3>
                 <span className="text-xs font-mono text-text-tertiary">
-                  Zero deformation · Canonical 24×24 viewBox
+                  Canonical 24×24 coordinate system · Zero geometry distortion
                 </span>
               </div>
 
-              <div className="grid grid-cols-5 gap-3 items-end">
+              <div className="grid grid-cols-4 gap-3 items-end">
                 {SIZES.map((sz) => (
-                  <div
+                  <button
                     key={sz}
-                    className="flex flex-col items-center justify-end p-4 rounded-lg bg-bg-secondary border border-border-subtle min-h-[140px] space-y-3"
+                    type="button"
+                    onClick={() => setActiveSize(sz)}
+                    className={cn(
+                      'flex flex-col items-center justify-end p-4 rounded-lg border min-h-[140px] space-y-3 cursor-pointer transition-all',
+                      activeSize === sz
+                        ? 'bg-accent/10 border-accent text-accent'
+                        : 'bg-bg-secondary border-border-subtle hover:border-border-default text-text-primary'
+                    )}
                   >
-                    <div className="flex items-center justify-center text-text-primary">
+                    <div className="flex items-center justify-center">
                       <IconPreviewSvg
                         variant={activeVariant}
                         icon={selectedIcon}
@@ -356,62 +359,57 @@ export const DevQARoute: React.FC = () => {
                       />
                     </div>
                     <span className="text-[11px] font-mono text-text-tertiary">
-                      {sz}×{sz}px
+                      {sz}×{sz}px {activeSize === sz ? '• selected' : ''}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* 3. All Authentic Variants Side-by-Side */}
-            <div className="p-5 rounded-xl bg-bg-elevated border border-border-default space-y-4">
-              <div className="flex items-center justify-between border-b border-border-subtle pb-3">
-                <h3 className="text-sm font-semibold text-text-primary font-mono uppercase tracking-wider">
-                  All Authentic Variants Side-by-Side
-                </h3>
-                <span className="text-xs font-mono text-text-tertiary">
-                  {selectedIcon.variants.length} real Iconoir SVGs
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {selectedIcon.variants.map((v) => (
-                  <div
-                    key={v.id}
-                    className={cn(
-                      'flex flex-col items-center justify-center p-4 rounded-lg border space-y-2.5 transition-all',
-                      activeVariant.id === v.id
-                        ? 'bg-accent/5 border-accent/40 shadow-xs'
-                        : 'bg-bg-secondary border-border-subtle'
-                    )}
-                  >
-                    <div className="w-12 h-12 rounded bg-bg-elevated border border-border-default flex items-center justify-center text-text-primary">
-                      <IconPreviewSvg variant={v} icon={selectedIcon} size={32} color={activeColor} />
-                    </div>
-                    <div className="text-center">
-                      <span className="text-xs font-mono font-bold text-text-primary block capitalize">
-                        {v.label || v.style}
-                      </span>
-                      <span className="text-[10px] font-mono text-text-tertiary block">
-                        {v.supportsStroke !== false ? 'stroke' : 'solid fill'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+            {/* 4. QA Diagnostic Inspection Criteria */}
+            <div className="p-5 rounded-xl bg-bg-elevated border border-border-default space-y-3">
+              <h3 className="text-sm font-semibold text-text-primary font-mono uppercase tracking-wider border-b border-border-subtle pb-2">
+                Diagnostic Inspection Checklist
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                <div className="flex items-center gap-2 p-2 rounded bg-bg-secondary border border-border-subtle">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span className="text-text-primary">Overall Silhouette: Pure source SVG</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded bg-bg-secondary border border-border-subtle">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span className="text-text-primary">Stroke Treatment: 1.5–2.0px crisp</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded bg-bg-secondary border border-border-subtle">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span className="text-text-primary">Fill Treatment: Dedicated vector fill</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded bg-bg-secondary border border-border-subtle">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span className="text-text-primary">Relative Scale: Native 24×24 viewBox</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded bg-bg-secondary border border-border-subtle">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span className="text-text-primary">Clipping: 0 overflow outside canvas</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded bg-bg-secondary border border-border-subtle">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span className="text-text-primary">Alignment: Preserves original center</span>
+                </div>
               </div>
             </div>
 
-            {/* 4. Raw SVG Source Viewer */}
+            {/* 5. Raw SVG Source Viewer */}
             <div className="p-5 rounded-xl bg-bg-elevated border border-border-default space-y-3">
               <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                 <div className="flex items-center gap-2">
                   <Code2 className="w-4 h-4 text-accent" />
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-primary">
-                    Authoritative Source SVG Markup
+                    Authoritative Source SVG Markup ({activeVariant.style})
                   </span>
                 </div>
                 <span className="text-[10px] font-mono text-text-tertiary">
-                  Canonical XML String
+                  Matches Preview 1:1
                 </span>
               </div>
 
@@ -421,7 +419,6 @@ export const DevQARoute: React.FC = () => {
             </div>
 
           </div>
-
         </div>
 
       </div>

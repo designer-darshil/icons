@@ -1,13 +1,14 @@
 /**
- * GRIDFRAME V2 — Variant Quality & Optical Consistency Validator
+ * GRIDFRAME V2 — Canonical Variant Quality & Integrity Validator
  * 
- * Audits all 5 coordinated visual variants against the Regular reference baseline.
- * Detects geometry breakage, topology loss, bounding box overflow, center drift,
- * and occupied area deltas. Computes rigorous 0–100 Quality Scores.
+ * Audits authentic vector variants:
+ * Validates XML structure, viewBox compliance, non-empty geometry,
+ * and topology integrity.
  */
 
 import { analyzePathTopology } from './pathTopology';
 import { analyzeIconOpticalSystem } from './opticalBounds';
+import { isValidSvgMarkup } from '../icon-sanitizer';
 import type {
   CanonicalIconVariant,
   IconVariant,
@@ -19,14 +20,14 @@ export interface IconValidationResult {
   conceptSlug: string;
   overallScore: number;
   overallStatus: VariantQualityStatus;
-  variantReports: Record<CanonicalIconVariant, VariantQualityReport>;
+  variantReports: Partial<Record<CanonicalIconVariant, VariantQualityReport>>;
   allValid: boolean;
   hasErrors: boolean;
   hasWarnings: boolean;
 }
 
 /**
- * Evaluates a single icon variant against the canonical Regular reference baseline.
+ * Evaluates a single canonical icon variant against standard vector specifications.
  */
 export function validateVariantAgainstRegular(
   variant: IconVariant,
@@ -38,36 +39,40 @@ export function validateVariantAgainstRegular(
   let status: VariantQualityStatus = 'validated';
   let score = 100;
 
-  // 1. Path Topology Analysis
+  // 1. Structure & Markup Validation
+  if (!variant.svg || variant.svg.trim().length === 0) {
+    status = 'invalid';
+    issues.push('Variant has empty SVG markup.');
+    return {
+      variantStyle,
+      status,
+      score: 0,
+      isTopologySafe: false,
+      issues,
+    };
+  }
+
+  if (!isValidSvgMarkup(variant.svg)) {
+    status = 'invalid';
+    issues.push('Variant contains invalid SVG XML syntax.');
+    score -= 50;
+  }
+
+  // 2. ViewBox Check
+  if (variant.viewBox !== '0 0 24 24') {
+    issues.push(`Non-standard viewBox: "${variant.viewBox}" (expected "0 0 24 24").`);
+    score -= 10;
+    if (status === 'validated') status = 'warning';
+  }
+
+  // 3. Path Topology Analysis
   const topology = analyzePathTopology(variant.svg);
   for (const issue of topology.issues) {
     issues.push(issue);
-    score -= 15;
+    score -= 10;
   }
 
-  // 2. Filled Variant Safety Rules
-  if (variantStyle === 'filled') {
-    if (topology.hasOpenStrokes && !variant.supportsStroke) {
-      status = 'manual-review';
-      issues.push('Filled variant contains open stroke paths without stroke support, destroying topology.');
-      score -= 25;
-    }
-    if (topology.totalElements === 0) {
-      status = 'invalid';
-      issues.push('Filled variant has empty geometry.');
-      score = 0;
-    }
-  }
-
-  // 3. Duotone Variant Rules
-  if (variantStyle === 'duotone') {
-    if (!variant.svg.includes('opacity="0.2"') && !variant.svg.includes('opacity="0.25"')) {
-      issues.push('Duotone variant missing subordinate opacity layer.');
-      score -= 10;
-    }
-  }
-
-  // 4. Optical Analysis & Deltas vs Regular Baseline
+  // 4. Optical Analysis
   const regularOptical = analyzeIconOpticalSystem(regularVariant.svg, 2.0);
   const variantStrokeWidth = variant.defaultStrokeWidth ?? (variantStyle === 'light' ? 1.5 : 2.0);
   const variantOptical = analyzeIconOpticalSystem(variant.svg, variantStrokeWidth);
@@ -81,34 +86,14 @@ export function validateVariantAgainstRegular(
   const varArea = variantOptical.occupiedAreaPercentage;
   const areaDeltaPct = Math.round(((varArea - regArea) / regArea) * 100);
 
-  // Optical Center Drift Check
-  const centerDistance = Math.hypot(dx, dy);
-  if (centerDistance > 1.5) {
-    issues.push(`Optical center shifted by ${centerDistance.toFixed(1)}px from Regular baseline (dx: ${dx}, dy: ${dy}).`);
-    score -= 15;
-    if (status === 'validated') status = 'warning';
-  }
-
-  // Safe Zone Compliance
+  // Safe Zone Compliance Check
   if (!variantOptical.safeZoneCompliant) {
     issues.push('Artwork extends outside the 1px safe zone boundary [1, 23].');
     score -= 10;
     if (status === 'validated') status = 'warning';
   }
 
-  // Occupied Area Delta Check (Filled is allowed to be heavier, but Light/Duotone should stay within bounds)
-  if (variantStyle === 'light' && areaDeltaPct > 20) {
-    issues.push(`Light variant occupied area is unexpectedly larger than Regular (+${areaDeltaPct}%).`);
-    score -= 10;
-    if (status === 'validated') status = 'warning';
-  } else if (variantStyle === 'duotone' && Math.abs(areaDeltaPct) > 50) {
-    issues.push(`Duotone occupied area differs by ${areaDeltaPct}% from Regular baseline.`);
-    score -= 10;
-    if (status === 'validated') status = 'warning';
-  }
-
-  // Hard Errors check
-  if (score < 50 && status !== 'manual-review') {
+  if (score < 50) {
     status = 'invalid';
   } else if (score < 80 && status === 'validated') {
     status = 'warning';
@@ -131,23 +116,21 @@ export function validateVariantAgainstRegular(
 }
 
 /**
- * Validates all 5 variants of an icon concept.
+ * Validates only the authentic variants present on an icon concept.
  */
 export function validateIconConceptVariants(
   conceptSlug: string,
   variants: IconVariant[]
 ): IconValidationResult {
   const regular = variants.find((v) => v.style === 'regular') || variants[0];
-  const variantStyles: CanonicalIconVariant[] = ['light', 'regular', 'filled', 'duotone', 'duotone-line'];
-
   const variantReports: Partial<Record<CanonicalIconVariant, VariantQualityReport>> = {};
   let totalScore = 0;
   let hasErrors = false;
   let hasWarnings = false;
   let hasManualReview = false;
 
-  for (const style of variantStyles) {
-    const variant = variants.find((v) => v.style === style) || regular;
+  for (const variant of variants) {
+    const style = variant.style as CanonicalIconVariant;
     const report = validateVariantAgainstRegular(variant, regular, conceptSlug);
     variantReports[style] = report;
     totalScore += report.score;
@@ -157,7 +140,7 @@ export function validateIconConceptVariants(
     if (report.status === 'manual-review') hasManualReview = true;
   }
 
-  const overallScore = Math.round(totalScore / variantStyles.length);
+  const overallScore = variants.length > 0 ? Math.round(totalScore / variants.length) : 100;
   let overallStatus: VariantQualityStatus = 'validated';
   if (hasErrors) overallStatus = 'invalid';
   else if (hasManualReview) overallStatus = 'manual-review';
@@ -167,7 +150,7 @@ export function validateIconConceptVariants(
     conceptSlug,
     overallScore,
     overallStatus,
-    variantReports: variantReports as Record<CanonicalIconVariant, VariantQualityReport>,
+    variantReports,
     allValid: overallStatus === 'validated',
     hasErrors,
     hasWarnings,

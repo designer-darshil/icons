@@ -12,7 +12,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { OFFICIAL_CATEGORIES, normalizeCategorySlug, getCanonicalCategory } from '../src/data/category-registry';
-import { generateFiveVariants } from '../src/lib/svg/variantGenerators';
 import { analyzeIconOpticalSystem } from '../src/lib/svg/opticalBounds';
 import { validateIconConceptVariants } from '../src/lib/svg/variantValidator';
 import { extractInnerSvg } from '../src/lib/icon-sanitizer';
@@ -884,22 +883,51 @@ export function executeCatalogPopulation() {
         label: 'Regular',
         svg: regularInner,
         viewBox,
+        capabilities: {
+          color: true,
+          size: true,
+          strokeWidth: true,
+          lineCap: true,
+          lineJoin: true,
+          background: true,
+          rotation: true,
+          flip: true,
+        },
         supportsStroke: true,
         supportsColor: true,
         defaultStrokeWidth: 1.5,
       },
     ];
 
-    const solidInner = solidSet.has(file)
-      ? extractInnerSvg(fs.readFileSync(path.join(SOLID_DIR, file), 'utf8'))
-      : undefined;
+    if (solidSet.has(file)) {
+      const solidRawSvg = fs.readFileSync(path.join(SOLID_DIR, file), 'utf8');
+      const solidInner = extractInnerSvg(solidRawSvg).trim();
+      variants.push({
+        id: `${slug}-filled`,
+        style: 'filled',
+        label: 'Filled',
+        svg: solidInner,
+        viewBox,
+        capabilities: {
+          color: true,
+          size: true,
+          strokeWidth: false,
+          lineCap: false,
+          lineJoin: false,
+          background: true,
+          rotation: true,
+          flip: true,
+        },
+        supportsStroke: false,
+        supportsColor: true,
+        defaultStrokeWidth: 0,
+      });
+    }
 
     const name = slug
       .split('-')
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
-
-    const fiveVariants = generateFiveVariants(slug, name, regularInner, solidInner).all;
 
     const classification = classifyIcon(name, 'System', [slug], [slug]);
     const primaryCanonical = getCanonicalCategory(classification.primaryCategory);
@@ -922,7 +950,7 @@ export function executeCatalogPopulation() {
       useCases: [`Precision vector icon representing ${name.toLowerCase()} in user interfaces.`],
       defaultVariantId: `${slug}-regular`,
       style: 'regular',
-      variants: fiveVariants,
+      variants,
       svg: regularInner,
       viewBox,
       capabilities: {
@@ -937,6 +965,13 @@ export function executeCatalogPopulation() {
       },
       popularity: 100,
       relatedIconIds: [],
+      source: {
+        id: 'iconoir',
+        name: 'Iconoir',
+        version: '7.12.1',
+        sourcePath: 'node_modules/iconoir',
+        license: 'MIT',
+      },
     };
 
     iconMap.set(slug, icon);
@@ -960,7 +995,28 @@ export function executeCatalogPopulation() {
       }
 
       const regularInner = extractInnerSvg(tmpl.svg);
-      const fiveVariants = generateFiveVariants(tmpl.slug, tmpl.name, regularInner).all;
+      const variants: IconVariant[] = [
+        {
+          id: `${tmpl.slug}-regular`,
+          style: 'regular',
+          label: 'Regular',
+          svg: regularInner,
+          viewBox: '0 0 24 24',
+          capabilities: {
+            color: true,
+            size: true,
+            strokeWidth: true,
+            lineCap: true,
+            lineJoin: true,
+            background: true,
+            rotation: true,
+            flip: true,
+          },
+          supportsStroke: true,
+          supportsColor: true,
+          defaultStrokeWidth: 1.5,
+        },
+      ];
 
       const newIcon: Icon = {
         id: tmpl.slug,
@@ -979,7 +1035,7 @@ export function executeCatalogPopulation() {
         useCases: tmpl.useCases,
         defaultVariantId: `${tmpl.slug}-regular`,
         style: 'regular',
-        variants: fiveVariants,
+        variants,
         svg: regularInner,
         viewBox: '0 0 24 24',
         capabilities: {
@@ -994,6 +1050,13 @@ export function executeCatalogPopulation() {
         },
         popularity: 100,
         relatedIconIds: [],
+        source: {
+          id: 'iconoir',
+          name: 'Iconoir',
+          version: '7.12.1',
+          sourcePath: 'foundation',
+          license: 'MIT',
+        },
       };
 
       iconMap.set(tmpl.slug, newIcon);

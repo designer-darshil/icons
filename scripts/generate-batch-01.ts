@@ -77,78 +77,138 @@ export const ALL_BATCH_01_DEFINITIONS: BatchIconDefinition[] = [
 ];
 
 /**
- * Builds canonical 5-variants for a Batch 01 icon definition
+ * Builds canonical variants for a Batch 01 icon definition
+ * ONLY includes variants that actually have authentic author-crafted paths.
  */
 export function buildBatchIconVariants(def: BatchIconDefinition): IconVariant[] {
-  const cleanRegular = extractInnerSvg(def.paths.regular).trim();
-  const cleanFilled = extractInnerSvg(def.paths.filled).trim();
-  const cleanDuotone = extractInnerSvg(def.paths.duotone).trim();
+  const variants: IconVariant[] = [];
 
-  // 1. Regular Variant (2.0px stroke)
-  const regularVariant: IconVariant = {
-    id: `${def.slug}-regular`,
-    style: 'regular',
-    label: 'Regular',
-    svg: cleanRegular,
-    viewBox: '0 0 24 24',
-    supportsStroke: true,
-    supportsColor: true,
-    defaultStrokeWidth: 2,
-  };
+  // 1. Regular Variant (2.0px stroke) - Always present in Batch definitions
+  if (def.paths.regular) {
+    const cleanRegular = extractInnerSvg(def.paths.regular).trim();
+    variants.push({
+      id: `${def.slug}-regular`,
+      style: 'regular',
+      label: 'Regular',
+      svg: cleanRegular,
+      viewBox: '0 0 24 24',
+      capabilities: {
+        color: true,
+        size: true,
+        strokeWidth: true,
+        lineCap: true,
+        lineJoin: true,
+        background: true,
+        rotation: true,
+        flip: true,
+      },
+      supportsStroke: true,
+      supportsColor: true,
+      defaultStrokeWidth: 2,
+    });
+  }
 
-  // 2. Light Variant (1.5px stroke)
-  const lightVariant: IconVariant = {
-    id: `${def.slug}-light`,
-    style: 'light',
-    label: 'Light',
-    svg: def.paths.light ? extractInnerSvg(def.paths.light).trim() : cleanRegular,
-    viewBox: '0 0 24 24',
-    supportsStroke: true,
-    supportsColor: true,
-    defaultStrokeWidth: 1.5,
-  };
+  // 2. Light Variant (1.5px stroke) - ONLY if dedicated light path exists
+  if (def.paths.light && def.paths.light.trim().length > 0) {
+    const cleanLight = extractInnerSvg(def.paths.light).trim();
+    variants.push({
+      id: `${def.slug}-light`,
+      style: 'light',
+      label: 'Light',
+      svg: cleanLight,
+      viewBox: '0 0 24 24',
+      capabilities: {
+        color: true,
+        size: true,
+        strokeWidth: true,
+        lineCap: true,
+        lineJoin: true,
+        background: true,
+        rotation: true,
+        flip: true,
+      },
+      supportsStroke: true,
+      supportsColor: true,
+      defaultStrokeWidth: 1.5,
+    });
+  }
 
-  // 3. Filled Variant (solid fill)
-  const filledVariant: IconVariant = {
-    id: `${def.slug}-filled`,
-    style: 'filled',
-    label: 'Filled',
-    svg: cleanFilled,
-    viewBox: '0 0 24 24',
-    supportsStroke: false,
-    supportsColor: true,
-    defaultStrokeWidth: 0,
-  };
+  // 3. Filled Variant (solid fill) - ONLY if dedicated filled path exists
+  if (def.paths.filled && def.paths.filled.trim().length > 0) {
+    const cleanFilled = extractInnerSvg(def.paths.filled).trim();
+    variants.push({
+      id: `${def.slug}-filled`,
+      style: 'filled',
+      label: 'Filled',
+      svg: cleanFilled,
+      viewBox: '0 0 24 24',
+      capabilities: {
+        color: true,
+        size: true,
+        strokeWidth: false,
+        lineCap: false,
+        lineJoin: false,
+        background: true,
+        rotation: true,
+        flip: true,
+      },
+      supportsStroke: false,
+      supportsColor: true,
+      defaultStrokeWidth: 0,
+    });
+  }
 
-  // 4. Duotone Variant (2-tone layered)
-  const duotoneVariant: IconVariant = {
-    id: `${def.slug}-duotone`,
-    style: 'duotone',
-    label: 'Duotone',
-    svg: cleanDuotone,
-    viewBox: '0 0 24 24',
-    supportsStroke: true,
-    supportsColor: true,
-    defaultStrokeWidth: 2,
-  };
+  // 4. Duotone Variant (2-tone layered) - ONLY if dedicated duotone path exists
+  if (def.paths.duotone && def.paths.duotone.trim().length > 0) {
+    const cleanDuotone = extractInnerSvg(def.paths.duotone).trim();
+    variants.push({
+      id: `${def.slug}-duotone`,
+      style: 'duotone',
+      label: 'Duotone',
+      svg: cleanDuotone,
+      viewBox: '0 0 24 24',
+      capabilities: {
+        color: true,
+        size: true,
+        strokeWidth: true,
+        lineCap: true,
+        lineJoin: true,
+        background: true,
+        rotation: true,
+        flip: true,
+      },
+      supportsStroke: true,
+      supportsColor: true,
+      defaultStrokeWidth: 2,
+    });
+  }
 
-  // 5. Duotone Line Variant (dual-layer line stroke)
-  const duotoneLineSvg = def.paths.duotoneLine
-    ? extractInnerSvg(def.paths.duotoneLine).trim()
-    : `<g opacity="0.25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">\n  ${cleanRegular}\n</g>\n<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">\n  ${cleanRegular}\n</g>`;
+  // 5. Duotone Line Variant - ONLY if dedicated duotoneLine path exists
+  if (def.paths.duotoneLine && def.paths.duotoneLine.trim().length > 0) {
+    const cleanDuotoneLine = extractInnerSvg(def.paths.duotoneLine).trim();
+    variants.push({
+      id: `${def.slug}-duotone-line`,
+      style: 'duotone-line',
+      label: 'Duotone Line',
+      svg: cleanDuotoneLine,
+      viewBox: '0 0 24 24',
+      capabilities: {
+        color: true,
+        size: true,
+        strokeWidth: true,
+        lineCap: true,
+        lineJoin: true,
+        background: true,
+        rotation: true,
+        flip: true,
+      },
+      supportsStroke: true,
+      supportsColor: true,
+      defaultStrokeWidth: 1.5,
+    });
+  }
 
-  const duotoneLineVariant: IconVariant = {
-    id: `${def.slug}-duotone-line`,
-    style: 'duotone-line',
-    label: 'Duotone Line',
-    svg: duotoneLineSvg,
-    viewBox: '0 0 24 24',
-    supportsStroke: true,
-    supportsColor: true,
-    defaultStrokeWidth: 1.5,
-  };
-
-  return [regularVariant, lightVariant, filledVariant, duotoneVariant, duotoneLineVariant];
+  return variants;
 }
 
 /**
@@ -157,25 +217,26 @@ export function buildBatchIconVariants(def: BatchIconDefinition): IconVariant[] 
 export function transformBatchDefinitionToIcon(def: BatchIconDefinition): Icon {
   const canonicalCat = getCanonicalCategory(def.primaryCategory);
   const variants = buildBatchIconVariants(def);
-  const regularInner = variants[0].svg;
+  const regularVariant = variants.find((v) => v.style === 'regular') || variants[0];
+  const regularInner = regularVariant.svg;
 
   return {
     id: def.slug,
     name: def.name,
     slug: def.slug,
-    family: def.family,
-    familyId: def.family,
-    modifier: def.modifier,
-    baseIcon: def.family,
+    family: def.family || def.slug,
+    familyId: def.family || def.slug,
+    modifier: def.modifier || 'base',
+    baseIcon: def.family || def.slug,
     category: canonicalCat.name,
     primaryCategory: canonicalCat.slug,
-    secondaryCategories: def.secondaryCategories.filter((s) => s !== canonicalCat.slug),
-    otherReviewRequired: canonicalCat.slug === 'other',
-    tags: Array.from(new Set([...def.tags, canonicalCat.slug, ...def.secondaryCategories])),
+    secondaryCategories: def.secondaryCategories || [],
+    otherReviewRequired: false,
+    tags: Array.from(new Set([...def.tags, canonicalCat.slug, ...(def.secondaryCategories || [])])),
     keywords: Array.from(new Set([...def.keywords, def.name.toLowerCase(), canonicalCat.name.toLowerCase()])),
-    aliases: def.aliases,
-    useCases: def.useCases,
-    defaultVariantId: `${def.slug}-regular`,
+    aliases: def.aliases || [def.name.toLowerCase()],
+    useCases: def.useCases || [`Vector icon for ${def.name.toLowerCase()}.`],
+    defaultVariantId: regularVariant.id,
     style: 'regular',
     variants,
     svg: regularInner,
@@ -190,8 +251,15 @@ export function transformBatchDefinitionToIcon(def: BatchIconDefinition): Icon {
       rotation: true,
       flip: true,
     },
-    popularity: 150,
-    relatedIconIds: def.relatedIcons,
+    popularity: 100,
+    relatedIconIds: def.relatedIcons || [],
+    source: {
+      id: 'iconoir',
+      name: 'Iconoir',
+      version: '7.12.1',
+      sourcePath: 'scripts/data/batch-01',
+      license: 'MIT',
+    },
   };
 }
 

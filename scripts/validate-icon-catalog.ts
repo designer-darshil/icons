@@ -147,8 +147,8 @@ export function validateIconCatalog(): boolean {
     }
 
     // 9. Source metadata validation
-    if (!icon.source || icon.source.id !== 'iconoir') {
-      console.error(`❌ ${prefix} Invalid or missing source metadata (expected iconoir)`);
+    if (!icon.source || !icon.source.id) {
+      console.error(`❌ ${prefix} Invalid or missing source metadata`);
       errorCount++;
     }
 

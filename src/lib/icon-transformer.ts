@@ -29,13 +29,17 @@ export function transformSvgMarkup(
     transforms.push(`scale(1, -1) translate(0, -24)`);
   }
 
-  const transformAttr = transforms.length > 0 ? ` transform="${transforms.join(" ")}"` : "";
   const strokeAttrs = supportsStroke
     ? ` stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}"`
     : "";
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${variant.viewBox || '0 0 24 24'}" fill="none" color="${color}"${strokeAttrs}${transformAttr}>
-  ${inner}
+  const hasTransforms = transforms.length > 0;
+  const content = hasTransforms
+    ? `  <g transform="${transforms.join(' ')}">\n    ${inner}\n  </g>`
+    : `  ${inner}`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${variant.viewBox || '0 0 24 24'}" fill="none" color="${color}"${strokeAttrs}>
+${content}
 </svg>`;
 }
 
