@@ -16,8 +16,8 @@ export interface HeroSectionProps {
   className?: string;
 }
 
-// Curated canonical Iconoir showcase slugs for the hero specimen workspace
-const HERO_SPECIMEN_SLUGS = [
+// Curated canonical specimens for quick inspection
+const FEATURED_SPECIMENS = [
   'shield-check',
   'compass',
   'code',
@@ -46,14 +46,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const { success } = useToast();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Selected specimen icon in the interactive hero specimen stage
+  // Active specimen state
   const [selectedSlug, setSelectedSlug] = useState<string>('shield-check');
   const [activeStyle, setActiveStyle] = useState<IconStyle>('regular');
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
-  // Retrieve matching icons from the catalog
+  // Retrieve featured icons from catalog
   const featuredIcons = useMemo(() => {
-    return HERO_SPECIMEN_SLUGS.map((slug) => {
+    return FEATURED_SPECIMENS.map((slug) => {
       const found = GRIDFRAME_ICONS.find((i) => i.slug === slug);
       return found || GRIDFRAME_ICONS[0];
     });
@@ -67,7 +67,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     );
   }, [selectedSlug, featuredIcons]);
 
-  // Resolve matching variant or fallback
+  // Resolve matching canonical variant
   const currentVariant = useMemo(() => {
     if (!activeIcon) return undefined;
     return (
@@ -77,7 +77,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     );
   }, [activeIcon, activeStyle]);
 
-  const handleCopyActiveSvg = useCallback(
+  const handleCopySvg = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       if (!currentVariant || !activeIcon) return;
@@ -107,39 +107,39 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         className
       )}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         {/* =========================================================================
-            LEFT COLUMN: Editorial Index, Headline, Precision Search Tool
+            LEFT COLUMN: Editorial Index, Confident Headline, Tool-Grade Search
             ========================================================================= */}
-        <div className="lg:col-span-7 flex flex-col justify-between space-y-6 sm:space-y-8">
+        <div className="lg:col-span-7 space-y-6 sm:space-y-8">
           <div className="space-y-4 sm:space-y-5">
-            {/* 1. Eyebrow / Technical Index Header */}
+            {/* 1. Eyebrow Header */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] font-mono tracking-wider text-text-tertiary">
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-3xs bg-accent/10 border border-accent/25 text-accent font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                WORKSPACE V3.0
+                SPECIMEN ARCHIVE
               </span>
               <span className="hidden xs:inline text-border-strong">/</span>
               <span className="text-text-secondary font-medium">24×24 OPTICAL GRID</span>
               <span className="hidden sm:inline text-border-strong">/</span>
               <span className="hidden sm:inline font-mono">
-                {TOTAL_CONCEPTS_COUNT.toLocaleString()} CONCEPTS · {TOTAL_VARIANTS_COUNT.toLocaleString()} ASSETS
+                {TOTAL_CONCEPTS_COUNT.toLocaleString()} ICONS · {TOTAL_VARIANTS_COUNT.toLocaleString()} ASSETS
               </span>
             </div>
 
-            {/* 2. Editorial Headline (Disciplined, High-Contrast, Product-Centric) */}
+            {/* 2. Editorial Headline & Product Message */}
             <div className="space-y-3">
-              <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-[52px] font-bold tracking-[-0.035em] leading-[1.04] text-text-primary text-balance">
+              <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-[50px] font-bold tracking-[-0.035em] leading-[1.06] text-text-primary text-balance">
                 Icons, precisely made discoverable.
               </h1>
               <p className="text-sm sm:text-base text-text-secondary max-w-xl font-normal leading-relaxed text-pretty">
-                A disciplined vector icon workspace engineered on a unified 24×24 coordinate frame. Search canonical concepts, inspect geometric properties, and export production assets.
+                A disciplined vector workspace engineered on a unified 24×24 coordinate frame. Search canonical concepts, inspect geometric weights, and export production assets.
               </p>
             </div>
           </div>
 
           {/* 3. Professional Tool-Grade Search Input */}
-          <div className="space-y-3 pt-1">
+          <div className="space-y-3">
             <div
               onClick={handleFocusSearch}
               className={cn(
@@ -148,7 +148,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 'border border-border-default hover:border-border-strong focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/15 shadow-xs'
               )}
             >
-              {/* Left Search Glyph + Fluid Text Input */}
+              {/* Search Icon + Text Input */}
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 text-text-tertiary group-hover:text-text-secondary group-focus-within:text-accent transition-colors shrink-0" />
                 <input
@@ -162,7 +162,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 />
               </div>
 
-              {/* Right Action Chips: Clear / Keyboard Shortcut */}
+              {/* Action Chips: Clear / Keyboard Shortcut */}
               <div className="flex items-center gap-1.5 shrink-0 pl-2 select-none">
                 {query ? (
                   <button
@@ -194,7 +194,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* Quick Domain Jump Navigation */}
+            {/* Quick Category Jump Navigation */}
             {onSelectCategory && (
               <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] font-mono text-text-tertiary overflow-x-auto no-scrollbar py-0.5">
                 <span className="uppercase text-[10px] tracking-wider text-text-tertiary shrink-0">
@@ -214,19 +214,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             )}
           </div>
 
-          {/* 4. Technical Grounding Specs Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-border-subtle/80 text-[11px] font-mono">
+          {/* 4. Technical Grounding Specifications Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-border-subtle/80 text-[11px] font-mono">
             <div className="space-y-0.5">
               <span className="text-[10px] uppercase text-text-tertiary tracking-wider block">Matrix</span>
-              <span className="font-semibold text-text-primary">24×24 px System</span>
+              <span className="font-semibold text-text-primary">24×24 px Grid</span>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] uppercase text-text-tertiary tracking-wider block">Geometry</span>
-              <span className="font-semibold text-text-primary">2.0px Center Stroke</span>
+              <span className="text-[10px] uppercase text-text-tertiary tracking-wider block">Stroke</span>
+              <span className="font-semibold text-text-primary">2.0px Center</span>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] uppercase text-text-tertiary tracking-wider block">Variants</span>
-              <span className="font-semibold text-text-primary">5 Canonical Styles</span>
+              <span className="text-[10px] uppercase text-text-tertiary tracking-wider block">Styles</span>
+              <span className="font-semibold text-text-primary">5 Canonical Weights</span>
             </div>
             <div className="space-y-0.5">
               <span className="text-[10px] uppercase text-text-tertiary tracking-wider block">License</span>
@@ -236,111 +236,56 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* =========================================================================
-            RIGHT COLUMN: Interactive Specimen Workspace & Geometric Inspection Frame
+            RIGHT COLUMN: Clean, Icon-First Inspection Stage
+            Hierarchy: Large Icon → Name/Category → Variants → Specimens → Actions
             ========================================================================= */}
         <div className="lg:col-span-5 flex flex-col">
-          <div className="relative flex-1 bg-bg-secondary/40 border border-border-default rounded-xs p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-            {/* Specimen Frame Header with Technical Coordinates */}
-            <div className="flex items-center justify-between border-b border-border-subtle/80 pb-2.5 text-[11px] font-mono">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-accent/80" />
-                <span className="font-semibold uppercase tracking-wider text-text-primary">
-                  Specimen #{activeIcon.slug}
-                </span>
-              </div>
-              <span className="text-[10px] text-text-tertiary font-mono">
-                X: 12.00 · Y: 12.00 · 24×24
-              </span>
-            </div>
+          <div className="relative bg-bg-secondary/40 border border-border-default rounded-xs p-5 sm:p-6 space-y-5 shadow-xs">
+            {/* 1. Large Hero Icon Canvas with Subtle Center Grid */}
+            <div
+              onClick={() => onSelectIcon?.(activeIcon)}
+              className="relative w-full aspect-[4/3] rounded-xs bg-bg-primary/90 border border-border-subtle/70 flex flex-col items-center justify-center p-6 overflow-hidden cursor-pointer select-none group transition-colors hover:border-border-strong"
+              title={`Click to inspect ${activeIcon.name}`}
+            >
+              {/* Subtle 24x24 Optical Grid Crosshair Frame */}
+              <div className="absolute inset-6 border border-dashed border-border-subtle/40 rounded-3xs pointer-events-none" />
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/25 pointer-events-none" />
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/25 pointer-events-none" />
 
-            {/* Central Precision Specimen Stage */}
-            <div className="relative my-4 aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full rounded-3xs bg-bg-primary/95 border border-border-subtle/90 flex items-center justify-center p-6 overflow-hidden select-none group">
-              {/* 24x24 Pixel Crosshair & Dimension Rulers */}
-              <div className="absolute inset-4 sm:inset-6 border border-dashed border-border-subtle/50 rounded-3xs pointer-events-none" />
-              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/30 pointer-events-none" />
-              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/30 pointer-events-none" />
-
-              {/* Corner Calibration Marks */}
-              <span className="absolute top-2 left-2 text-[9px] font-mono text-text-tertiary/60 leading-none select-none">
-                +0,0
-              </span>
-              <span className="absolute top-2 right-2 text-[9px] font-mono text-text-tertiary/60 leading-none select-none">
-                +24,0
-              </span>
-              <span className="absolute bottom-2 left-2 text-[9px] font-mono text-text-tertiary/60 leading-none select-none">
-                +0,24
-              </span>
-              <span className="absolute bottom-2 right-2 text-[9px] font-mono text-text-tertiary/60 leading-none select-none">
-                +24,24
-              </span>
-
-              {/* Real Canonical SVG Rendering with Subtle Micro-Interaction */}
-              <div
-                onClick={() => onSelectIcon?.(activeIcon)}
-                className="relative z-10 flex items-center justify-center p-4 rounded-xs cursor-pointer text-text-primary hover:scale-105 active:scale-95 transition-transform duration-150"
-                title={`Click to inspect ${activeIcon.name}`}
-              >
+              {/* Large Hero Icon (Focal Point of the Stage) */}
+              <div className="relative z-10 transition-transform duration-200 group-hover:scale-105 text-text-primary">
                 <IconPreviewSvg
                   icon={activeIcon}
                   variant={currentVariant}
-                  size={52}
-                  className="text-text-primary drop-shadow-xs"
+                  size={84}
+                  className="drop-shadow-xs"
                 />
               </div>
 
-              {/* Live Specimen HUD Footer */}
-              <div className="absolute bottom-2 inset-x-3.5 flex items-center justify-between text-[10px] font-mono text-text-tertiary bg-bg-primary/80 backdrop-blur-xs px-2 py-0.5 rounded-3xs border border-border-subtle/40">
-                <span className="truncate max-w-[130px] sm:max-w-none">
-                  {activeIcon.name} ({currentVariant?.style || 'regular'})
+              {/* Integrated Specimen Title & Category */}
+              <div className="absolute bottom-2.5 inset-x-4 flex items-center justify-between text-xs font-mono text-text-tertiary">
+                <span className="font-semibold text-text-primary tracking-tight">
+                  {activeIcon.name}
                 </span>
-                <span className="shrink-0 font-medium text-text-secondary">
-                  {currentVariant?.viewBox || '0 0 24 24'}
+                <span className="text-[11px] uppercase tracking-wider text-text-secondary">
+                  {activeIcon.category}
                 </span>
               </div>
             </div>
 
-            {/* Interactive Showcase Specimen Selector */}
-            <div className="space-y-2 pt-1">
-              <div className="flex items-center justify-between text-[10px] font-mono uppercase text-text-tertiary">
-                <span>Featured Canonical Specimens</span>
-                <span>Select to inspect</span>
-              </div>
-
-              <div className="grid grid-cols-6 gap-1.5">
-                {featuredIcons.map((icon) => {
-                  const isSelected = icon.slug === selectedSlug;
-                  return (
-                    <button
-                      key={icon.slug}
-                      type="button"
-                      onClick={() => setSelectedSlug(icon.slug)}
-                      className={cn(
-                        'flex flex-col items-center justify-center p-2 rounded-3xs border transition-all duration-150 cursor-pointer min-h-[44px]',
-                        isSelected
-                          ? 'bg-accent/15 border-accent text-accent shadow-xs'
-                          : 'bg-bg-elevated border-border-default text-text-secondary hover:text-text-primary hover:border-border-strong'
-                      )}
-                      title={icon.name}
-                      aria-label={`Select ${icon.name} specimen`}
-                    >
-                      <IconPreviewSvg icon={icon} size={18} />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Style Variant Selector & Quick Actions Strip */}
-            <div className="pt-3.5 mt-3 border-t border-border-subtle/80 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-              {/* Variant Style Switcher */}
-              <div className="flex items-center gap-1 bg-bg-elevated p-0.5 border border-border-default rounded-3xs">
+            {/* 2. Cohesive Variant Switcher */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-mono uppercase text-text-tertiary tracking-wider shrink-0">
+                Style:
+              </span>
+              <div className="flex items-center gap-1 bg-bg-elevated p-0.5 border border-border-default rounded-3xs flex-1 max-w-[280px]">
                 {(['regular', 'light', 'filled', 'duotone'] as IconStyle[]).map((st) => (
                   <button
                     key={st}
                     type="button"
                     onClick={() => setActiveStyle(st)}
                     className={cn(
-                      'px-2 py-1 text-[10px] uppercase rounded-3xs transition-all cursor-pointer font-medium',
+                      'flex-1 py-1 text-[11px] font-mono uppercase rounded-3xs transition-all cursor-pointer text-center font-medium',
                       activeStyle === st
                         ? 'bg-accent text-white font-bold shadow-xs'
                         : 'text-text-tertiary hover:text-text-primary'
@@ -350,38 +295,66 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   </button>
                 ))}
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={handleCopyActiveSvg}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono font-medium rounded-3xs bg-bg-elevated border border-border-default text-text-secondary hover:text-text-primary hover:border-border-strong transition-all cursor-pointer"
-                  title="Copy Raw Canonical SVG"
-                >
-                  {copiedSlug === activeIcon.slug ? (
-                    <>
-                      <Check className="w-3 h-3 text-accent" />
-                      <span className="text-accent font-bold">Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3" />
-                      <span>Copy SVG</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => onSelectIcon?.(activeIcon)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-mono font-bold rounded-3xs bg-accent text-white hover:bg-accent-hover transition-all cursor-pointer shadow-xs"
-                  title="Open in full Inspector Modal"
-                >
-                  <Maximize2 className="w-3 h-3" />
-                  <span>Inspect</span>
-                </button>
+            {/* 3. Quick Specimen Thumbnails (Clean & Lightweight Strip) */}
+            <div className="flex items-center justify-between gap-1 pt-1 border-t border-border-subtle/80">
+              <span className="text-[11px] font-mono uppercase text-text-tertiary tracking-wider shrink-0">
+                Specimens:
+              </span>
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                {featuredIcons.map((icon) => {
+                  const isSelected = icon.slug === selectedSlug;
+                  return (
+                    <button
+                      key={icon.slug}
+                      type="button"
+                      onClick={() => setSelectedSlug(icon.slug)}
+                      className={cn(
+                        'w-8 h-8 rounded-3xs flex items-center justify-center transition-all cursor-pointer border',
+                        isSelected
+                          ? 'bg-accent/15 border-accent text-accent shadow-xs scale-105'
+                          : 'bg-bg-elevated/70 border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-strong'
+                      )}
+                      title={icon.name}
+                      aria-label={`Select ${icon.name}`}
+                    >
+                      <IconPreviewSvg icon={icon} size={16} />
+                    </button>
+                  );
+                })}
               </div>
+            </div>
+
+            {/* 4. Action Buttons (Clear Primary vs Secondary Hierarchy) */}
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleCopySvg}
+                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 min-h-[42px] text-xs font-mono font-bold uppercase tracking-wider bg-accent text-white rounded-xs hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
+              >
+                {copiedSlug === activeIcon.slug ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Copied SVG</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy SVG</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onSelectIcon?.(activeIcon)}
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[42px] text-xs font-mono font-medium uppercase tracking-wider bg-bg-elevated border border-border-default hover:border-border-strong text-text-primary rounded-xs hover:bg-bg-secondary transition-colors cursor-pointer touch-manipulation"
+                title="Open full inspector"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Inspect</span>
+              </button>
             </div>
           </div>
         </div>
