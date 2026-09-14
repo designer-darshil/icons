@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
 import { CommandPalette } from '@/features/search/CommandPalette';
@@ -17,13 +17,25 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
   const [internalSearchOpen, setInternalSearchOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleOpenSearch = () => {
+  const handleOpenSearch = useCallback(() => {
     if (onOpenSearch) {
       onOpenSearch();
     } else {
       setInternalSearchOpen(true);
     }
-  };
+  }, [onOpenSearch]);
+
+  // Global Cmd/Ctrl + K shortcut handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        handleOpenSearch();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleOpenSearch]);
 
   const handleSelectIcon = (icon: Icon) => {
     navigate(`/icons/${icon.slug}`);
