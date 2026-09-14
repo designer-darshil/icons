@@ -7,32 +7,17 @@ import { SpecimenGrid } from '@/features/icon-explorer/SpecimenGrid';
 import { IconDetailModal } from '@/features/icon-modal/IconDetailModal';
 import { CommandPalette } from '@/features/search/CommandPalette';
 import { useFavorites } from '@/features/favorites/useFavorites';
-import { useToast } from '@/components/ui/Toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { GRIDFRAME_ICONS, TOTAL_CONCEPTS_COUNT, TOTAL_VARIANTS_COUNT } from '@/data/icons/gridframe-catalog';
+import { HeroSection } from '@/features/hero/HeroSection';
+import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
 import { filterAndSortIcons } from '@/lib/icon-filtering';
-import { copyToClipboard } from '@/lib/export-svg';
-import { transformSvgMarkup } from '@/lib/icon-transformer';
-import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { pageEntranceVariants } from '@/lib/motion';
-import {
-  Copy,
-  Check,
-  Sparkles,
-  Layers,
-  Maximize2,
-  Box,
-  FileCode,
-} from 'lucide-react';
-import { cn } from '@/lib/cn';
-import type { Icon, IconStyle, IconVariant } from '@/types/icon';
+import { Layers, Box, FileCode } from 'lucide-react';
+import type { Icon, IconStyle } from '@/types/icon';
 import type { SortOption } from '@/types/filters';
 
-const SPOTLIGHT_SLUGS = ['search', 'heart', 'lock', 'star', 'mail', 'globe', 'settings', 'view-grid'];
-
 export const IconsRoute: React.FC = () => {
-  const { success } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Derived filter params from URL
@@ -146,13 +131,6 @@ export const IconsRoute: React.FC = () => {
     setSearchParams(new URLSearchParams(), { replace: true });
   }, [setSearchParams]);
 
-  // Hero Interactive Specimen Studio State
-  const [heroSpotlightSlug, setHeroSpotlightSlug] = useState('search');
-  const [heroScale, setHeroScale] = useState(40);
-  const [heroStroke, setHeroStroke] = useState(2.0);
-  const [heroStyle, setHeroStyle] = useState<IconStyle>('outline');
-  const [heroCopied, setHeroCopied] = useState(false);
-
   const { favoriteIds, toggleFavorite } = useFavorites();
   const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
@@ -186,45 +164,6 @@ export const IconsRoute: React.FC = () => {
     });
   }, [query, category, style, sort]);
 
-  // Hero Spotlight Active Icon & Markup
-  const heroSpotlightIcon = useMemo(() => {
-    return (
-      GRIDFRAME_ICONS.find((i) => i.slug === heroSpotlightSlug) ||
-      GRIDFRAME_ICONS[0]
-    );
-  }, [heroSpotlightSlug]);
-
-  const heroActiveVariant: IconVariant = useMemo(() => {
-    if (!heroSpotlightIcon) {
-      return {
-        id: 'fallback',
-        style: 'outline',
-        label: 'Outline',
-        svg: '',
-        viewBox: '0 0 24 24',
-        supportsStroke: true,
-        supportsColor: true,
-      };
-    }
-    const match = heroSpotlightIcon.variants.find((v) => v.style === heroStyle);
-    return match || heroSpotlightIcon.variants[0];
-  }, [heroSpotlightIcon, heroStyle]);
-
-  const heroTransformedSvg = useMemo(() => {
-    return transformSvgMarkup(heroActiveVariant, {
-      ...DEFAULT_CUSTOMIZATION,
-      size: heroScale,
-      strokeWidth: heroStroke,
-    });
-  }, [heroActiveVariant, heroScale, heroStroke]);
-
-  const handleHeroCopy = useCallback(() => {
-    copyToClipboard(heroTransformedSvg);
-    setHeroCopied(true);
-    success(`Copied ${heroSpotlightIcon.name} (${heroActiveVariant.style}) SVG`);
-    setTimeout(() => setHeroCopied(false), 1500);
-  }, [heroTransformedSvg, heroSpotlightIcon.name, heroActiveVariant.style, success]);
-
   // Dynamic Document Title
   const dynamicTitle = useMemo(() => {
     if (query) return `Search: "${query}"`;
@@ -256,197 +195,15 @@ export const IconsRoute: React.FC = () => {
         animate="animate"
       >
         {/* =========================================================================
-            1. HERO / PAGE INTRO: EDITORIAL HERO SECTION
+            1. HERO / PAGE INTRO: GRIDFRAME V3 EDITORIAL SPECIMEN WORKSPACE
             ========================================================================= */}
-        <section className="pt-2 pb-16 md:pb-24 border-b border-border-subtle/70 mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-            {/* Left Hero Column: Massive Typographic Statement & Lead */}
-            <div className="lg:col-span-7 space-y-8">
-              {/* Status pill & Archive Metadata */}
-              <div className="flex flex-wrap items-center gap-3 type-metadata uppercase tracking-widest text-text-tertiary">
-                <span className="flex items-center gap-2 px-2.5 py-1 rounded-3xs bg-accent/10 border border-accent/20 text-accent font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  ARCHIVE V2
-                </span>
-                <span>{TOTAL_CONCEPTS_COUNT.toLocaleString()} ICONS</span>
-                <span>·</span>
-                <span>{TOTAL_VARIANTS_COUNT.toLocaleString()} VARIANTS</span>
-                <span>·</span>
-                <span className="text-text-secondary font-medium">OPEN SPECIMEN ARCHIVE</span>
-              </div>
-
-              {/* Giant Editorial Headline */}
-              <div className="space-y-4">
-                <h1 className="type-hero text-text-primary uppercase sm:normal-case">
-                  Vector forms engineered for digital surfaces.
-                </h1>
-                <p className="type-body-lead text-text-secondary max-w-2xl font-normal leading-relaxed">
-                  An open vector monograph of geometric interface glyphs. Unified on a 24×24 pixel canvas, deduplicated by concept identity, and rendered across multiple stroke and fill weights.
-                </p>
-              </div>
-
-              {/* Hero Specifications Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border-subtle/70">
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider block">Grid Geometry</span>
-                  <span className="text-xs font-mono font-bold text-text-primary">24×24 px</span>
-                </div>
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider block">Primary Stroke</span>
-                  <span className="text-xs font-mono font-bold text-text-primary">2.0px Center</span>
-                </div>
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider block">Variants</span>
-                  <span className="text-xs font-mono font-bold text-text-primary">5 Styles / Item</span>
-                </div>
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider block">Export Engines</span>
-                  <span className="text-xs font-mono font-bold text-text-primary">React · SVG · CSS</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Hero Column: Interactive Live Specimen Stage */}
-            <div className="lg:col-span-5 bg-bg-secondary/40 border border-border-default/80 rounded-xs p-6 md:p-8 space-y-6 shadow-dropdown">
-              <div className="flex items-center justify-between border-b border-border-subtle/70 pb-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-accent" />
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-primary">
-                    Interactive Specimen Stage
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono text-text-tertiary uppercase">
-                  {heroSpotlightIcon.category}
-                </span>
-              </div>
-
-              {/* Live Vector Stage Display */}
-              <div className="relative w-full aspect-video rounded-xs bg-bg-primary/90 border border-border-subtle/60 flex items-center justify-center p-8 overflow-hidden select-none">
-                {/* 24x24 Optical Grid Crosshair Frame */}
-                <div className="absolute inset-8 border border-dashed border-border-subtle/40 rounded-3xs pointer-events-none" />
-                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/20 pointer-events-none" />
-                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/20 pointer-events-none" />
-
-                {/* Rendered SVG Element */}
-                <div
-                  dangerouslySetInnerHTML={{ __html: heroTransformedSvg }}
-                  className="relative z-10 flex items-center justify-center text-text-primary transition-transform duration-150"
-                />
-
-                {/* Stage Sub-label */}
-                <div className="absolute bottom-2.5 inset-x-4 flex items-center justify-between text-[10px] font-mono text-text-tertiary">
-                  <span>{heroSpotlightIcon.slug}</span>
-                  <span>{heroScale}px / {heroStroke}px</span>
-                </div>
-              </div>
-
-              {/* Spotlight Concept Selector Carousel */}
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider block">
-                  Select Featured Specimen
-                </span>
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 touch-pan-x">
-                  {SPOTLIGHT_SLUGS.map((slug) => (
-                    <button
-                      key={slug}
-                      type="button"
-                      onClick={() => setHeroSpotlightSlug(slug)}
-                      className={cn(
-                        'px-3 py-1.5 min-h-[36px] text-xs font-mono rounded-3xs border transition-all cursor-pointer shrink-0 touch-manipulation',
-                        heroSpotlightSlug === slug
-                          ? 'bg-accent text-white font-bold border-accent shadow-xs'
-                          : 'bg-bg-elevated text-text-secondary hover:text-text-primary border-border-default hover:border-border-strong'
-                      )}
-                    >
-                      {slug}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Live Customizer Toggles: Style & Stroke & Scale */}
-              <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border-subtle/70 text-xs font-mono">
-                <div className="space-y-1.5">
-                  <span className="text-[10px] text-text-tertiary uppercase tracking-wider block">Style</span>
-                  <div className="flex items-center gap-1 bg-bg-elevated p-1 border border-border-default rounded-3xs">
-                    {(['outline', 'filled', 'bold'] as IconStyle[]).map((st) => (
-                      <button
-                        key={st}
-                        type="button"
-                        onClick={() => setHeroStyle(st)}
-                        className={cn(
-                          'flex-1 py-1.5 min-h-[32px] text-[10px] uppercase rounded-3xs transition-all cursor-pointer touch-manipulation',
-                          heroStyle === st
-                            ? 'bg-accent text-white font-bold'
-                            : 'text-text-tertiary hover:text-text-primary'
-                        )}
-                      >
-                        {st.slice(0, 3)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <span className="text-[10px] text-text-tertiary uppercase tracking-wider block truncate">Stroke: {heroStroke}px</span>
-                  <div className="flex items-center gap-1 bg-bg-elevated p-1 border border-border-default rounded-3xs">
-                    {[1.5, 2.0, 2.5].map((w) => (
-                      <button
-                        key={w}
-                        type="button"
-                        onClick={() => setHeroStroke(w)}
-                        className={cn(
-                          'flex-1 py-1.5 min-h-[32px] text-[10px] uppercase rounded-3xs transition-all cursor-pointer touch-manipulation',
-                          heroStroke === w
-                            ? 'bg-accent text-white font-bold'
-                            : 'text-text-tertiary hover:text-text-primary'
-                        )}
-                      >
-                        {w}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[10px] text-text-tertiary uppercase">
-                    <span>Size</span>
-                    <span className="text-text-primary font-bold">{heroScale}px</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={20}
-                    max={64}
-                    step={2}
-                    value={heroScale}
-                    onChange={(e) => setHeroScale(Number(e.target.value))}
-                    className="w-full accent-accent cursor-pointer h-2 bg-bg-elevated rounded-xs mt-2"
-                  />
-                </div>
-              </div>
-
-              {/* Copy Action Strip */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={handleHeroCopy}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 min-h-[44px] text-xs font-mono font-bold uppercase tracking-wider bg-accent text-white rounded-lg hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
-                >
-                  {heroCopied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{heroCopied ? 'Copied Markup' : 'Copy SVG Specimen'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedIcon(heroSpotlightIcon)}
-                  className="px-3.5 py-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-xs font-mono text-text-secondary hover:text-text-primary bg-bg-elevated border border-border-default hover:border-border-strong rounded-lg transition-colors cursor-pointer touch-manipulation"
-                  title="Open full inspector"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HeroSection
+          query={query}
+          onQueryChange={handleQueryChange}
+          onSelectCategory={handleCategoryChange}
+          onSelectIcon={handleSelectIcon}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        />
 
         {/* =========================================================================
             2. PRIMARY SEARCH, DOMAIN FILTERS, STYLE SWITCHER & SORT BAR
