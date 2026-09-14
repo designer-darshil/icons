@@ -11,6 +11,8 @@ import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { modalOverlayVariants, modalDialogVariants } from '@/lib/motion';
+import { getRelatedIcons } from '@/lib/icon-relations';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import type { Icon, IconVariant, IconStyle } from '@/types/icon';
 import type { IconCustomization } from '@/types/customization';
 import {
@@ -35,6 +37,7 @@ export interface IconDetailModalProps {
   icon: Icon | null;
   isFavorite?: boolean;
   onToggleFavorite?: (icon: Icon) => void;
+  onSelectIcon?: (icon: Icon) => void;
 }
 
 const SIZE_PRESETS = [16, 24, 32, 48, 64] as const;
@@ -47,9 +50,11 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   icon,
   isFavorite,
   onToggleFavorite,
+  onSelectIcon,
 }) => {
   const { success } = useToast();
   const prefersReducedMotion = useReducedMotion();
+  const { addRecentlyViewed } = useRecentlyViewed();
   useScrollLock(isOpen);
 
   // Core state
@@ -73,7 +78,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Reset state on icon change or modal opening (Strict State Isolation)
+  // Reset state and track recently viewed on icon change or modal opening (Strict State Isolation)
   useEffect(() => {
     if (icon && isOpen) {
       const defaultStyle = icon.variants?.some((v) => v.style === 'regular')
@@ -81,8 +86,15 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
         : icon.variants?.[0]?.style || 'regular';
       setSelectedStyle(defaultStyle);
       setCustomization(DEFAULT_CUSTOMIZATION);
+      addRecentlyViewed(icon.id);
     }
-  }, [icon?.id, isOpen]);
+  }, [icon?.id, isOpen, addRecentlyViewed]);
+
+  // Compute related conceptual icons (secondary discovery)
+  const relatedIcons = useMemo(() => {
+    if (!icon) return [];
+    return getRelatedIcons(icon, undefined, 5);
+  }, [icon]);
 
   // Active Variant (Single source of truth)
   const activeVariant: IconVariant = useMemo(() => {
@@ -441,6 +453,33 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* ─── RELATED ICONS (Secondary Discovery) ─── */}
+            {relatedIcons.length > 0 && (
+              <div className="px-4 sm:px-7 py-3 border-t border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-3 overflow-x-auto native-scroll select-none">
+                <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider shrink-0">
+                  Related
+                </span>
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  {relatedIcons.map((relIcon) => (
+                    <button
+                      key={relIcon.id}
+                      type="button"
+                      onClick={() => onSelectIcon?.(relIcon)}
+                      title={relIcon.name}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-bg-elevated border border-border-subtle hover:border-border-strong text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs"
+                    >
+                      <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                        <IconPreviewSvg variant={relIcon.variants[0]} icon={relIcon} size={14} />
+                      </div>
+                      <span className="text-[11px] font-mono font-medium truncate max-w-[95px] sm:max-w-[120px]">
+                        {relIcon.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
       </AnimatePresence>

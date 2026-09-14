@@ -11,6 +11,8 @@ export interface FilterState {
   strokeWeight: StrokeWeightFilter;
   tag?: string;
   sort: SortOption;
+  onlyFavorites?: boolean;
+  collectionId?: string;
 }
 
 export interface SearchSuggestion {

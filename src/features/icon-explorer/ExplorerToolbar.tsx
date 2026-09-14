@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal, Sparkles, Heart } from 'lucide-react';
 import { ICON_CATEGORIES } from '@/data/categories';
 import { cn } from '@/lib/cn';
 import type { IconStyle } from '@/types/icon';
@@ -16,6 +16,9 @@ export interface ExplorerToolbarProps {
   onSortChange: (sort: SortOption) => void;
   totalCount: number;
   filteredCount: number;
+  onlyFavorites?: boolean;
+  onToggleOnlyFavorites?: () => void;
+  favoritesCount?: number;
   onResetFilters?: () => void;
   onOpenFilterDrawer?: () => void;
   onOpenCommandPalette?: () => void;
@@ -50,6 +53,9 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   onSortChange,
   totalCount,
   filteredCount,
+  onlyFavorites = false,
+  onToggleOnlyFavorites,
+  favoritesCount = 0,
   onResetFilters,
   onOpenFilterDrawer,
   onOpenCommandPalette,
@@ -64,7 +70,11 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
   };
 
   const currentCatUpper = selectedCategory.toUpperCase();
-  const isFiltered = query.trim() !== '' || (selectedCategory !== 'all' && selectedCategory !== 'ALL') || selectedStyle !== 'all';
+  const isFiltered =
+    query.trim() !== '' ||
+    (selectedCategory !== 'all' && selectedCategory !== 'ALL') ||
+    selectedStyle !== 'all' ||
+    onlyFavorites;
 
   return (
     <div className="space-y-6 mb-12">
@@ -217,6 +227,28 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
               TIER 3: TERTIARY SORT & FILTER CONTROLS
               ========================================================================= */}
           <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
+            {onToggleOnlyFavorites && (
+              <button
+                type="button"
+                onClick={onToggleOnlyFavorites}
+                aria-label={onlyFavorites ? 'Show all icons' : 'Filter by saved icons'}
+                className={cn(
+                  'h-9 px-3 flex items-center gap-1.5 rounded-full text-xs font-mono transition-all cursor-pointer border select-none',
+                  onlyFavorites
+                    ? 'bg-accent/15 border-accent text-accent font-bold shadow-xs'
+                    : 'bg-bg-secondary/60 text-text-secondary border-border-subtle/80 hover:text-text-primary hover:border-border-strong'
+                )}
+              >
+                <Heart className={cn('w-3.5 h-3.5', onlyFavorites && 'fill-current text-accent')} />
+                <span className="hidden sm:inline">Saved</span>
+                {favoritesCount > 0 && (
+                  <span className="text-[10px] font-bold px-1 rounded-full bg-accent/20 text-accent">
+                    {favoritesCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             <select
               value={sort}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
@@ -234,7 +266,7 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
                 type="button"
                 onClick={onOpenFilterDrawer}
                 aria-label="Open filter drawer"
-                className="lg:hidden p-2 bg-bg-secondary border border-border-default rounded-full text-text-secondary hover:text-text-primary shrink-0"
+                className="lg:hidden p-2 bg-bg-secondary border border-border-default rounded-full text-text-secondary hover:text-text-primary shrink-0 cursor-pointer"
               >
                 <SlidersHorizontal className="w-4 h-4" />
               </button>
@@ -254,6 +286,11 @@ export const ExplorerToolbar: React.FC<ExplorerToolbarProps> = ({
           {selectedStyle !== 'all' && (
             <span className="px-1.5 py-0.2 bg-bg-elevated rounded-full border border-border-subtle text-accent uppercase font-bold text-[9px]">
               {selectedStyle}
+            </span>
+          )}
+          {onlyFavorites && (
+            <span className="px-1.5 py-0.2 bg-accent/15 rounded-full border border-accent text-accent uppercase font-bold text-[9px]">
+              Saved Only
             </span>
           )}
         </div>

@@ -14,6 +14,8 @@ import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
 import { filterAndSortIcons } from '@/lib/icon-filtering';
 import { pageEntranceVariants } from '@/lib/motion';
 import { Layers, Box, FileCode } from 'lucide-react';
+import { MobileFilterDrawer } from '@/features/icon-explorer/MobileFilterDrawer';
+import { useCollections } from '@/features/collections/useCollections';
 import type { Icon, IconStyle } from '@/types/icon';
 import type { SortOption } from '@/types/filters';
 
@@ -25,14 +27,19 @@ export const IconsRoute: React.FC = () => {
   const categoryParam = searchParams.get('category') || searchParams.get('cat') || 'all';
   const styleParam = (searchParams.get('style') as IconStyle | 'all') || 'all';
   const sortParam = (searchParams.get('sort') as SortOption) || 'popular';
+  const favoritesParam = searchParams.get('favorites') === 'true' || searchParams.get('saved') === 'true';
+  const collectionParam = searchParams.get('collection') || searchParams.get('set') || '';
 
   const [query, setQueryState] = useState(queryParam);
   const [category, setCategoryState] = useState(categoryParam);
   const [style, setStyleState] = useState<IconStyle | 'all'>(styleParam);
   const [sort, setSortState] = useState<SortOption>(sortParam);
+  const [onlyFavorites, setOnlyFavorites] = useState(favoritesParam);
+  const [collectionId, setCollectionId] = useState(collectionParam);
 
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   // Sync state if URL changes externally
   useEffect(() => {
@@ -40,11 +47,20 @@ export const IconsRoute: React.FC = () => {
     setCategoryState(categoryParam);
     setStyleState(styleParam);
     setSortState(sortParam);
-  }, [queryParam, categoryParam, styleParam, sortParam]);
+    setOnlyFavorites(favoritesParam);
+    setCollectionId(collectionParam);
+  }, [queryParam, categoryParam, styleParam, sortParam, favoritesParam, collectionParam]);
 
   // Sync changes back to URL searchParams
   const updateUrlParams = useCallback(
-    (updates: { query?: string; category?: string; style?: IconStyle | 'all'; sort?: SortOption }) => {
+    (updates: {
+      query?: string;
+      category?: string;
+      style?: IconStyle | 'all';
+      sort?: SortOption;
+      onlyFavorites?: boolean;
+      collectionId?: string;
+    }) => {
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
@@ -52,6 +68,8 @@ export const IconsRoute: React.FC = () => {
           const nextCategory = updates.category !== undefined ? updates.category : (prev.get('category') || prev.get('cat') || 'all');
           const nextStyle = updates.style !== undefined ? updates.style : ((prev.get('style') as IconStyle | 'all') || 'all');
           const nextSort = updates.sort !== undefined ? updates.sort : ((prev.get('sort') as SortOption) || 'popular');
+          const nextFavorites = updates.onlyFavorites !== undefined ? updates.onlyFavorites : (prev.get('favorites') === 'true');
+          const nextCollection = updates.collectionId !== undefined ? updates.collectionId : (prev.get('collection') || '');
 
           if (nextQuery && nextQuery.trim()) {
             next.set('search', nextQuery.trim());
@@ -81,6 +99,22 @@ export const IconsRoute: React.FC = () => {
             next.set('sort', nextSort);
           } else {
             next.delete('sort');
+          }
+
+          if (nextFavorites) {
+            next.set('favorites', 'true');
+            next.delete('saved');
+          } else {
+            next.delete('favorites');
+            next.delete('saved');
+          }
+
+          if (nextCollection) {
+            next.set('collection', nextCollection);
+            next.delete('set');
+          } else {
+            next.delete('collection');
+            next.delete('set');
           }
 
           return next;
@@ -123,11 +157,32 @@ export const IconsRoute: React.FC = () => {
     [updateUrlParams]
   );
 
+  const { collections } = useCollections();
+  const activeCollection = useMemo(() => {
+    if (!collectionId) return null;
+    return collections.find((c) => c.id === collectionId || c.name.toLowerCase() === collectionId.toLowerCase()) || null;
+  }, [collectionId, collections]);
+
+  const collectionIconSet = useMemo(() => {
+    if (!activeCollection) return undefined;
+    return new Set(activeCollection.iconIds);
+  }, [activeCollection]);
+
+  const handleToggleOnlyFavorites = useCallback(() => {
+    setOnlyFavorites((prev) => {
+      const next = !prev;
+      updateUrlParams({ onlyFavorites: next });
+      return next;
+    });
+  }, [updateUrlParams]);
+
   const handleResetFilters = useCallback(() => {
     setQueryState('');
     setCategoryState('all');
     setStyleState('all');
     setSortState('popular');
+    setOnlyFavorites(false);
+    setCollectionId('');
     setSearchParams(new URLSearchParams(), { replace: true });
   }, [setSearchParams]);
 
@@ -155,22 +210,33 @@ export const IconsRoute: React.FC = () => {
 
   // Filter & Search & Sort pipeline across COMPLETE ICON DATASET
   const filteredIcons = useMemo(() => {
-    return filterAndSortIcons(GRIDFRAME_ICONS, {
-      query,
-      category,
-      style,
-      strokeWeight: 'all',
-      sort,
-    });
-  }, [query, category, style, sort]);
+    return filterAndSortIcons(
+      GRIDFRAME_ICONS,
+      {
+        query,
+        category,
+        style,
+        strokeWeight: 'all',
+        sort,
+        onlyFavorites,
+        collectionId: activeCollection?.id,
+      },
+      {
+        favoriteIds: favoriteSet,
+        collectionIconIds: collectionIconSet,
+      }
+    );
+  }, [query, category, style, sort, onlyFavorites, activeCollection, favoriteSet, collectionIconSet]);
 
   // Dynamic Document Title
   const dynamicTitle = useMemo(() => {
     if (query) return `Search: "${query}"`;
+    if (onlyFavorites) return 'Saved Favorite Icons';
+    if (activeCollection) return `Set: ${activeCollection.name}`;
     if (category !== 'all' && category !== 'ALL') return `${category.charAt(0).toUpperCase() + category.slice(1)} Icons`;
     if (style !== 'all') return `${style.toUpperCase()} Icons`;
     return 'Precision Vector Icon Archive';
-  }, [query, category, style]);
+  }, [query, onlyFavorites, activeCollection, category, style]);
 
   useDocumentTitle(dynamicTitle, 'Precision vector icon archive for modern interfaces.');
 
@@ -219,7 +285,11 @@ export const IconsRoute: React.FC = () => {
           onSortChange={handleSortChange}
           totalCount={GRIDFRAME_ICONS.length}
           filteredCount={filteredIcons.length}
+          onlyFavorites={onlyFavorites}
+          onToggleOnlyFavorites={handleToggleOnlyFavorites}
+          favoritesCount={favoriteIds.length}
           onResetFilters={handleResetFilters}
+          onOpenFilterDrawer={() => setIsFilterDrawerOpen(true)}
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         />
 
@@ -348,6 +418,7 @@ export const IconsRoute: React.FC = () => {
         icon={selectedIcon}
         isFavorite={selectedIcon ? favoriteSet.has(selectedIcon.id) : false}
         onToggleFavorite={handleToggleFavorite}
+        onSelectIcon={handleSelectIcon}
       />
 
       {/* Global Cmd+K Search Command Palette */}
@@ -356,6 +427,24 @@ export const IconsRoute: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         onSelectIcon={handleSelectIcon}
         onSelectCategory={(cat) => handleCategoryChange(cat)}
+      />
+
+      {/* Mobile Responsive Filter & Sort Bottom Sheet Drawer */}
+      <MobileFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        selectedCategory={category}
+        onCategoryChange={handleCategoryChange}
+        selectedStyle={style}
+        onStyleChange={handleStyleChange}
+        sort={sort}
+        onSortChange={handleSortChange}
+        totalCount={GRIDFRAME_ICONS.length}
+        filteredCount={filteredIcons.length}
+        onlyFavorites={onlyFavorites}
+        onToggleOnlyFavorites={handleToggleOnlyFavorites}
+        favoritesCount={favoriteIds.length}
+        onResetAll={handleResetFilters}
       />
     </WorkspaceShell>
   );

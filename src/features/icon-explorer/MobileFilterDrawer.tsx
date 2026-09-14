@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { X, Check, RotateCcw, SlidersHorizontal, Heart } from 'lucide-react';
 import { ICON_CATEGORIES } from '@/data/categories';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -20,6 +20,9 @@ export interface MobileFilterDrawerProps {
   onSortChange: (sort: SortOption) => void;
   totalCount: number;
   filteredCount: number;
+  onlyFavorites?: boolean;
+  onToggleOnlyFavorites?: () => void;
+  favoritesCount?: number;
   onResetAll?: () => void;
 }
 
@@ -59,6 +62,9 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
   onSortChange,
   totalCount,
   filteredCount,
+  onlyFavorites = false,
+  onToggleOnlyFavorites,
+  favoritesCount = 0,
   onResetAll,
 }) => {
   const prefersReducedMotion = useReducedMotion();
@@ -76,7 +82,10 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
   }, [isOpen, onClose]);
 
   const currentCatUpper = selectedCategory.toUpperCase();
-  const isFiltered = (selectedCategory !== 'all' && selectedCategory !== 'ALL') || selectedStyle !== 'all';
+  const isFiltered =
+    (selectedCategory !== 'all' && selectedCategory !== 'ALL') ||
+    selectedStyle !== 'all' ||
+    onlyFavorites;
 
   return (
     <AnimatePresence>
@@ -145,6 +154,35 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
               data-lenis-prevent="true"
               className="flex-1 overflow-y-auto p-6 space-y-6 overscroll-contain native-scroll"
             >
+              {/* 0. Saved Icons Filter Toggle */}
+              {onToggleOnlyFavorites && (
+                <div className="space-y-2.5">
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-tertiary block">
+                    Saved Filter
+                  </span>
+                  <button
+                    type="button"
+                    onClick={onToggleOnlyFavorites}
+                    className={cn(
+                      'w-full flex items-center justify-between p-3.5 min-h-[52px] rounded-xl border text-xs font-mono transition-all cursor-pointer select-none touch-manipulation',
+                      onlyFavorites
+                        ? 'bg-accent/10 border-accent text-accent font-bold shadow-xs'
+                        : 'bg-bg-secondary/40 border-border-subtle text-text-secondary hover:text-text-primary'
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Heart className={cn('w-4 h-4', onlyFavorites && 'fill-current text-accent')} />
+                      <span>Show Saved Icons Only</span>
+                    </div>
+                    {favoritesCount > 0 && (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-accent/20 text-accent">
+                        {favoritesCount} saved
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
+
               {/* 1. Vector Style Selection */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">

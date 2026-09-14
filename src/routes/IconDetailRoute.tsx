@@ -114,6 +114,7 @@ export const IconDetailRoute: React.FC = () => {
         icon={selectedIcon}
         isFavorite={selectedIcon ? favoriteSet.has(selectedIcon.id) : false}
         onToggleFavorite={handleToggleFavorite}
+        onSelectIcon={handleSelectIcon}
       />
 
       <CommandPalette
