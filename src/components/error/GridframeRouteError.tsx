@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRouteError, isRouteErrorResponse, useNavigate, useLocation } from 'react-router-dom';
 import { GridframeErrorState } from './GridframeErrorState';
+import { telemetry } from '@/lib/monitoring';
 
 export interface GridframeRouteErrorProps {
   compact?: boolean;
@@ -27,6 +28,13 @@ export const GridframeRouteError: React.FC<GridframeRouteErrorProps> = ({ compac
     : is500
     ? "We couldn't load this view correctly."
     : "Gridframe encountered an unexpected route failure while processing this page.";
+
+  useEffect(() => {
+    telemetry.logError('route_error', typeof error === 'object' && error !== null && 'message' in error ? String((error as any).message) : errorTitle, {
+      path: location.pathname,
+      statusCode,
+    });
+  }, [error, location.pathname, statusCode, errorTitle]);
 
   // Safe retry handler
   const handleRetry = useCallback(() => {

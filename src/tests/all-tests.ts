@@ -14,6 +14,7 @@ import './customizer-export-2-test';
 import './favorites-collections-2-test';
 import './catalog-architecture-test';
 import './accessibility-keyboard-test';
+import './production-launch-test';
 
 console.log(`
 ======================================================

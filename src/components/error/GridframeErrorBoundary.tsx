@@ -1,5 +1,6 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react';
 import { GridframeErrorState } from './GridframeErrorState';
+import { telemetry } from '@/lib/monitoring';
 
 export interface GridframeErrorBoundaryProps {
   children: ReactNode;
@@ -29,8 +30,8 @@ export class GridframeErrorBoundary extends Component<GridframeErrorBoundaryProp
   public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({ errorInfo });
 
-    // 1. Safe diagnostic logging
-    console.error('[Gridframe ErrorBoundary] Uncaught rendering exception:', error, errorInfo);
+    // 1. Safe telemetry logging
+    telemetry.logError('runtime_exception', error.message, { stack: error.stack });
 
     // 2. Call optional consumer error handler
     this.props.onError?.(error, errorInfo);

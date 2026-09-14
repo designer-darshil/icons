@@ -397,6 +397,15 @@ export const IconsRoute: React.FC = () => {
               <Link to="/collections" className="hover:text-text-primary transition-colors">
                 Sets
               </Link>
+              <Link to="/about" className="hover:text-text-primary transition-colors">
+                About
+              </Link>
+              <Link to="/privacy" className="hover:text-text-primary transition-colors">
+                Privacy
+              </Link>
+              <Link to="/terms" className="hover:text-text-primary transition-colors">
+                Terms
+              </Link>
             </div>
           </div>
 

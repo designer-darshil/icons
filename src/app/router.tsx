@@ -11,6 +11,9 @@ import { DevQARoute } from "@/routes/DevQARoute";
 import { IconRenderingQARoute } from "@/routes/IconRenderingQARoute";
 import { IconoirQARoute } from "@/routes/IconoirQARoute";
 import { NotFoundRoute } from "@/routes/NotFoundRoute";
+import { PrivacyRoute } from "@/routes/PrivacyRoute";
+import { TermsRoute } from "@/routes/TermsRoute";
+import { AboutRoute } from "@/routes/AboutRoute";
 import { GridframeRouteError } from "@/components/error/GridframeRouteError";
 
 // Admin Module Routes & Shell
@@ -105,6 +108,22 @@ export const router = createBrowserRouter([
       {
         path: "qa",
         element: <DevQARoute />,
+      },
+      {
+        path: "privacy",
+        element: <PrivacyRoute />,
+      },
+      {
+        path: "terms",
+        element: <TermsRoute />,
+      },
+      {
+        path: "about",
+        element: <AboutRoute />,
+      },
+      {
+        path: "contact",
+        element: <AboutRoute />,
       },
       {
         path: "*",

@@ -1,0 +1,17 @@
+{
+  "name": "GRIDFRAME — Precision Icon Workstation",
+  "short_name": "GRIDFRAME",
+  "description": "Precision vector icon workstation for designers and developers: search, inspect, customize, and export production-ready vector icons.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#11110F",
+  "theme_color": "#11110F",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141311" />
+      <stop offset="100%" stop-color="#0D0C0B" />
+    </linearGradient>
+
+    <!-- Grid Pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#23221E" stroke-width="1" stroke-opacity="0.6" />
+    </pattern>
+
+    <!-- Accent Glow -->
+    <radialGradient id="glow" cx="80%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#FF5024" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#141311" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg-grad)" />
+  <rect width="1200" height="630" fill="url(#grid)" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+
+  <!-- Outer Frame -->
+  <rect x="32" y="32" width="1136" height="566" rx="8" fill="none" stroke="#2B2925" stroke-width="1.5" />
+
+  <!-- Corner Crosshairs -->
+  <path d="M 24 32 L 40 32 M 32 24 L 32 40" stroke="#FF5024" stroke-width="1.5" />
+  <path d="M 1160 32 L 1176 32 M 1168 24 L 1168 40" stroke="#FF5024" stroke-width="1.5" />
+  <path d="M 24 598 L 40 598 M 32 590 L 32 606" stroke="#FF5024" stroke-width="1.5" />
+  <path d="M 1160 598 L 1176 598 M 1168 590 L 1168 606" stroke="#FF5024" stroke-width="1.5" />
+
+  <!-- Brand Tagline -->
+  <g transform="translate(80, 110)">
+    <!-- Brand Badge -->
+    <rect x="0" y="0" width="140" height="28" rx="4" fill="#1C1B17" stroke="#33312B" />
+    <circle cx="16" cy="14" r="4" fill="#FF5024" />
+    <text x="30" y="18" fill="#EDEDEC" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" letter-spacing="2">ARCHIVE V2.4</text>
+
+    <!-- Main Title -->
+    <text x="0" y="90" fill="#FFFFFF" font-family="'General Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="64" font-weight="700" letter-spacing="-1.5">
+      GRIDFRAME
+    </text>
+
+    <text x="0" y="145" fill="#A8A7A1" font-family="'General Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="26" font-weight="400">
+      Precision Vector Icon Workstation for Designers &amp; Developers
+    </text>
+
+    <!-- Capabilities List -->
+    <g transform="translate(0, 210)">
+      <!-- Item 1 -->
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="180" height="42" rx="4" fill="#181714" stroke="#2B2925" />
+        <text x="16" y="26" fill="#EDEDEC" font-family="'JetBrains Mono', monospace" font-size="13">1,600+ ICONS</text>
+      </g>
+      <!-- Item 2 -->
+      <g transform="translate(196, 0)">
+        <rect x="0" y="0" width="180" height="42" rx="4" fill="#181714" stroke="#2B2925" />
+        <text x="16" y="26" fill="#EDEDEC" font-family="'JetBrains Mono', monospace" font-size="13">24×24 GRID</text>
+      </g>
+      <!-- Item 3 -->
+      <g transform="translate(392, 0)">
+        <rect x="0" y="0" width="180" height="42" rx="4" fill="#181714" stroke="#2B2925" />
+        <text x="16" y="26" fill="#EDEDEC" font-family="'JetBrains Mono', monospace" font-size="13">MULTI-STYLE</text>
+      </g>
+      <!-- Item 4 -->
+      <g transform="translate(588, 0)">
+        <rect x="0" y="0" width="180" height="42" rx="4" fill="#181714" stroke="#2B2925" />
+        <text x="16" y="26" fill="#EDEDEC" font-family="'JetBrains Mono', monospace" font-size="13">REACT &amp; SVG</text>
+      </g>
+    </g>
+
+    <!-- Bottom Specs -->
+    <text x="0" y="320" fill="#7D7D76" font-family="'JetBrains Mono', monospace" font-size="13" letter-spacing="1">
+      OPEN SOURCE • MIT LICENSE • LOCAL-FIRST WORKSPACE
+    </text>
+  </g>
+
+  <!-- Right Side Visual Specimen -->
+  <g transform="translate(860, 160)">
+    <!-- Outer Specimen Stage -->
+    <rect x="0" y="0" width="240" height="240" rx="8" fill="#181714" stroke="#33312B" stroke-width="1.5" />
+    
+    <!-- Coordinate ticks -->
+    <line x1="120" y1="0" x2="120" y2="240" stroke="#282723" stroke-dasharray="4,4" />
+    <line x1="0" y1="120" x2="240" y2="120" stroke="#282723" stroke-dasharray="4,4" />
+    
+    <!-- Target Glyph Illustration -->
+    <rect x="48" y="48" width="144" height="144" rx="16" fill="none" stroke="#FF5024" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="120" cy="120" r="32" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 120 72 L 120 88 M 120 152 L 120 168 M 72 120 L 88 120 M 152 120 L 168 120" stroke="#FF5024" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Specimen badge -->
+    <rect x="55" y="205" width="130" height="22" rx="3" fill="#11110F" stroke="#2B2925" />
+    <text x="120" y="220" fill="#EDEDEC" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" text-anchor="middle" letter-spacing="1.5">24×24 MATRIX</text>
+  </g>
+</svg>

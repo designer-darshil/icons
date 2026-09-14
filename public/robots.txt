@@ -1,2 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /dev/*
+
+Sitemap: https://gridframe.dev/sitemap.xml
