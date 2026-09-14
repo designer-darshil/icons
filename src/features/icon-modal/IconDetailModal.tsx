@@ -27,8 +27,14 @@ import {
   Check,
   FlipHorizontal,
   FlipVertical,
+  Share2,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import {
+  shareIconConfiguration,
+  deserializeIconConfiguration,
+  serializeIconConfiguration,
+} from '@/lib/icon-share';
 
 /* ─────────── Constants ─────────── */
 
@@ -39,6 +45,8 @@ export interface IconDetailModalProps {
   isFavorite?: boolean;
   onToggleFavorite?: (icon: Icon) => void;
   onSelectIcon?: (icon: Icon) => void;
+  initialStyle?: IconStyle;
+  initialCustomization?: Partial<IconCustomization>;
 }
 
 const SIZE_PRESETS = [16, 24, 32, 48, 64] as const;
@@ -52,6 +60,8 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   isFavorite,
   onToggleFavorite,
   onSelectIcon,
+  initialStyle,
+  initialCustomization,
 }) => {
   const { success } = useToast();
   const prefersReducedMotion = useReducedMotion();
@@ -67,6 +77,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [copiedSvg, setCopiedSvg] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const [shared, setShared] = useState(false);
 
   const modalContainerRef = useRef<HTMLDivElement>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
@@ -125,17 +136,41 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Reset state and track recently viewed on icon change or modal opening (Strict State Isolation)
+  // Reset / Initialize state and track recently viewed on icon change or modal opening (Strict State Isolation)
   useEffect(() => {
     if (icon && isOpen) {
-      const defaultStyle = icon.variants?.some((v) => v.style === 'regular')
-        ? 'regular'
-        : icon.variants?.[0]?.style || 'regular';
-      setSelectedStyle(defaultStyle);
-      setCustomization(DEFAULT_CUSTOMIZATION);
+      let activeStyle: IconStyle = initialStyle || 'regular';
+      let initCustom: IconCustomization = { ...DEFAULT_CUSTOMIZATION, ...initialCustomization };
+
+      // If initial props were not passed but URL query parameters exist, deserialize safely
+      if (!initialStyle && !initialCustomization && typeof window !== 'undefined' && window.location.search) {
+        const parsed = deserializeIconConfiguration(window.location.search, icon);
+        activeStyle = parsed.style;
+        initCustom = parsed.customization;
+      } else if (!initialStyle) {
+        activeStyle = icon.variants?.some((v) => v.style === 'regular')
+          ? 'regular'
+          : icon.variants?.[0]?.style || 'regular';
+      }
+
+      setSelectedStyle(activeStyle);
+      setCustomization(initCustom);
       addRecentlyViewed(icon.id);
     }
-  }, [icon?.id, isOpen, addRecentlyViewed]);
+  }, [icon?.id, isOpen, addRecentlyViewed, initialStyle, initialCustomization]);
+
+  // Sync URL query params with current configuration when on /icons/:slug
+  useEffect(() => {
+    if (
+      isOpen &&
+      icon &&
+      typeof window !== 'undefined' &&
+      window.location.pathname.toLowerCase().startsWith(`/icons/${icon.slug.toLowerCase()}`)
+    ) {
+      const shareUrl = serializeIconConfiguration(icon.slug, selectedStyle, customization);
+      window.history.replaceState(null, '', shareUrl);
+    }
+  }, [isOpen, icon, selectedStyle, customization]);
 
   // Compute related conceptual icons (secondary discovery)
   const relatedIcons = useMemo(() => {
@@ -182,6 +217,16 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
     success(`Downloaded ${icon.slug}.svg`);
     setTimeout(() => setDownloaded(false), 1400);
   }, [icon, activeVariant.style, transformedSvg, success]);
+
+  const handleShare = useCallback(async () => {
+    if (!icon) return;
+    const res = await shareIconConfiguration(icon, selectedStyle, customization);
+    if (res.success) {
+      setShared(true);
+      success(res.method === 'native' ? 'Opened share menu' : 'Link copied');
+      setTimeout(() => setShared(false), 1500);
+    }
+  }, [icon, selectedStyle, customization, success]);
 
   const handleReset = useCallback(() => {
     setCustomization(DEFAULT_CUSTOMIZATION);
@@ -508,25 +553,42 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                   </div>
 
                   {/* Subordinate Actions */}
-                  <div className="flex items-center justify-between px-0.5">
+                  <div className="flex items-center justify-between px-0.5 pt-1">
                     <button
                       type="button"
                       onClick={() => setIsCollectionModalOpen(true)}
                       aria-label="Save icon to a collection"
-                      className="flex items-center gap-1.5 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1"
+                      className="flex items-center gap-1.5 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1 min-h-[36px]"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-accent" />
                       <span>Add to Collection</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={handleReset}
-                      aria-label="Reset all customizations"
-                      className="flex items-center gap-1 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>Reset</span>
-                    </button>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleShare}
+                        aria-label="Share this icon configuration"
+                        className={cn(
+                          'flex items-center gap-1.5 text-[11px] font-mono transition-colors cursor-pointer touch-manipulation py-1 px-1.5 rounded min-h-[36px]',
+                          shared ? 'text-accent font-bold' : 'text-text-tertiary hover:text-accent'
+                        )}
+                        title="Copy shareable link"
+                      >
+                        {shared ? <Check className="w-3.5 h-3.5 text-accent" /> : <Share2 className="w-3.5 h-3.5" />}
+                        <span>{shared ? 'Link copied' : 'Share'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleReset}
+                        aria-label="Reset all customizations"
+                        className="flex items-center gap-1 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1 min-h-[36px]"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Reset</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -17,6 +17,7 @@ import './accessibility-keyboard-test';
 import './production-launch-test';
 import './ux-polish-usability-test';
 import './compare-feature-test';
+import './shareable-icon-config-test';
 
 console.log(`
 ======================================================

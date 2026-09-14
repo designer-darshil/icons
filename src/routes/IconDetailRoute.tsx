@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { WorkspaceShell } from '@/components/layout/WorkspaceShell';
 import { ExplorerToolbar } from '@/features/icon-explorer/ExplorerToolbar';
 import { SpecimenGrid } from '@/features/icon-explorer/SpecimenGrid';
@@ -8,12 +8,14 @@ import { CommandPalette } from '@/features/search/CommandPalette';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
+import { deserializeIconConfiguration } from '@/lib/icon-share';
 import type { Icon, IconStyle } from '@/types/icon';
 import type { SortOption } from '@/types/filters';
 
 export const IconDetailRoute: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -30,6 +32,12 @@ export const IconDetailRoute: React.FC = () => {
     return GRIDFRAME_ICONS.find((i) => i.slug.toLowerCase() === slug.toLowerCase()) || null;
   }, [slug]);
 
+  // Deserialize shareable configuration from query parameters
+  const initialConfig = useMemo(() => {
+    if (!matchedIcon) return null;
+    return deserializeIconConfiguration(location.search, matchedIcon);
+  }, [matchedIcon, location.search]);
+
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(matchedIcon);
 
   useEffect(() => {
@@ -37,7 +45,9 @@ export const IconDetailRoute: React.FC = () => {
   }, [matchedIcon]);
 
   useDocumentTitle(
-    matchedIcon ? `${matchedIcon.name} Vector Icon` : 'Icon Not Found',
+    matchedIcon
+      ? `${matchedIcon.name} Vector Icon — Gridframe`
+      : 'Icon Not Found',
     matchedIcon
       ? `Inspect, customize, and export the ${matchedIcon.name} vector icon in React JSX, SVG, and HTML.`
       : 'Vector icon not found.'
@@ -115,6 +125,8 @@ export const IconDetailRoute: React.FC = () => {
         isFavorite={selectedIcon ? favoriteSet.has(selectedIcon.id) : false}
         onToggleFavorite={handleToggleFavorite}
         onSelectIcon={handleSelectIcon}
+        initialStyle={initialConfig?.style}
+        initialCustomization={initialConfig?.customization}
       />
 
       <CommandPalette
