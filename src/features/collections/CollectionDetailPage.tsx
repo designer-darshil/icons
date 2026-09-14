@@ -18,7 +18,6 @@ import {
   Edit2,
   Trash2,
   Search,
-  Plus,
 } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Icon } from '@/types/icon';
@@ -196,29 +195,25 @@ export const CollectionDetailPage: React.FC = () => {
         {/* Collection Icons */}
         {icons.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border-default bg-bg-secondary p-12 text-center max-w-md mx-auto my-12 space-y-4">
-            <div className="w-12 h-12 rounded-md bg-bg-elevated border border-border-default text-text-tertiary flex items-center justify-center mx-auto">
-              <Folder className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-md bg-bg-elevated border border-border-default text-text-tertiary flex items-center justify-center mx-auto">
+              <Folder className="w-5 h-5 text-text-tertiary" />
             </div>
             <div className="space-y-1">
               <h2 className="text-sm font-semibold text-text-primary">
-                This Collection is Empty
+                This set is empty.
               </h2>
-              <p className="text-xs text-text-tertiary leading-relaxed max-w-sm mx-auto">
-                Explore the vector icon catalog and save icons to "{collection.name}".
-              </p>
             </div>
             <div className="pt-2">
               <Link to="/icons">
                 <Button variant="primary" size="sm">
-                  <Plus className="w-3.5 h-3.5 mr-1.5" />
-                  <span>Browse Icons</span>
+                  <span>Browse icons</span>
                 </Button>
               </Link>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            {icons.length > 8 && (
+            {icons.length > 6 && (
               <div className="max-w-xs">
                 <Input
                   type="text"
@@ -235,6 +230,7 @@ export const CollectionDetailPage: React.FC = () => {
               icons={displayedIcons}
               selectedIconId={selectedIcon?.id}
               favoriteIds={favoriteSet}
+              forceRegular={true}
               onSelectIcon={(icon) => setSelectedIcon(icon)}
               onToggleFavorite={(icon) => toggleFavorite(icon.id)}
             />

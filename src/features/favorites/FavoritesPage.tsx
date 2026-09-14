@@ -9,7 +9,7 @@ import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Heart, Download, Trash2, Search, Plus } from 'lucide-react';
+import { Heart, Download, Trash2, Search } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Icon } from '@/types/icon';
 
@@ -65,10 +65,10 @@ export const FavoritesPage: React.FC = () => {
               <span className="type-section-label text-accent font-bold">Curation</span>
             </div>
             <h1 className="type-h1 text-text-primary">
-              Saved Favorites
+              Favorites
             </h1>
             <p className="type-body text-text-secondary">
-              {count === 1 ? '1 pinned vector concept' : `${count} pinned vector concepts across your sessions.`}
+              {count === 1 ? '1 saved icon' : `${count} saved icons`}
             </p>
           </div>
 
@@ -105,20 +105,19 @@ export const FavoritesPage: React.FC = () => {
         {/* Content */}
         {count === 0 ? (
           <div className="rounded-lg border border-dashed border-border-default bg-bg-secondary p-12 text-center max-w-md mx-auto my-12 space-y-4">
-            <div className="w-12 h-12 rounded-md bg-bg-elevated border border-border-default text-text-tertiary flex items-center justify-center mx-auto">
-              <Heart className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-md bg-bg-elevated border border-border-default text-text-tertiary flex items-center justify-center mx-auto">
+              <Heart className="w-5 h-5 text-text-tertiary" />
             </div>
             <div className="space-y-1">
-              <h2 className="text-sm font-semibold text-text-primary">No Favorite Icons Yet</h2>
+              <h2 className="text-sm font-semibold text-text-primary">No saved icons yet.</h2>
               <p className="text-xs text-text-tertiary leading-relaxed">
-                Click the heart icon on any vector specimen or detail canvas to bookmark icons here.
+                Save icons while browsing to keep them here.
               </p>
             </div>
             <div className="pt-2">
               <Link to="/icons">
                 <Button variant="primary" size="sm">
-                  <Plus className="w-3.5 h-3.5 mr-1.5" />
-                  <span>Browse Icons</span>
+                  <span>Browse icons</span>
                 </Button>
               </Link>
             </div>

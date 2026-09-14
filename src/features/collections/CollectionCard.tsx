@@ -33,15 +33,18 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     let delay = 0;
     icons.forEach((icon) => {
       setTimeout(() => {
-        const variant = icon.variants[0] || {
-          id: icon.id,
-          style: 'linear',
-          label: 'Default',
-          svg: icon.svg,
-          viewBox: icon.viewBox,
-          supportsStroke: true,
-          supportsColor: true,
-        };
+        const variant =
+          icon.variants.find((v) => v.style === 'regular') ||
+          icon.variants.find((v) => v.style === 'outline' || v.style === 'linear') ||
+          icon.variants[0] || {
+            id: icon.id,
+            style: 'regular',
+            label: 'Regular',
+            svg: icon.svg,
+            viewBox: icon.viewBox || '0 0 24 24',
+            supportsStroke: true,
+            supportsColor: true,
+          };
         const svgContent = transformSvgMarkup(variant, DEFAULT_CUSTOMIZATION);
         downloadFile(svgContent, `${icon.slug}-${variant.style}.svg`, 'image/svg+xml');
       }, delay);

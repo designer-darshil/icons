@@ -11,6 +11,7 @@ import './mobile-audit-test';
 import './final-production-qa-test';
 import './search-discovery-2-test';
 import './customizer-export-2-test';
+import './favorites-collections-2-test';
 
 console.log(`
 ======================================================

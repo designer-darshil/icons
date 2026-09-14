@@ -158,8 +158,16 @@ export function getStoredCollections(): Collection[] {
   return loadWorkspaceState().collections;
 }
 
-export function getStoredCollectionById(id: string): Collection | undefined {
-  return getStoredCollections().find((c) => c.id === id);
+export function getStoredCollectionById(idOrSlug: string): Collection | undefined {
+  if (!idOrSlug) return undefined;
+  const target = idOrSlug.trim().toLowerCase();
+  const collections = getStoredCollections();
+  return (
+    collections.find((c) => c.id === idOrSlug) ||
+    collections.find((c) => c.id.toLowerCase() === target) ||
+    collections.find((c) => c.name.toLowerCase() === target) ||
+    collections.find((c) => c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === target)
+  );
 }
 
 export function saveStoredCollection(
