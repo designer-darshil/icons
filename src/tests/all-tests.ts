@@ -16,6 +16,7 @@ import './catalog-architecture-test';
 import './accessibility-keyboard-test';
 import './production-launch-test';
 import './ux-polish-usability-test';
+import './compare-feature-test';
 
 console.log(`
 ======================================================

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
 import { CommandPalette } from '@/features/search/CommandPalette';
+import { CompareBar } from '@/features/compare/CompareBar';
 import { useNavigate } from 'react-router-dom';
 import type { Icon } from '@/types/icon';
 
@@ -54,6 +55,9 @@ export const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
         {children}
       </main>
       <MobileNav />
+
+      {/* Floating Compare Tray */}
+      <CompareBar />
 
       {/* Internal Command Palette fallback when parent route doesn't render its own */}
       {!onOpenSearch && (

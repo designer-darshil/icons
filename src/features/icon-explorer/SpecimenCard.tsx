@@ -1,11 +1,12 @@
 import React, { memo, useCallback, useState } from 'react';
 import type { Icon, IconStyle } from '@/types/icon';
-import { Heart, Check, Copy, Download, ArrowUpRight } from 'lucide-react';
+import { Heart, Check, Copy, Download, Columns, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { copyToClipboard, downloadFile } from '@/lib/export-svg';
 import { useToast } from '@/components/ui/Toast';
+import { useCompare } from '@/features/compare/useCompare';
 import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 
 export interface SpecimenCardProps {
@@ -29,7 +30,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
   onToggleFavorite,
   className,
 }) => {
-  const { success } = useToast();
+  const { success, info } = useToast();
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
@@ -80,6 +81,22 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
     [icon.slug, variant.style, getActiveSvgMarkup, success]
   );
 
+  const { isComparing, toggleCompare } = useCompare();
+  const comparing = isComparing(icon.id);
+
+  const handleToggleCompare = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const added = toggleCompare(icon.id);
+      if (added) {
+        success(`Added "${icon.name}" to comparison`);
+      } else {
+        info(`Removed "${icon.name}" from comparison`);
+      }
+    },
+    [icon, toggleCompare, success, info]
+  );
+
   const handleToggleFav = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -115,24 +132,42 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
       <span className="absolute top-1.5 left-1.5 w-1.5 h-1.5 border-t border-l border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-[border-color,opacity] duration-150 pointer-events-none" />
       <span className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 border-b border-r border-border-strong opacity-40 group-hover:opacity-100 group-hover:border-accent transition-[border-color,opacity] duration-150 pointer-events-none" />
 
-      {/* Top Floating Strip: Subtle Domain Tag + Minimal Favorite Toggle */}
+      {/* Top Floating Strip: Subtle Domain Tag + Minimal Compare & Favorite Toggles */}
       <div className="w-full flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-text-tertiary select-none">
-        <span className="truncate max-w-[65%] font-medium opacity-70 group-hover:opacity-100 transition-opacity">
+        <span className="truncate max-w-[55%] font-medium opacity-70 group-hover:opacity-100 transition-opacity">
           {icon.category}
         </span>
-        <button
-          type="button"
-          onClick={handleToggleFav}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Bookmark icon'}
-          className={cn(
-            'p-2 -mr-2 -mt-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 z-20 cursor-pointer touch-manipulation',
-            isFavorite
-              ? 'text-accent opacity-100 scale-110'
-              : 'text-text-tertiary opacity-70 sm:opacity-0 group-hover:opacity-100 hover:text-accent hover:scale-110 active:scale-95'
-          )}
-        >
-          <Heart className={cn('w-3.5 h-3.5', isFavorite && 'fill-current text-accent')} />
-        </button>
+        <div className="flex items-center gap-1 shrink-0 -mr-1.5 -mt-1.5">
+          <button
+            type="button"
+            onClick={handleToggleCompare}
+            title={comparing ? 'Remove from comparison' : 'Add to comparison'}
+            aria-label={comparing ? `Remove ${icon.name} from comparison` : `Add ${icon.name} to comparison`}
+            className={cn(
+              'p-1.5 rounded-md transition-all duration-150 z-20 cursor-pointer touch-manipulation flex items-center gap-1',
+              comparing
+                ? 'text-accent bg-accent/15 border border-accent/30 font-semibold opacity-100'
+                : 'text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary hover:bg-bg-secondary'
+            )}
+          >
+            <Columns className="w-3.5 h-3.5" />
+            <span className="text-[9px] font-mono hidden sm:inline">{comparing ? '✓' : '+'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleToggleFav}
+            aria-label={isFavorite ? 'Remove from favorites' : 'Bookmark icon'}
+            className={cn(
+              'p-2 -mr-2 -mt-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 z-20 cursor-pointer touch-manipulation',
+              isFavorite
+                ? 'text-accent opacity-100 scale-110'
+                : 'text-text-tertiary opacity-70 sm:opacity-0 group-hover:opacity-100 hover:text-accent hover:scale-110 active:scale-95'
+            )}
+          >
+            <Heart className={cn('w-3.5 h-3.5', isFavorite && 'fill-current text-accent')} />
+          </button>
+        </div>
       </div>
 
       {/* Main Specimen Stage: Hero Scale with Smooth Optical Floating */}

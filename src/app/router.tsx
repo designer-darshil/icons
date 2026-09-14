@@ -11,6 +11,7 @@ import { DevQARoute } from "@/routes/DevQARoute";
 import { IconRenderingQARoute } from "@/routes/IconRenderingQARoute";
 import { IconoirQARoute } from "@/routes/IconoirQARoute";
 import { NotFoundRoute } from "@/routes/NotFoundRoute";
+import { CompareRoute } from "@/routes/CompareRoute";
 import { PrivacyRoute } from "@/routes/PrivacyRoute";
 import { TermsRoute } from "@/routes/TermsRoute";
 import { AboutRoute } from "@/routes/AboutRoute";
@@ -76,6 +77,10 @@ export const router = createBrowserRouter([
       {
         path: "collections/:id",
         element: <CollectionsRoute />,
+      },
+      {
+        path: "compare",
+        element: <CompareRoute />,
       },
       {
         path: "dev/design-system",

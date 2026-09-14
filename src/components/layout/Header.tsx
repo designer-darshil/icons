@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { useCollections } from '@/features/collections/useCollections';
+import { useCompare } from '@/features/compare/useCompare';
 import { useLenis } from '@/hooks/useLenis';
 import { MobileNavigation } from '@/components/navigation/MobileNavigation';
 import { SkiperThemeToggle, SkiperTooltip } from '@/components/ui/skiper';
-import { Heart, FolderHeart, Menu, Search } from 'lucide-react';
+import { Heart, FolderHeart, Menu, Search, Columns } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 interface HeaderProps {
@@ -15,6 +16,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const { count: favoritesCount } = useFavorites();
   const { count: collectionsCount } = useCollections();
+  const { count: compareCount } = useCompare();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const lenis = useLenis();
   const location = useLocation();
@@ -215,6 +217,30 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 {collectionsCount > 0 && (
                   <span className="text-[10px] font-mono text-accent font-bold px-1.5 py-0.2 bg-accent/10 border border-accent/20 rounded-full">
                     {collectionsCount}
+                  </span>
+                )}
+              </NavLink>
+            </SkiperTooltip>
+
+            {/* Compare Link */}
+            <SkiperTooltip content="Icon comparison workstation" side="bottom">
+              <NavLink
+                to="/compare"
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-2 py-1.5 px-2 text-sm font-medium tracking-tight transition-colors cursor-pointer',
+                    isActive
+                      ? 'text-text-primary font-semibold'
+                      : 'text-text-secondary hover:text-text-primary'
+                  )
+                }
+                title="Compare Icons"
+              >
+                <Columns className="w-4 h-4 text-text-secondary group-hover:text-accent transition-colors" />
+                <span className="hidden lg:inline">Compare</span>
+                {compareCount > 0 && (
+                  <span className="text-[10px] font-mono text-accent font-bold px-1.5 py-0.2 bg-accent/10 border border-accent/20 rounded-full">
+                    {compareCount}
                   </span>
                 )}
               </NavLink>
