@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CodeModal } from '@/components/export/CodeModal';
 import { CollectionModal } from '@/features/collections/CollectionModal';
@@ -68,13 +68,59 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   const [copiedSvg, setCopiedSvg] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
-  // Close on Escape key
+  const modalContainerRef = useRef<HTMLDivElement>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+
+  // Focus restoration & initial focus capture
   useEffect(() => {
+    if (isOpen) {
+      previousActiveElementRef.current = document.activeElement as HTMLElement | null;
+      // Focus modal container
+      const timer = setTimeout(() => {
+        modalContainerRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      if (previousActiveElementRef.current && typeof previousActiveElementRef.current.focus === 'function') {
+        previousActiveElementRef.current.focus();
+      }
+    }
+  }, [isOpen]);
+
+  // Focus trap & Escape handling
+  useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && modalContainerRef.current) {
+        const focusableElements = modalContainerRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement || document.activeElement === modalContainerRef.current) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
@@ -178,12 +224,17 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
 
           {/* Modal Container */}
           <motion.div
+            ref={modalContainerRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="icon-detail-modal-title"
             variants={prefersReducedMotion ? undefined : modalDialogVariants}
             initial="initial"
             animate="animate"
             exit="exit"
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-[880px] max-h-[92vh] overflow-y-auto bg-bg-elevated border border-border-default rounded-2xl shadow-modal z-10 my-auto text-text-primary"
+            className="relative w-full max-w-[880px] max-h-[92vh] overflow-y-auto bg-bg-elevated border border-border-default rounded-2xl shadow-modal z-10 my-auto text-text-primary focus:outline-none"
           >
 
             {/* ═══════════════════════════════════════════
@@ -194,7 +245,10 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                 <span className="text-[10px] font-mono font-bold tracking-widest text-accent uppercase block">
                   {icon.category}
                 </span>
-                <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-text-primary font-sans truncate">
+                <h2
+                  id="icon-detail-modal-title"
+                  className="text-lg sm:text-xl font-semibold tracking-tight text-text-primary font-sans truncate"
+                >
                   {icon.name}
                 </h2>
               </div>
@@ -203,7 +257,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onToggleFavorite(icon)}
-                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite ? `Remove ${icon.name} from favorites` : `Add ${icon.name} to favorites`}
                     className={cn(
                       'p-2 rounded-lg transition-colors cursor-pointer touch-manipulation',
                       isFavorite
@@ -238,13 +292,24 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     className="absolute inset-0 opacity-30 pointer-events-none"
                     style={{
                       backgroundImage: 'radial-gradient(circle, var(--color-border-strong) 1px, transparent 1px)',
-                      backgroundSize: '24px 24px',
-                      backgroundPosition: 'center center',
+                      backgroundSize: '16px 16px',
                     }}
                   />
 
-                  {/* Centered Icon */}
-                  <div className="relative z-10 flex items-center justify-center transition-all duration-200">
+                  {/* Corner Target Markers */}
+                  <span className="absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 border-border-strong opacity-40 pointer-events-none" />
+                  <span className="absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-border-strong opacity-40 pointer-events-none" />
+                  <span className="absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-border-strong opacity-40 pointer-events-none" />
+                  <span className="absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 border-border-strong opacity-40 pointer-events-none" />
+
+                  {/* Centered Specimen Artwork */}
+                  <div
+                    className="relative z-10 flex items-center justify-center text-text-primary transition-all duration-75"
+                    style={{
+                      width: clampedDisplaySize,
+                      height: clampedDisplaySize,
+                    }}
+                  >
                     <IconPreviewSvg
                       variant={activeVariant}
                       icon={icon}
@@ -256,7 +321,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       rotation={customization.rotation}
                       flipX={customization.flipX}
                       flipY={customization.flipY}
-                      className="text-text-primary drop-shadow-sm"
+                      className="w-full h-full shrink-0"
                     />
                   </div>
 
@@ -264,6 +329,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsCodeModalOpen(true)}
+                    aria-label="View developer code snippets"
                     className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-bg-elevated/80 hover:bg-bg-elevated border border-border-default hover:border-border-strong text-[10px] font-mono text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs touch-manipulation backdrop-blur-sm"
                     title="Inspect code"
                   >
@@ -293,6 +359,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                           key={v.id}
                           type="button"
                           onClick={() => setSelectedStyle(v.style)}
+                          aria-label={`Select ${v.label || v.style} variant`}
                           className={cn(
                             'px-3 py-1.5 text-xs font-mono rounded-md border transition-all cursor-pointer touch-manipulation',
                             activeVariant.id === v.id
@@ -333,6 +400,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                           key={sz}
                           type="button"
                           onClick={() => updateProp('size', sz)}
+                          aria-label={`Set size to ${sz} pixels`}
                           className={cn(
                             'py-2 text-center text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation',
                             customization.size === sz
@@ -363,6 +431,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       <button
                         type="button"
                         onClick={() => updateProp('flipX', !customization.flipX)}
+                        aria-label="Flip horizontal"
                         className={cn(
                           'flex items-center justify-center gap-1 py-2 text-[10px] font-mono rounded border transition-all cursor-pointer touch-manipulation',
                           customization.flipX
@@ -376,6 +445,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       <button
                         type="button"
                         onClick={() => updateProp('flipY', !customization.flipY)}
+                        aria-label="Flip vertical"
                         className={cn(
                           'flex items-center justify-center gap-1 py-2 text-[10px] font-mono rounded border transition-all cursor-pointer touch-manipulation',
                           customization.flipY
@@ -393,6 +463,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                         onClick={() =>
                           updateProp('rotation', (customization.rotation - 90 + 360) % 360)
                         }
+                        aria-label="Rotate 90 degrees left"
                         className="flex items-center justify-center py-2 text-[10px] font-mono rounded border bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation"
                         title="Rotate 90° Left"
                       >
@@ -403,6 +474,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                         onClick={() =>
                           updateProp('rotation', (customization.rotation + 90) % 360)
                         }
+                        aria-label="Rotate 90 degrees right"
                         className="flex items-center justify-center py-2 text-[10px] font-mono rounded border bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation"
                         title="Rotate 90° Right"
                       >
@@ -417,6 +489,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleCopySvg}
+                      aria-label="Copy SVG code to clipboard"
                       className="flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-bg-secondary dark:bg-[#F6F3EC] text-text-primary dark:text-[#141311] border border-border-default dark:border-transparent hover:bg-bg-secondary/80 dark:hover:bg-white active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
                     >
                       {copiedSvg ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
@@ -426,6 +499,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleDownloadSvg}
+                      aria-label="Download SVG file"
                       className="flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
                     >
                       {downloaded ? <Check className="w-4 h-4 text-white" /> : <Download className="w-4 h-4" />}
@@ -438,6 +512,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsCollectionModalOpen(true)}
+                      aria-label="Save icon to a collection"
                       className="flex items-center gap-1.5 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-accent" />
@@ -446,6 +521,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleReset}
+                      aria-label="Reset all customizations"
                       className="flex items-center gap-1 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1"
                     >
                       <RotateCcw className="w-3 h-3" />
@@ -468,6 +544,7 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       key={relIcon.id}
                       type="button"
                       onClick={() => onSelectIcon?.(relIcon)}
+                      aria-label={`Inspect related icon ${relIcon.name}`}
                       title={relIcon.name}
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-bg-elevated border border-border-subtle hover:border-border-strong text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs"
                     >

@@ -297,9 +297,12 @@ export const GridframeColorPicker: React.FC<GridframeColorPickerProps> = ({
   return (
     <div className={cn("relative", className)} ref={popoverRef}>
       {/* Collapsed Trigger: Swatch + Hex Label */}
+      {/* Collapsed Trigger: Swatch + Hex Label */}
       <button
         type="button"
         disabled={disabled}
+        aria-label={`Select icon color, currently ${isCurrentColor ? "currentColor" : color}`}
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-full flex items-center gap-3 px-2.5 py-2 rounded-lg border transition-all cursor-pointer touch-manipulation",
@@ -335,6 +338,7 @@ export const GridframeColorPicker: React.FC<GridframeColorPickerProps> = ({
             />
             <input
               type="text"
+              aria-label="Hex color value"
               value={hexInput}
               onChange={(e) => setHexInput(e.target.value)}
               onBlur={handleHexCommit}
@@ -360,6 +364,7 @@ export const GridframeColorPicker: React.FC<GridframeColorPickerProps> = ({
                     key={p.value}
                     type="button"
                     onClick={() => handlePaletteSelect(p.value)}
+                    aria-label={`Color ${p.label}`}
                     title={p.label}
                     className={cn(
                       "w-6 h-6 rounded-md border transition-all cursor-pointer shrink-0 touch-manipulation",
@@ -389,6 +394,7 @@ export const GridframeColorPicker: React.FC<GridframeColorPickerProps> = ({
                     key={c}
                     type="button"
                     onClick={() => handlePaletteSelect(c)}
+                    aria-label={`Recent color ${c}`}
                     title={c}
                     className={cn(
                       "w-5 h-5 rounded border transition-all cursor-pointer shrink-0 touch-manipulation",
