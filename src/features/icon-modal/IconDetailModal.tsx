@@ -7,6 +7,7 @@ import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
 import { GridframeColorPicker } from '@/features/customizer/GridframeColorPicker';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { copyToClipboard, downloadFile } from '@/lib/export-svg';
+import { optimizeSvg } from '@/lib/svg/optimizeSvg';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -121,7 +122,8 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
 
   const handleCopySvg = useCallback(() => {
     if (!icon) return;
-    copyToClipboard(transformedSvg);
+    const cleanSvg = optimizeSvg(transformedSvg);
+    copyToClipboard(cleanSvg);
     setCopiedSvg(true);
     success(`Copied ${icon.name} SVG`);
     setTimeout(() => setCopiedSvg(false), 1400);
