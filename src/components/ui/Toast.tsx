@@ -22,12 +22,16 @@ export interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+const fallbackToast: ToastContextValue = {
+  showToast: () => {},
+  success: () => {},
+  error: () => {},
+  info: () => {},
+};
+
 export function useToast(): ToastContextValue {
   const ctx = useContext(ToastContext);
-  if (!ctx) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return ctx;
+  return ctx || fallbackToast;
 }
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

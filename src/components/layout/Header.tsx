@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           </Link>
 
           {/* Center: Context Badge */}
-          <div className="flex items-center justify-center px-1">
+          <div className="hidden sm:flex items-center justify-center px-1 min-w-0">
             <span className="px-2.5 py-0.5 rounded-full bg-bg-secondary/80 border border-border-subtle/80 text-[10px] font-mono font-medium text-text-secondary uppercase tracking-wider select-none truncate max-w-[120px]">
               {getSectionContext()}
             </span>

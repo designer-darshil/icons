@@ -7,6 +7,7 @@ import './ux-pass-verification';
 import './category-taxonomy-validation';
 import './geometry-consistency-test';
 import './error-system-test';
+import './mobile-audit-test';
 
 console.log(`
 ======================================================

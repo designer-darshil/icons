@@ -39,7 +39,6 @@
     background-color: var(--color-background-primary);
     color: var(--color-text-primary);
     min-height: 100vh;
-    overflow-x: hidden;
   }
 
   ::selection {
