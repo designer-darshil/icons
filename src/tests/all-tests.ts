@@ -6,6 +6,7 @@ import './variant-system-test';
 import './ux-pass-verification';
 import './category-taxonomy-validation';
 import './geometry-consistency-test';
+import './error-system-test';
 
 console.log(`
 ======================================================

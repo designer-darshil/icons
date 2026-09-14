@@ -6,7 +6,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 const THEME_STORAGE_KEY = "gridframe_theme_v2";
 
 interface ThemeProviderProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   defaultTheme?: Theme;
 }
 

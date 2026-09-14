@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { router } from "@/app/router";
+import { GridframeErrorBoundary } from "@/components/error/GridframeErrorBoundary";
 import { AppLoader } from "@/components/system/AppLoader";
 
 export const App: React.FC = () => {
@@ -31,7 +32,7 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <GridframeErrorBoundary>
       <RouterProvider router={router} />
       <AnimatePresence>
         {isInitializing && (
@@ -49,7 +50,7 @@ export const App: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </GridframeErrorBoundary>
   );
 };
 

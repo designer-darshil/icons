@@ -11,6 +11,7 @@ import { DevQARoute } from "@/routes/DevQARoute";
 import { IconRenderingQARoute } from "@/routes/IconRenderingQARoute";
 import { IconoirQARoute } from "@/routes/IconoirQARoute";
 import { NotFoundRoute } from "@/routes/NotFoundRoute";
+import { GridframeRouteError } from "@/components/error/GridframeRouteError";
 
 // Admin Module Routes & Shell
 import { AdminShell } from "@/features/admin/layout/AdminShell";
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppShell />,
+    errorElement: <GridframeRouteError />,
     children: [
       {
         index: true,
@@ -115,6 +117,7 @@ export const router = createBrowserRouter([
   {
     path: "/admin",
     element: <AdminShell />,
+    errorElement: <GridframeRouteError />,
     children: [
       {
         index: true,
@@ -163,5 +166,6 @@ export const router = createBrowserRouter([
         <AdminLoginRoute />
       </AdminAuthProvider>
     ),
+    errorElement: <GridframeRouteError />,
   },
 ]);
