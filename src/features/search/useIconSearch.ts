@@ -1,11 +1,11 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { MOCK_ICONS } from "@/data/icons/mock-icons";
+import { GRIDFRAME_ICONS } from "@/data/icons/gridframe-catalog";
 import { searchIconsWithScore, getSearchSuggestions } from "@/lib/icon-search";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import type { Icon } from "@/types/icon";
 import type { SearchSuggestion } from "@/types/filters";
 
-export function useIconSearch() {
+export function useIconSearch(catalogIcons: Icon[] = GRIDFRAME_ICONS) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -14,12 +14,12 @@ export function useIconSearch() {
 
   const results: Icon[] = useMemo(() => {
     if (!debouncedQuery.trim()) return [];
-    return searchIconsWithScore(MOCK_ICONS, debouncedQuery).slice(0, 16);
-  }, [debouncedQuery]);
+    return searchIconsWithScore(catalogIcons, debouncedQuery).slice(0, 16);
+  }, [catalogIcons, debouncedQuery]);
 
   const suggestions: SearchSuggestion[] = useMemo(() => {
-    return getSearchSuggestions(MOCK_ICONS, query);
-  }, [query]);
+    return getSearchSuggestions(catalogIcons, query);
+  }, [catalogIcons, query]);
 
   // Reset selected index when results change
   useEffect(() => {

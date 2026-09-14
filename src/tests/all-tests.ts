@@ -12,6 +12,7 @@ import './final-production-qa-test';
 import './search-discovery-2-test';
 import './customizer-export-2-test';
 import './favorites-collections-2-test';
+import './catalog-architecture-test';
 
 console.log(`
 ======================================================

@@ -93,7 +93,17 @@ export function validateLibrarySvg(svgString: string): {
   }
 
   const trimmed = svgString.trim();
-  if (!trimmed.startsWith('<svg') && !trimmed.includes('<path') && !trimmed.includes('<circle') && !trimmed.includes('<rect')) {
+  if (
+    !trimmed.startsWith('<svg') &&
+    !trimmed.includes('<path') &&
+    !trimmed.includes('<circle') &&
+    !trimmed.includes('<ellipse') &&
+    !trimmed.includes('<rect') &&
+    !trimmed.includes('<line') &&
+    !trimmed.includes('<polyline') &&
+    !trimmed.includes('<polygon') &&
+    !trimmed.includes('<g')
+  ) {
     issues.push('Missing SVG root or child geometry tags');
   }
 
