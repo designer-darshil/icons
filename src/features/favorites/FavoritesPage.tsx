@@ -41,15 +41,11 @@ export const FavoritesPage: React.FC = () => {
     let delay = 0;
     favoriteIcons.forEach((icon) => {
       setTimeout(() => {
-        const variant = icon.variants[0] || {
-          id: icon.id,
-          style: 'linear',
-          label: 'Linear',
-          svg: icon.svg,
-          viewBox: icon.viewBox,
-          supportsStroke: true,
-          supportsColor: true,
-        };
+        const variant =
+          icon.variants.find((v) => v.style === 'regular') ||
+          icon.variants.find((v) => v.style === 'outline' || v.style === 'linear') ||
+          icon.variants[0];
+        if (!variant) return;
         const svgContent = transformSvgMarkup(variant, DEFAULT_CUSTOMIZATION);
         downloadFile(svgContent, `${icon.slug}-${variant.style}.svg`, 'image/svg+xml');
       }, delay);

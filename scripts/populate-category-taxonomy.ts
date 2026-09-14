@@ -17,6 +17,7 @@ import { analyzeIconOpticalSystem } from '../src/lib/svg/opticalBounds';
 import { validateIconConceptVariants } from '../src/lib/svg/variantValidator';
 import { extractInnerSvg } from '../src/lib/icon-sanitizer';
 import type { Icon, IconVariant, CanonicalIconVariant } from '../src/types/icon';
+import { ALL_BATCH_01_DEFINITIONS, transformBatchDefinitionToIcon } from './generate-batch-01';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -889,26 +890,16 @@ export function executeCatalogPopulation() {
       },
     ];
 
-    // Check for authentic solid variant in Iconoir
-    if (solidSet.has(file)) {
-      const solidRawSvg = fs.readFileSync(path.join(SOLID_DIR, file), 'utf8');
-      const solidInner = extractInnerSvg(solidRawSvg);
-      variants.push({
-        id: `${slug}-solid`,
-        style: 'filled',
-        label: 'Solid',
-        svg: solidInner,
-        viewBox,
-        supportsStroke: false,
-        supportsColor: true,
-        defaultStrokeWidth: 0,
-      });
-    }
+    const solidInner = solidSet.has(file)
+      ? extractInnerSvg(fs.readFileSync(path.join(SOLID_DIR, file), 'utf8'))
+      : undefined;
 
     const name = slug
       .split('-')
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
+
+    const fiveVariants = generateFiveVariants(slug, name, regularInner, solidInner).all;
 
     const classification = classifyIcon(name, 'System', [slug], [slug]);
     const primaryCanonical = getCanonicalCategory(classification.primaryCategory);
@@ -931,7 +922,7 @@ export function executeCatalogPopulation() {
       useCases: [`Precision vector icon representing ${name.toLowerCase()} in user interfaces.`],
       defaultVariantId: `${slug}-regular`,
       style: 'regular',
-      variants,
+      variants: fiveVariants,
       svg: regularInner,
       viewBox,
       capabilities: {
@@ -969,18 +960,7 @@ export function executeCatalogPopulation() {
       }
 
       const regularInner = extractInnerSvg(tmpl.svg);
-      const variants: IconVariant[] = [
-        {
-          id: `${tmpl.slug}-regular`,
-          style: 'regular',
-          label: 'Regular',
-          svg: regularInner,
-          viewBox: '0 0 24 24',
-          supportsStroke: true,
-          supportsColor: true,
-          defaultStrokeWidth: 1.5,
-        },
-      ];
+      const fiveVariants = generateFiveVariants(tmpl.slug, tmpl.name, regularInner).all;
 
       const newIcon: Icon = {
         id: tmpl.slug,
@@ -999,7 +979,7 @@ export function executeCatalogPopulation() {
         useCases: tmpl.useCases,
         defaultVariantId: `${tmpl.slug}-regular`,
         style: 'regular',
-        variants,
+        variants: fiveVariants,
         svg: regularInner,
         viewBox: '0 0 24 24',
         capabilities: {
@@ -1020,10 +1000,17 @@ export function executeCatalogPopulation() {
     }
   }
 
-  // 3. Sort icons alphabetically by slug
+  // 3. Ingest Batch 01 Handcrafted Canonical Concept Definitions
+  console.log('🚀 Ingesting Batch 01 Expansion Icons (+250 families)...');
+  for (const def of ALL_BATCH_01_DEFINITIONS) {
+    const batchIcon = transformBatchDefinitionToIcon(def);
+    iconMap.set(def.slug, batchIcon);
+  }
+
+  // 4. Sort icons alphabetically by slug
   const finalIcons = Array.from(iconMap.values()).sort((a, b) => a.slug.localeCompare(b.slug));
 
-  // 4. Write back to catalog.json
+  // 5. Write back to catalog.json
   console.log(`💾 Writing canonical catalog with ${finalIcons.length} icons to disk...`);
   fs.writeFileSync(CATALOG_PATH, JSON.stringify(finalIcons, null, 2), 'utf8');
 

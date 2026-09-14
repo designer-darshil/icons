@@ -33,17 +33,24 @@ export const DEFAULT_CUSTOMIZATION: IconCustomization = {
   background: "dots",
 };
 
-export const COLOR_SWATCHES = [
+/**
+ * Gridframe Curated Color Palette
+ *
+ * Restrained warm neutrals plus the Gridframe accent.
+ * No rainbow. Controlled and premium.
+ */
+export const GRIDFRAME_PALETTE = [
   { label: "Default", value: "currentColor" },
-  { label: "Primary Blue", value: "#3b82f6" },
-  { label: "Indigo", value: "#6366f1" },
-  { label: "Purple", value: "#a855f7" },
-  { label: "Emerald", value: "#10b981" },
-  { label: "Amber", value: "#f59e0b" },
-  { label: "Rose", value: "#f43f5e" },
-  { label: "Dark Gray", value: "#1e293b" },
-  { label: "Light Gray", value: "#94a3b8" },
-  { label: "Pure White", value: "#ffffff" },
+  { label: "Warm White", value: "#F6F3EC" },
+  { label: "Soft Black", value: "#141311" },
+  { label: "Charcoal", value: "#3D3A33" },
+  { label: "Warm Gray", value: "#726D63" },
+  { label: "Mid Gray", value: "#9A9488" },
+  { label: "Gridframe Orange", value: "#FF5024" },
+  { label: "Warm Gold", value: "#E8A938" },
 ];
 
-export const SIZE_PRESETS = [16, 20, 24, 32, 48, 64];
+/** @deprecated Use GRIDFRAME_PALETTE instead */
+export const COLOR_SWATCHES = GRIDFRAME_PALETTE;
+
+export const SIZE_PRESETS = [16, 24, 32, 48, 64];

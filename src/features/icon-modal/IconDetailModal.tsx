@@ -4,6 +4,7 @@ import { CodeModal } from '@/components/export/CodeModal';
 import { CollectionModal } from '@/features/collections/CollectionModal';
 import { useToast } from '@/components/ui/Toast';
 import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
+import { GridframeColorPicker } from '@/features/customizer/GridframeColorPicker';
 import { transformSvgMarkup } from '@/lib/icon-transformer';
 import { copyToClipboard, downloadFile } from '@/lib/export-svg';
 import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
@@ -23,9 +24,10 @@ import {
   Check,
   FlipHorizontal,
   FlipVertical,
-  Info,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+
+/* ─────────── Constants ─────────── */
 
 export interface IconDetailModalProps {
   isOpen: boolean;
@@ -35,23 +37,9 @@ export interface IconDetailModalProps {
   onToggleFavorite?: (icon: Icon) => void;
 }
 
-const COLOR_PRESETS = [
-  { label: 'Current', value: 'currentColor' },
-  { label: 'Ivory', value: '#F6F3EC' },
-  { label: 'Obsidian', value: '#141311' },
-  { label: 'Orange', value: '#FF5024' },
-  { label: 'Slate', value: '#726D63' },
-  { label: 'Gold', value: '#E8A938' },
-];
-
 const SIZE_PRESETS = [16, 24, 32, 48, 64] as const;
-const PADDING_PRESETS = [
-  { label: '0px', value: 0 },
-  { label: '8px', value: 8 },
-  { label: '16px', value: 16 },
-] as const;
 
-type AnimationType = 'none' | 'spin' | 'pulse' | 'bounce' | 'float';
+/* ─────────── Component ─────────── */
 
 export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   isOpen,
@@ -67,9 +55,6 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   // Core state
   const [selectedStyle, setSelectedStyle] = useState<IconStyle>('regular');
   const [customization, setCustomization] = useState<IconCustomization>(DEFAULT_CUSTOMIZATION);
-  const [padding, setPadding] = useState<number>(0);
-  const [animation, setAnimation] = useState<AnimationType>('none');
-  const [showInfo, setShowInfo] = useState(false);
 
   // Sub-modals & feedback states
   const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
@@ -96,9 +81,6 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
         : icon.variants?.[0]?.style || 'regular';
       setSelectedStyle(defaultStyle);
       setCustomization(DEFAULT_CUSTOMIZATION);
-      setPadding(0);
-      setAnimation('none');
-      setShowInfo(false);
     }
   }, [icon?.id, isOpen]);
 
@@ -144,11 +126,24 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
   const handleReset = useCallback(() => {
     setCustomization(DEFAULT_CUSTOMIZATION);
     setSelectedStyle('regular');
-    setPadding(0);
-    setAnimation('none');
   }, []);
 
+  const updateProp = useCallback(
+    <K extends keyof IconCustomization>(key: K, value: IconCustomization[K]) => {
+      setCustomization((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
   if (!isOpen || !icon) return null;
+
+  // ─── Preview Rendering ───
+  // Fixed canvas area. Icon rendered at proportional display size.
+  // This ensures every SIZE_PRESET step produces a visible change.
+  // The actual exported SVG uses the real `customization.size`.
+  const CANVAS_SIZE = 280; // px, fixed canvas
+  const displaySize = Math.round((customization.size / 80) * CANVAS_SIZE * 0.85);
+  const clampedDisplaySize = Math.max(28, Math.min(CANVAS_SIZE - 16, displaySize));
 
   return (
     <>
@@ -174,29 +169,59 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
             animate="animate"
             exit="exit"
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-4xl max-h-[92vh] md:max-h-none overflow-y-auto md:overflow-visible bg-bg-elevated border border-border-default rounded-2xl shadow-modal z-10 my-auto text-text-primary"
+            className="relative w-full max-w-[880px] max-h-[92vh] overflow-y-auto bg-bg-elevated border border-border-default rounded-2xl shadow-modal z-10 my-auto text-text-primary"
           >
-            {/* Top-Right Close Button */}
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close dialog"
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 w-10 h-10 rounded-full flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition-colors cursor-pointer touch-manipulation"
-            >
-              <X className="w-4 h-4" />
-            </button>
 
-            {/* Main Two-Column Content Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-8 p-4 sm:p-7">
-              
-              {/* ===================================================================
-                  LEFT COLUMN: LARGE ICON PREVIEW CANVAS
-                  =================================================================== */}
-              <div className="md:col-span-6 flex flex-col">
-                <div className="relative w-full min-h-[220px] sm:min-h-[280px] md:min-h-[360px] rounded-xl bg-bg-secondary border border-border-subtle flex items-center justify-center p-6 overflow-hidden select-none">
-                  {/* Subtle 24×24 Dotted Grid Matrix */}
+            {/* ═══════════════════════════════════════════
+                HEADER: Category + Name + Favorite + Close
+                ═══════════════════════════════════════════ */}
+            <div className="flex items-center justify-between px-4 sm:px-7 pt-4 sm:pt-6 pb-3 border-b border-border-subtle">
+              <div className="min-w-0 pr-3">
+                <span className="text-[10px] font-mono font-bold tracking-widest text-accent uppercase block">
+                  {icon.category}
+                </span>
+                <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-text-primary font-sans truncate">
+                  {icon.name}
+                </h2>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                {onToggleFavorite && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleFavorite(icon)}
+                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                    className={cn(
+                      'p-2 rounded-lg transition-colors cursor-pointer touch-manipulation',
+                      isFavorite
+                        ? 'text-accent bg-accent/10'
+                        : 'text-text-tertiary hover:text-accent hover:bg-bg-secondary'
+                    )}
+                  >
+                    <Heart className={cn('w-4 h-4', isFavorite && 'fill-current text-accent')} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close dialog"
+                  className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition-colors cursor-pointer touch-manipulation"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* ═══════════════════════════════════════════
+                MAIN TWO-COLUMN CONTENT
+                ═══════════════════════════════════════════ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-0">
+
+              {/* ─── LEFT: PREVIEW CANVAS ─── */}
+              <div className="flex flex-col items-center justify-center p-4 sm:p-6 md:border-r md:border-border-subtle">
+                <div className="relative w-full max-w-[320px] aspect-square rounded-xl bg-bg-secondary border border-border-subtle flex items-center justify-center overflow-hidden select-none">
+                  {/* Subtle Dotted Grid */}
                   <div
-                    className="absolute inset-0 opacity-35 pointer-events-none"
+                    className="absolute inset-0 opacity-30 pointer-events-none"
                     style={{
                       backgroundImage: 'radial-gradient(circle, var(--color-border-strong) 1px, transparent 1px)',
                       backgroundSize: '24px 24px',
@@ -204,23 +229,12 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     }}
                   />
 
-                  {/* Centered Optical Icon Stage with Padding & Animation */}
-                  <div
-                    className={cn(
-                      'relative z-10 flex items-center justify-center transition-all duration-300',
-                      animation === 'spin' && 'animate-spin',
-                      animation === 'pulse' && 'animate-pulse',
-                      animation === 'bounce' && 'animate-bounce'
-                    )}
-                    style={{
-                      padding: `${padding}px`,
-                      animation: animation === 'float' ? 'gridframe-float 3s ease-in-out infinite' : undefined,
-                    }}
-                  >
+                  {/* Centered Icon */}
+                  <div className="relative z-10 flex items-center justify-center transition-all duration-200">
                     <IconPreviewSvg
                       variant={activeVariant}
                       icon={icon}
-                      size={Math.min(136, Math.max(56, (customization.size || 24) * 3))}
+                      size={clampedDisplaySize}
                       color={customization.color}
                       strokeWidth={customization.strokeWidth}
                       strokeLinecap={customization.strokeLinecap}
@@ -232,173 +246,84 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     />
                   </div>
 
-                  {/* Bottom-Left: Small View Code Action */}
+                  {/* Bottom-Left: View Code */}
                   <button
                     type="button"
                     onClick={() => setIsCodeModalOpen(true)}
-                    className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-bg-elevated hover:bg-bg-secondary border border-border-default hover:border-border-strong text-[11px] font-mono text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs touch-manipulation"
-                    title="Inspect TSX, SVG and React code"
+                    className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-bg-elevated/80 hover:bg-bg-elevated border border-border-default hover:border-border-strong text-[10px] font-mono text-text-secondary hover:text-text-primary transition-all cursor-pointer shadow-xs touch-manipulation backdrop-blur-sm"
+                    title="Inspect code"
                   >
-                    <Code className="w-3.5 h-3.5 text-accent" />
-                    <span>View Code</span>
+                    <Code className="w-3 h-3 text-accent" />
+                    <span>Code</span>
                   </button>
 
-                  {/* Bottom-Right: 24×24 Specimen Dimension Footnote */}
-                  <span className="absolute bottom-3 right-3 text-[10px] font-mono text-text-tertiary tracking-wider select-none">
-                    24×24 PX
+                  {/* Bottom-Right: Dimensions */}
+                  <span className="absolute bottom-2.5 right-2.5 text-[9px] font-mono text-text-tertiary tracking-wider select-none">
+                    {customization.size}px
                   </span>
                 </div>
               </div>
 
-              {/* ===================================================================
-                  RIGHT COLUMN: ICON INFO + CONTROLS + ACTIONS
-                  =================================================================== */}
-              <div className="md:col-span-6 flex flex-col justify-between space-y-4">
-                
-                {/* 1. Header: Category + Name + Quick Actions */}
-                <div className="space-y-1.5 pr-8">
-                  <span className="text-[10px] font-mono font-bold tracking-widest text-accent uppercase block">
-                    {icon.category}
-                  </span>
+              {/* ─── RIGHT: CONTROLS ─── */}
+              <div className="flex flex-col justify-between p-4 sm:p-6 space-y-4">
 
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-text-primary font-sans">
-                      {icon.name}
-                    </h2>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {icon.useCases && icon.useCases.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setShowInfo(!showInfo)}
-                          title="View UI context info"
-                          className={cn(
-                            'p-1.5 rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition-colors cursor-pointer',
-                            showInfo && 'text-accent bg-accent/10'
-                          )}
-                        >
-                          <Info className="w-4 h-4" />
-                        </button>
-                      )}
-                      {onToggleFavorite && (
-                        <button
-                          type="button"
-                          onClick={() => onToggleFavorite(icon)}
-                          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                          className={cn(
-                            'p-1.5 rounded-md transition-colors cursor-pointer',
-                            isFavorite
-                              ? 'text-accent bg-accent/10'
-                              : 'text-text-tertiary hover:text-accent hover:bg-bg-secondary'
-                          )}
-                        >
-                          <Heart className={cn('w-4 h-4', isFavorite && 'fill-current text-accent')} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Info Context Popover (if toggled) */}
-                  {showInfo && icon.useCases && icon.useCases.length > 0 && (
-                    <div className="p-2.5 rounded-lg bg-bg-secondary border border-border-default text-xs text-text-secondary space-y-1 my-1">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-bold block">
-                        Context & Use Case
-                      </span>
-                      <p className="leading-relaxed">{icon.useCases[0]}</p>
-                    </div>
-                  )}
-
-                  {/* Restrained Tags (Maximum 5 visible) */}
-                  <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                    {icon.tags.slice(0, 5).map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[11px] font-mono text-text-secondary bg-bg-secondary border border-border-subtle px-2 py-0.5 rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 2. Compact Variant Selector (Only real authentic variants) */}
-                <div className="pt-2 border-t border-border-subtle">
-                  <div className="flex items-center gap-2 select-none flex-wrap">
-                    {icon.variants.map((v) => (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => setSelectedStyle(v.style)}
-                        className={cn(
-                          'px-3 py-1.5 text-xs font-mono rounded-md border transition-all cursor-pointer touch-manipulation min-h-[36px]',
-                          activeVariant.id === v.id
-                            ? 'bg-text-primary text-text-inverse font-bold border-text-primary shadow-xs'
-                            : 'bg-transparent text-text-tertiary border-border-default hover:text-text-primary hover:border-border-strong'
-                        )}
-                      >
-                        {v.label || v.style}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 3. Essential Controls Grid */}
-                <div className="space-y-3 pt-2 border-t border-border-subtle">
-                  
-                  {/* Color Controls */}
+                {/* VARIANT SELECTOR */}
+                {icon.variants.length > 1 && (
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-text-tertiary">
-                      <span className="uppercase tracking-wider font-medium">Color</span>
-                      <span className="text-text-secondary text-[10px]">
-                        {customization.color === 'currentColor' ? 'Default' : customization.color}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      {COLOR_PRESETS.map((p) => (
+                    <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider font-medium block">
+                      Variant
+                    </span>
+                    <div className="flex items-center gap-1.5 select-none flex-wrap">
+                      {icon.variants.map((v) => (
                         <button
-                          key={p.value}
+                          key={v.id}
                           type="button"
-                          onClick={() => setCustomization((prev) => ({ ...prev, color: p.value }))}
-                          title={p.label}
+                          onClick={() => setSelectedStyle(v.style)}
                           className={cn(
-                            'w-6 h-6 rounded-full border transition-all cursor-pointer shrink-0 touch-manipulation min-w-[24px] min-h-[24px]',
-                            customization.color === p.value
-                              ? 'ring-2 ring-accent ring-offset-2 ring-offset-bg-elevated scale-110 border-text-primary'
-                              : 'border-border-default hover:scale-105'
+                            'px-3 py-1.5 text-xs font-mono rounded-md border transition-all cursor-pointer touch-manipulation',
+                            activeVariant.id === v.id
+                              ? 'bg-text-primary text-text-inverse font-bold border-text-primary shadow-xs'
+                              : 'bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
                           )}
-                          style={{
-                            backgroundColor: p.value === 'currentColor' ? 'var(--color-text-primary)' : p.value,
-                          }}
-                        />
+                        >
+                          {v.label || v.style}
+                        </button>
                       ))}
-                      <div className="relative ml-auto">
-                        <input
-                          type="color"
-                          value={customization.color === 'currentColor' ? '#FF5024' : customization.color}
-                          onChange={(e) => setCustomization((prev) => ({ ...prev, color: e.target.value }))}
-                          className="w-6 h-6 rounded-full border border-border-default bg-transparent cursor-pointer p-0 appearance-none overflow-hidden touch-manipulation min-w-[24px] min-h-[24px]"
-                          title="Custom color picker"
-                        />
-                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Size Presets */}
+                {/* COLOR + SIZE ROW (side by side on desktop, stacked on mobile) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* COLOR */}
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-text-tertiary">
+                    <span className="text-[10px] font-mono text-text-tertiary uppercase tracking-wider font-medium block">
+                      Color
+                    </span>
+                    <GridframeColorPicker
+                      color={customization.color}
+                      onChange={(c) => updateProp('color', c)}
+                      disabled={!activeVariant.supportsColor}
+                    />
+                  </div>
+
+                  {/* SIZE */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-text-tertiary">
                       <span className="uppercase tracking-wider font-medium">Size</span>
-                      <span className="text-text-secondary text-[10px]">{customization.size}px</span>
+                      <span className="text-text-secondary">{customization.size}px</span>
                     </div>
-                    <div className="grid grid-cols-5 gap-1.5">
+                    <div className="grid grid-cols-5 gap-1">
                       {SIZE_PRESETS.map((sz) => (
                         <button
                           key={sz}
                           type="button"
-                          onClick={() => setCustomization((prev) => ({ ...prev, size: sz }))}
+                          onClick={() => updateProp('size', sz)}
                           className={cn(
-                            'py-1.5 text-center text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
+                            'py-2 text-center text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation',
                             customization.size === sz
                               ? 'bg-bg-secondary text-text-primary font-bold border-border-strong shadow-xs'
-                              : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
+                              : 'bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
                           )}
                         >
                           {sz}
@@ -406,164 +331,100 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       ))}
                     </div>
                   </div>
-
-                  {/* Padding & Animation Row */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Padding (3 compact options) */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-text-tertiary">
-                        <span className="uppercase tracking-wider font-medium">Padding</span>
-                        <span className="text-text-secondary text-[10px]">{padding}px</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {PADDING_PRESETS.map((opt) => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => setPadding(opt.value)}
-                            className={cn(
-                              'py-1.5 text-center text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
-                              padding === opt.value
-                                ? 'bg-bg-secondary text-text-primary font-bold border-border-strong shadow-xs'
-                                : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
-                            )}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Animation Dropdown */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-text-tertiary">
-                        <span className="uppercase tracking-wider font-medium">Animation</span>
-                      </div>
-                      <select
-                        value={animation}
-                        onChange={(e) => setAnimation(e.target.value as AnimationType)}
-                        className="w-full h-[36px] bg-bg-secondary border border-border-default hover:border-border-strong focus:border-accent text-xs font-mono text-text-secondary focus:text-text-primary py-1.5 px-2 rounded cursor-pointer outline-none transition-colors touch-manipulation"
-                      >
-                        <option value="none" className="bg-bg-elevated text-text-primary">No Animation</option>
-                        <option value="spin" className="bg-bg-elevated text-text-primary">Spin</option>
-                        <option value="pulse" className="bg-bg-elevated text-text-primary">Pulse</option>
-                        <option value="bounce" className="bg-bg-elevated text-text-primary">Bounce</option>
-                        <option value="float" className="bg-bg-elevated text-text-primary">Float</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Flip & Rotate Row */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Flip */}
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-mono text-text-tertiary uppercase tracking-wider font-medium block">
-                        Flip
-                      </span>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setCustomization((prev) => ({ ...prev, flipX: !prev.flipX }))}
-                          className={cn(
-                            'flex items-center justify-center gap-1 py-1.5 text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
-                            customization.flipX
-                              ? 'bg-bg-secondary text-accent font-bold border-border-strong'
-                              : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
-                          )}
-                          title="Flip Horizontal"
-                        >
-                          <FlipHorizontal className="w-3 h-3" />
-                          <span>H</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCustomization((prev) => ({ ...prev, flipY: !prev.flipY }))}
-                          className={cn(
-                            'flex items-center justify-center gap-1 py-1.5 text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
-                            customization.flipY
-                              ? 'bg-bg-secondary text-accent font-bold border-border-strong'
-                              : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
-                          )}
-                          title="Flip Vertical"
-                        >
-                          <FlipVertical className="w-3 h-3" />
-                          <span>V</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Rotate */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-text-tertiary">
-                        <span className="uppercase tracking-wider font-medium">Rotate</span>
-                        <span className="text-text-secondary text-[10px]">{customization.rotation}°</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCustomization((prev) => ({ ...prev, rotation: (prev.rotation - 90 + 360) % 360 }))
-                          }
-                          className="flex items-center justify-center py-1.5 text-xs font-mono rounded border bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation min-h-[36px]"
-                          title="Rotate 90° Left"
-                        >
-                          -90°
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCustomization((prev) => ({ ...prev, rotation: 0 }))}
-                          className={cn(
-                            'flex items-center justify-center py-1.5 text-xs font-mono rounded border transition-all cursor-pointer touch-manipulation min-h-[36px]',
-                            customization.rotation === 0
-                              ? 'bg-bg-secondary text-text-primary font-bold border-border-strong'
-                              : 'bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
-                          )}
-                          title="Reset Rotation"
-                        >
-                          0°
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCustomization((prev) => ({ ...prev, rotation: (prev.rotation + 90) % 360 }))}
-                          className="flex items-center justify-center py-1.5 text-xs font-mono rounded border bg-bg-secondary/40 text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation min-h-[36px]"
-                          title="Rotate 90° Right"
-                        >
-                          +90°
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
 
-                {/* 4. Primary Actions (Bottom-Right) */}
-                <div className="space-y-2 pt-3 border-t border-border-subtle">
-                  <div className="flex items-center gap-3">
+                {/* TRANSFORM (Flip + Rotate) */}
+                <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-text-tertiary">
+                      <span className="uppercase tracking-wider font-medium">Transform</span>
+                      <span className="text-text-secondary text-[9px]">
+                        {customization.rotation}°
+                        {customization.flipX && ' ↔'}
+                        {customization.flipY && ' ↕'}
+                      </span>
+                    </div>
+
+                    {/* Flip */}
+                    <div className="grid grid-cols-4 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => updateProp('flipX', !customization.flipX)}
+                        className={cn(
+                          'flex items-center justify-center gap-1 py-2 text-[10px] font-mono rounded border transition-all cursor-pointer touch-manipulation',
+                          customization.flipX
+                            ? 'bg-bg-secondary text-accent font-bold border-border-strong'
+                            : 'bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
+                        )}
+                        title="Flip Horizontal"
+                      >
+                        <FlipHorizontal className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateProp('flipY', !customization.flipY)}
+                        className={cn(
+                          'flex items-center justify-center gap-1 py-2 text-[10px] font-mono rounded border transition-all cursor-pointer touch-manipulation',
+                          customization.flipY
+                            ? 'bg-bg-secondary text-accent font-bold border-border-strong'
+                            : 'bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default'
+                        )}
+                        title="Flip Vertical"
+                      >
+                        <FlipVertical className="w-3 h-3" />
+                      </button>
+
+                      {/* Rotate */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateProp('rotation', (customization.rotation - 90 + 360) % 360)
+                        }
+                        className="flex items-center justify-center py-2 text-[10px] font-mono rounded border bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation"
+                        title="Rotate 90° Left"
+                      >
+                        −90
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateProp('rotation', (customization.rotation + 90) % 360)
+                        }
+                        className="flex items-center justify-center py-2 text-[10px] font-mono rounded border bg-transparent text-text-tertiary border-border-subtle hover:text-text-primary hover:border-border-default transition-all cursor-pointer touch-manipulation"
+                        title="Rotate 90° Right"
+                      >
+                        +90
+                      </button>
+                    </div>
+                </div>
+
+                {/* ─── PRIMARY ACTIONS ─── */}
+                <div className="space-y-2 pt-2 border-t border-border-subtle mt-auto">
+                  <div className="flex items-center gap-2.5">
                     <button
                       type="button"
                       onClick={handleCopySvg}
-                      className="flex-1 min-h-[46px] flex items-center justify-center gap-2 py-3 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-bg-secondary dark:bg-[#F6F3EC] text-text-primary dark:text-[#141311] border border-border-default dark:border-transparent hover:bg-bg-secondary/80 dark:hover:bg-white active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
+                      className="flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-bg-secondary dark:bg-[#F6F3EC] text-text-primary dark:text-[#141311] border border-border-default dark:border-transparent hover:bg-bg-secondary/80 dark:hover:bg-white active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
                     >
                       {copiedSvg ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedSvg ? 'COPIED!' : 'SVG CODE'}</span>
+                      <span>{copiedSvg ? 'COPIED!' : 'COPY SVG'}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleDownloadSvg}
-                      className="flex-1 min-h-[46px] flex items-center justify-center gap-2 py-3 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
+                      className="flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-mono font-bold tracking-wider rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer touch-manipulation"
                     >
                       {downloaded ? <Check className="w-4 h-4 text-white" /> : <Download className="w-4 h-4" />}
-                      <span>{downloaded ? 'DOWNLOADED!' : 'DOWNLOAD SVG'}</span>
+                      <span>{downloaded ? 'DONE!' : 'DOWNLOAD SVG'}</span>
                     </button>
                   </div>
 
-                  {/* Subordinate Secondary Actions */}
-                  <div className="flex items-center justify-between pt-1 px-1">
+                  {/* Subordinate Actions */}
+                  <div className="flex items-center justify-between px-0.5">
                     <button
                       type="button"
                       onClick={() => setIsCollectionModalOpen(true)}
-                      className="flex items-center gap-1.5 min-h-[36px] text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation"
+                      className="flex items-center gap-1.5 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-accent" />
                       <span>Add to Collection</span>
@@ -571,14 +432,13 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="flex items-center gap-1 min-h-[36px] text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation"
+                      className="flex items-center gap-1 text-[11px] font-mono text-text-tertiary hover:text-text-primary transition-colors cursor-pointer touch-manipulation py-1"
                     >
                       <RotateCcw className="w-3 h-3" />
                       <span>Reset</span>
                     </button>
                   </div>
                 </div>
-
               </div>
             </div>
           </motion.div>

@@ -10,7 +10,7 @@ const DEFAULT_COLLECTIONS: Collection[] = [
     id: 'col_essential_ui',
     name: 'Interface Essentials',
     description: 'Core actions and system navigation icons for web and mobile applications.',
-    iconIds: ['ico_search', 'ico_settings', 'ico_user', 'ico_bell', 'ico_chevron_right'],
+    iconIds: ['search', 'settings', 'user', 'bell', 'check'],
     color: '#3B82F6',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -19,7 +19,7 @@ const DEFAULT_COLLECTIONS: Collection[] = [
     id: 'col_media_actions',
     name: 'Media Controls',
     description: 'Playback, volume, and playback state vectors.',
-    iconIds: ['ico_play', 'ico_pause', 'ico_volume', 'ico_image'],
+    iconIds: ['play', 'pause', 'music-double-note', 'media-image'],
     color: '#10B981',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -28,7 +28,7 @@ const DEFAULT_COLLECTIONS: Collection[] = [
 
 const DEFAULT_STATE: WorkspaceStorageState = {
   version: CURRENT_SCHEMA_VERSION,
-  favorites: ['ico_zap', 'ico_heart', 'ico_search', 'ico_settings'],
+  favorites: ['heart', 'search', 'settings', 'cloud'],
   collections: DEFAULT_COLLECTIONS,
 };
 

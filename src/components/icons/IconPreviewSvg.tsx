@@ -110,6 +110,7 @@ export const IconPreviewSvg: React.FC<IconPreviewSvgProps> = memo(({
       width={size}
       height={size}
       fill="none"
+      stroke={supportsStroke ? (color || 'currentColor') : undefined}
       color={color}
       strokeWidth={supportsStroke ? computedStrokeWidth : undefined}
       strokeLinecap={supportsStroke ? strokeLinecap : undefined}

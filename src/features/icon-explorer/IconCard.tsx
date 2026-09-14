@@ -97,8 +97,7 @@ export const IconCard: React.FC<IconCardProps> = React.memo(
         <div className="relative flex-1 flex items-center justify-center my-2 select-none">
           <div className="relative z-10 flex items-center justify-center text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
             <SafeSvg
-              svgContent={icon.svg}
-              viewBox={icon.viewBox}
+              icon={icon}
               size={44}
               className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
             />

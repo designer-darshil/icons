@@ -173,17 +173,7 @@ export function generateFiveVariants(
     defaultStrokeWidth: duotoneLineOverride?.defaultStrokeWidth ?? 2.0,
   };
 
-  // Legacy outline alias for 100% backward compatibility
-  const outlineAlias: IconVariant = {
-    id: `${conceptSlug}-outline`,
-    style: 'outline',
-    label: 'Outline',
-    svg: cleanOutline,
-    viewBox: '0 0 24 24',
-    supportsStroke: true,
-    supportsColor: true,
-    defaultStrokeWidth: 2.0,
-  };
+
 
   // Validate quality of each canonical variant against Regular baseline
   const lightReport = validateVariantAgainstRegular(light, regular, conceptSlug);
@@ -206,7 +196,7 @@ export function generateFiveVariants(
   duotoneLine.qualityStatus = duotoneLineReport.status;
   duotoneLine.qualityReport = duotoneLineReport;
 
-  const all = [regular, light, filled, duotone, duotoneLine, outlineAlias];
+  const all = [regular, light, filled, duotone, duotoneLine];
 
   return {
     light,

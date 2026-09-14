@@ -107,6 +107,8 @@ export const IconPreviewCanvas: React.FC<IconPreviewCanvasProps> = ({
       <div className="flex flex-col items-center justify-center my-4">
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-bg-surface border border-border-subtle flex items-center justify-center shadow-md p-4">
           <SafeSvg
+            icon={icon}
+            variant={activeVariant || undefined}
             svgContent={svgMarkup}
             viewBox={viewBox}
             size={canvasSize}

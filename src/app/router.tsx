@@ -12,7 +12,22 @@ import { IconRenderingQARoute } from "@/routes/IconRenderingQARoute";
 import { IconoirQARoute } from "@/routes/IconoirQARoute";
 import { NotFoundRoute } from "@/routes/NotFoundRoute";
 
+// Admin Module Routes & Shell
+import { AdminShell } from "@/features/admin/layout/AdminShell";
+import { AdminAuthProvider } from "@/features/admin/auth/AdminAuthContext";
+import { AdminLoginRoute } from "@/routes/admin/AdminLoginRoute";
+import { AdminDashboardRoute } from "@/routes/admin/AdminDashboardRoute";
+import { AdminIconsRoute } from "@/routes/admin/AdminIconsRoute";
+import { AdminIconDetailRoute } from "@/routes/admin/AdminIconDetailRoute";
+import { AdminCategoriesRoute } from "@/routes/admin/AdminCategoriesRoute";
+import { AdminStylesRoute } from "@/routes/admin/AdminStylesRoute";
+import { AdminCollectionsRoute } from "@/routes/admin/AdminCollectionsRoute";
+import { AdminUsersRoute } from "@/routes/admin/AdminUsersRoute";
+import { AdminActivityRoute } from "@/routes/admin/AdminActivityRoute";
+import { AdminSettingsRoute } from "@/routes/admin/AdminSettingsRoute";
+
 export const router = createBrowserRouter([
+  // Public Client Routes
   {
     path: "/",
     element: <AppShell />,
@@ -94,5 +109,59 @@ export const router = createBrowserRouter([
         element: <NotFoundRoute />,
       },
     ],
+  },
+
+  // Protected Admin Management Area
+  {
+    path: "/admin",
+    element: <AdminShell />,
+    children: [
+      {
+        index: true,
+        element: <AdminDashboardRoute />,
+      },
+      {
+        path: "icons",
+        element: <AdminIconsRoute />,
+      },
+      {
+        path: "icons/:id",
+        element: <AdminIconDetailRoute />,
+      },
+      {
+        path: "categories",
+        element: <AdminCategoriesRoute />,
+      },
+      {
+        path: "styles",
+        element: <AdminStylesRoute />,
+      },
+      {
+        path: "collections",
+        element: <AdminCollectionsRoute />,
+      },
+      {
+        path: "users",
+        element: <AdminUsersRoute />,
+      },
+      {
+        path: "activity",
+        element: <AdminActivityRoute />,
+      },
+      {
+        path: "settings",
+        element: <AdminSettingsRoute />,
+      },
+    ],
+  },
+
+  // Admin Authentication Portal
+  {
+    path: "/admin/login",
+    element: (
+      <AdminAuthProvider>
+        <AdminLoginRoute />
+      </AdminAuthProvider>
+    ),
   },
 ]);

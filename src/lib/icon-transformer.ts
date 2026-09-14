@@ -3,7 +3,8 @@ import type { IconCustomization } from "@/types/customization";
 import type { IconVariant } from "@/types/icon";
 
 /**
- * Transforms an SVG variant markup applying live customization parameters without mutating source geometry.
+ * Transforms an SVG variant markup applying live customization parameters
+ * without mutating source geometry.
  */
 export function transformSvgMarkup(
   variant: IconVariant,
@@ -30,7 +31,7 @@ export function transformSvgMarkup(
 
   const transformAttr = transforms.length > 0 ? ` transform="${transforms.join(" ")}"` : "";
   const strokeAttrs = supportsStroke
-    ? ` stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}"`
+    ? ` stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="${strokeLinecap}" stroke-linejoin="${strokeLinejoin}"`
     : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${variant.viewBox || '0 0 24 24'}" fill="none" color="${color}"${strokeAttrs}${transformAttr}>

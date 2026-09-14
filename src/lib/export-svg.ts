@@ -2,6 +2,8 @@
  * Utilities for downloading files and copying text safely in modern browsers
  */
 
+import { optimizeSvg } from './svg/optimizeSvg';
+
 /**
  * Initiates a browser file download using a Blob and object URL.
  * Automatically cleans up the object URL after triggering.
@@ -12,7 +14,8 @@ export function downloadFile(
   mimeType: string = 'image/svg+xml'
 ): boolean {
   try {
-    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
+    const finalContent = mimeType === 'image/svg+xml' ? optimizeSvg(content) : content;
+    const blob = new Blob([finalContent], { type: `${mimeType};charset=utf-8` });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
 
