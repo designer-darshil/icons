@@ -39,7 +39,10 @@ export const CollectionModal: React.FC<CollectionModalProps> = ({
     if (isNowIn) {
       success(`Added "${icon.name}" to ${collectionName}`);
     } else {
-      info(`Removed "${icon.name}" from ${collectionName}`);
+      info(`Removed "${icon.name}" from ${collectionName}`, {
+        label: 'Undo',
+        onClick: () => toggleIconInCollection(collectionId, icon.id),
+      });
     }
   };
 

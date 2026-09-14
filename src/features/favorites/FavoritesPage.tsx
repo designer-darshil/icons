@@ -10,6 +10,7 @@ import { DEFAULT_CUSTOMIZATION } from '@/types/customization';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Heart, Download, Trash2, Search } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Icon } from '@/types/icon';
 
@@ -55,6 +56,36 @@ export const FavoritesPage: React.FC = () => {
     setTimeout(() => setIsDownloading(false), delay + 200);
   }, [favoriteIcons]);
 
+  const { success, info } = useToast();
+
+  const handleToggleFavorite = useCallback(
+    (icon: Icon) => {
+      const isNowFav = toggleFavorite(icon.id);
+      if (isNowFav) {
+        success(`Saved "${icon.name}" to favorites`);
+      } else {
+        info(`Removed "${icon.name}" from favorites`, {
+          label: 'Undo',
+          onClick: () => toggleFavorite(icon.id),
+        });
+      }
+    },
+    [toggleFavorite, success, info]
+  );
+
+  const handleClearAll = useCallback(() => {
+    const backupIds = [...favoriteIds];
+    if (window.confirm('Clear all favorite icons?')) {
+      clearFavorites();
+      info('Cleared all saved favorites', {
+        label: 'Undo',
+        onClick: () => {
+          backupIds.forEach((id) => toggleFavorite(id));
+        },
+      });
+    }
+  }, [favoriteIds, clearFavorites, toggleFavorite, info]);
+
   return (
     <WorkspaceShell>
       <div className="space-y-6">
@@ -89,11 +120,7 @@ export const FavoritesPage: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 className="type-button-sm text-action-destructive hover:bg-status-error-bg"
-                onClick={() => {
-                  if (window.confirm('Clear all favorite icons?')) {
-                    clearFavorites();
-                  }
-                }}
+                onClick={handleClearAll}
               >
                 <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                 <span>Clear All</span>
@@ -143,7 +170,7 @@ export const FavoritesPage: React.FC = () => {
               selectedIconId={selectedIcon?.id}
               favoriteIds={favoriteSet}
               onSelectIcon={(icon) => setSelectedIcon(icon)}
-              onToggleFavorite={(icon) => toggleFavorite(icon.id)}
+              onToggleFavorite={handleToggleFavorite}
             />
           </div>
         )}
@@ -154,7 +181,7 @@ export const FavoritesPage: React.FC = () => {
         onClose={() => setSelectedIcon(null)}
         icon={selectedIcon}
         isFavorite={selectedIcon ? favoriteSet.has(selectedIcon.id) : false}
-        onToggleFavorite={(icon) => toggleFavorite(icon.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
     </WorkspaceShell>
   );

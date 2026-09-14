@@ -15,6 +15,7 @@ import './favorites-collections-2-test';
 import './catalog-architecture-test';
 import './accessibility-keyboard-test';
 import './production-launch-test';
+import './ux-polish-usability-test';
 
 console.log(`
 ======================================================

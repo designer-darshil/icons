@@ -7,6 +7,7 @@ import { SpecimenGrid } from '@/features/icon-explorer/SpecimenGrid';
 import { IconDetailModal } from '@/features/icon-modal/IconDetailModal';
 import { CommandPalette } from '@/features/search/CommandPalette';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { useToast } from '@/components/ui/Toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { HeroSection } from '@/features/hero/HeroSection';
@@ -244,11 +245,21 @@ export const IconsRoute: React.FC = () => {
     setSelectedIcon(icon);
   }, []);
 
+  const { success: showSuccessToast, info: showInfoToast } = useToast();
+
   const handleToggleFavorite = useCallback(
     (icon: Icon) => {
-      toggleFavorite(icon.id);
+      const isNowFav = toggleFavorite(icon.id);
+      if (isNowFav) {
+        showSuccessToast(`Saved "${icon.name}" to favorites`);
+      } else {
+        showInfoToast(`Removed "${icon.name}" from favorites`, {
+          label: 'Undo',
+          onClick: () => toggleFavorite(icon.id),
+        });
+      }
     },
-    [toggleFavorite]
+    [toggleFavorite, showSuccessToast, showInfoToast]
   );
 
   const prefersReducedMotion = useReducedMotion();

@@ -19,6 +19,7 @@ import {
   Trash2,
   Search,
 } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Icon } from '@/types/icon';
 
@@ -47,6 +48,23 @@ export const CollectionDetailPage: React.FC = () => {
   useDocumentTitle(
     collection ? `${collection.name} Collection` : 'Collection Not Found',
     collection?.description || 'Curated vector icon collection in Gridframe.'
+  );
+
+  const { success, info } = useToast();
+
+  const handleToggleFavorite = useCallback(
+    (icon: Icon) => {
+      const isNowFav = toggleFavorite(icon.id);
+      if (isNowFav) {
+        success(`Saved "${icon.name}" to favorites`);
+      } else {
+        info(`Removed "${icon.name}" from favorites`, {
+          label: 'Undo',
+          onClick: () => toggleFavorite(icon.id),
+        });
+      }
+    },
+    [toggleFavorite, success, info]
   );
 
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
@@ -232,7 +250,7 @@ export const CollectionDetailPage: React.FC = () => {
               favoriteIds={favoriteSet}
               forceRegular={true}
               onSelectIcon={(icon) => setSelectedIcon(icon)}
-              onToggleFavorite={(icon) => toggleFavorite(icon.id)}
+              onToggleFavorite={handleToggleFavorite}
             />
           </div>
         )}
@@ -253,7 +271,7 @@ export const CollectionDetailPage: React.FC = () => {
         onClose={() => setSelectedIcon(null)}
         icon={selectedIcon}
         isFavorite={selectedIcon ? favoriteSet.has(selectedIcon.id) : false}
-        onToggleFavorite={(icon) => toggleFavorite(icon.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
     </WorkspaceShell>
   );
