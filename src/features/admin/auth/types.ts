@@ -1,4 +1,7 @@
+import type { Session, User } from '@supabase/supabase-js';
+
 export type AdminRole = 'admin' | 'editor' | 'viewer';
+export type AuthStatus = 'loading' | 'unauthenticated' | 'authenticated' | 'unauthorized';
 
 export interface AdminUser {
   id: string;
@@ -12,7 +15,12 @@ export interface AdminUser {
 }
 
 export interface AdminAuthState {
+  status: AuthStatus;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   user: AdminUser | null;
+  supabaseUser: User | null;
+  session: Session | null;
   token: string | null;
+  error: string | null;
 }

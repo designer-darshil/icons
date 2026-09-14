@@ -1,41 +1,64 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import type { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import type { AdminUser, AdminRole, AdminAuthState } from './types';
 
-const ADMIN_STORAGE_KEY = 'gridframe_admin_session_v1';
+// Designated Administrator Email Addresses
+export const AUTHORIZED_ADMIN_EMAILS = new Set([
+  'darshilbhuva4322@gmail.com',
+  'admin@gridframe.design',
+]);
 
-export const DEFAULT_ADMIN_USERS: AdminUser[] = [
-  {
-    id: 'usr-001',
-    name: 'Lead Designer & Admin',
-    email: 'admin@gridframe.design',
-    role: 'admin',
+/**
+ * Validates if an authenticated Supabase user holds administrator privileges.
+ */
+export function isUserAdmin(user: User | null): boolean {
+  if (!user || !user.email) return false;
+  const email = user.email.toLowerCase().trim();
+
+  // 1. Check explicit app metadata role
+  if (user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin') {
+    return true;
+  }
+
+  // 2. Check authorized admin email list or domain
+  if (AUTHORIZED_ADMIN_EMAILS.has(email) || email.endsWith('@gridframe.design')) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Maps a Supabase Auth User object to the Gridframe AdminUser model.
+ */
+export function mapSupabaseUserToAdmin(user: User): AdminUser {
+  const email = user.email || 'admin@gridframe.design';
+  const role: AdminRole = isUserAdmin(user)
+    ? ((user.app_metadata?.role || user.user_metadata?.role || 'admin') as AdminRole)
+    : 'viewer';
+
+  const name =
+    user.user_metadata?.name ||
+    user.user_metadata?.full_name ||
+    email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+
+  return {
+    id: user.id,
+    name,
+    email,
+    role,
+    avatarUrl: user.user_metadata?.avatar_url,
     status: 'active',
-    joinedDate: '2026-01-10',
+    joinedDate: user.created_at ? user.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
     lastActive: 'Just now',
-  },
-  {
-    id: 'usr-002',
-    name: 'Vector Quality Editor',
-    email: 'editor@gridframe.design',
-    role: 'editor',
-    status: 'active',
-    joinedDate: '2026-02-14',
-    lastActive: '2 hours ago',
-  },
-  {
-    id: 'usr-003',
-    name: 'Product Manager (Viewer)',
-    email: 'viewer@gridframe.design',
-    role: 'viewer',
-    status: 'active',
-    joinedDate: '2026-03-01',
-    lastActive: 'Yesterday',
-  },
-];
+  };
+}
 
 interface AdminAuthContextType extends AdminAuthState {
-  login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   hasRole: (required: AdminRole) => boolean;
   users: AdminUser[];
   updateUserRole: (userId: string, newRole: AdminRole) => void;
@@ -45,93 +68,180 @@ interface AdminAuthContextType extends AdminAuthState {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<AdminUser[]>(() => {
+  const [state, setState] = useState<AdminAuthState>({
+    status: 'loading',
+    isAuthenticated: false,
+    isAdmin: false,
+    user: null,
+    supabaseUser: null,
+    session: null,
+    token: null,
+    error: null,
+  });
+
+  const [managedUsers, setManagedUsers] = useState<AdminUser[]>(() => {
     try {
-      const stored = localStorage.getItem('gridframe_admin_users_v1');
+      const stored = localStorage.getItem('gridframe_admin_users_v2');
       if (stored) return JSON.parse(stored);
     } catch {
       // fallback
     }
-    return DEFAULT_ADMIN_USERS;
+    return [];
   });
 
-  const [state, setState] = useState<AdminAuthState>(() => {
+  // Evaluate Supabase session & user authorization
+  const evaluateSession = useCallback((session: Session | null) => {
+    if (!session || !session.user) {
+      setState({
+        status: 'unauthenticated',
+        isAuthenticated: false,
+        isAdmin: false,
+        user: null,
+        supabaseUser: null,
+        session: null,
+        token: null,
+        error: null,
+      });
+      return;
+    }
+
+    const sbUser = session.user;
+    const adminUser = mapSupabaseUserToAdmin(sbUser);
+    const hasAdminAccess = isUserAdmin(sbUser);
+
+    setState({
+      status: hasAdminAccess ? 'authenticated' : 'unauthorized',
+      isAuthenticated: true,
+      isAdmin: hasAdminAccess,
+      user: adminUser,
+      supabaseUser: sbUser,
+      session,
+      token: session.access_token,
+      error: null,
+    });
+  }, []);
+
+  // Initialize session on mount and listen to Supabase auth events
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (!isMounted) return;
+      if (error) {
+        console.error('Failed to retrieve Supabase session:', error.message);
+        setState((prev) => ({ ...prev, status: 'unauthenticated' }));
+      } else {
+        evaluateSession(session);
+      }
+    }).catch((err) => {
+      if (!isMounted) return;
+      console.error('Supabase session initialization error:', err);
+      setState((prev) => ({ ...prev, status: 'unauthenticated' }));
+    });
+
+    // 2. Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      evaluateSession(session);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [evaluateSession]);
+
+  // Persist managed users list
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.isAuthenticated && parsed?.user) {
-          return parsed;
-        }
+      if (managedUsers.length > 0) {
+        localStorage.setItem('gridframe_admin_users_v2', JSON.stringify(managedUsers));
       }
     } catch {
-      // fallback
+      // ignore
     }
-    // Default logged-in as admin for seamless development & operational access
-    return {
-      isAuthenticated: true,
-      user: DEFAULT_ADMIN_USERS[0],
-      token: 'session_token_lead_admin_778912',
-    };
-  });
+  }, [managedUsers]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('gridframe_admin_users_v1', JSON.stringify(users));
-    } catch (e) {
-      console.warn('Failed to persist admin users', e);
+  // Login handler with Supabase Auth
+  const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail || !password) {
+      return { success: false, error: 'Email and password are required.' };
     }
-  }, [users]);
 
-  useEffect(() => {
     try {
-      if (state.isAuthenticated && state.user) {
-        localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(state));
-      } else {
-        localStorage.removeItem(ADMIN_STORAGE_KEY);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+
+      if (error || !data.user || !data.session) {
+        return { success: false, error: 'Invalid email or password.' };
       }
-    } catch (e) {
-      console.warn('Failed to persist admin session', e);
+
+      const hasAdmin = isUserAdmin(data.user);
+      if (!hasAdmin) {
+        evaluateSession(data.session);
+        return {
+          success: false,
+          error: 'Access denied. Account does not have administrator privileges.',
+        };
+      }
+
+      evaluateSession(data.session);
+      return { success: true };
+    } catch (err) {
+      console.error('Admin login error:', err);
+      return { success: false, error: 'Invalid email or password.' };
     }
-  }, [state]);
+  }, [evaluateSession]);
 
-  const login = useCallback(async (email: string, _password?: string): Promise<{ success: boolean; error?: string }> => {
-    const trimmed = email.trim().toLowerCase();
-    const matchedUser = users.find((u) => u.email.toLowerCase() === trimmed) || {
-      id: `usr-${Date.now()}`,
-      name: email.split('@')[0],
-      email: trimmed,
-      role: 'admin' as AdminRole,
-      status: 'active' as const,
-      joinedDate: new Date().toISOString().split('T')[0],
-      lastActive: 'Just now',
-    };
+  // Logout handler
+  const logout = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Supabase signOut error:', err);
+    } finally {
+      setState({
+        status: 'unauthenticated',
+        isAuthenticated: false,
+        isAdmin: false,
+        user: null,
+        supabaseUser: null,
+        session: null,
+        token: null,
+        error: null,
+      });
+    }
+  }, []);
 
-    if (matchedUser.status === 'suspended') {
-      return { success: false, error: 'This admin account is suspended. Contact system administrator.' };
+  // Password reset handler
+  const resetPassword = useCallback(async (email: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      return { success: false, error: 'Please enter a valid email address.' };
     }
 
-    const sessionState: AdminAuthState = {
-      isAuthenticated: true,
-      user: matchedUser,
-      token: `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-    };
-
-    setState(sessionState);
-    return { success: true };
-  }, [users]);
-
-  const logout = useCallback(() => {
-    setState({
-      isAuthenticated: false,
-      user: null,
-      token: null,
-    });
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/admin/login`,
+      });
+      if (error) {
+        return { success: false, error: 'Unable to send reset email. Please try again.' };
+      }
+      return { success: true };
+    } catch (err) {
+      console.error('Reset password error:', err);
+      return { success: false, error: 'Unable to send reset email. Please try again.' };
+    }
   }, []);
 
   const hasRole = useCallback(
     (required: AdminRole): boolean => {
-      if (!state.isAuthenticated || !state.user) return false;
+      if (!state.isAuthenticated || !state.user || !state.isAdmin) return false;
       if (state.user.role === 'admin') return true;
       if (state.user.role === 'editor' && (required === 'editor' || required === 'viewer')) return true;
       if (state.user.role === 'viewer' && required === 'viewer') return true;
@@ -141,28 +251,36 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 
   const updateUserRole = useCallback((userId: string, newRole: AdminRole) => {
-    setUsers((prev) =>
+    setManagedUsers((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
     );
   }, []);
 
   const updateUserStatus = useCallback((userId: string, newStatus: 'active' | 'suspended') => {
-    setUsers((prev) =>
+    setManagedUsers((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u))
     );
   }, []);
+
+  const effectiveUsers = useMemo(() => {
+    if (state.user && !managedUsers.some((u) => u.id === state.user?.id)) {
+      return [state.user, ...managedUsers];
+    }
+    return managedUsers.length > 0 ? managedUsers : state.user ? [state.user] : [];
+  }, [state.user, managedUsers]);
 
   const value = useMemo(
     () => ({
       ...state,
       login,
       logout,
+      resetPassword,
       hasRole,
-      users,
+      users: effectiveUsers,
       updateUserRole,
       updateUserStatus,
     }),
-    [state, login, logout, hasRole, users, updateUserRole, updateUserStatus]
+    [state, login, logout, resetPassword, hasRole, effectiveUsers, updateUserRole, updateUserStatus]
   );
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
