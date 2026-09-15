@@ -18,6 +18,7 @@ import { useScrollLock } from '@/hooks/useScrollLock';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { modalOverlayVariants, commandPaletteVariants } from '@/lib/motion';
 import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
+import { CategoryIcon } from '@/components/icons/CategoryIcon';
 import { cn } from '@/lib/cn';
 import type { Icon } from '@/types/icon';
 
@@ -370,7 +371,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                           className="flex items-center justify-between p-2 rounded-lg border border-border-subtle bg-bg-secondary/40 hover:bg-bg-secondary hover:border-border-strong text-left transition-colors cursor-pointer"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <Tag className="w-3 h-3 text-text-tertiary shrink-0" />
+                            {sug.type === 'category' ? (
+                              <CategoryIcon
+                                categorySlug={sug.category || sug.text}
+                                size={14}
+                                className="w-3.5 h-3.5 text-accent shrink-0"
+                              />
+                            ) : (
+                              <Tag className="w-3 h-3 text-text-tertiary shrink-0" />
+                            )}
                             <span className="text-xs font-medium text-text-primary truncate">
                               {sug.text}
                             </span>

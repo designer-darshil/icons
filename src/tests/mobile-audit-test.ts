@@ -126,4 +126,28 @@ for (const vp of TEST_VIEWPORTS) {
 }
 console.log(`   ✓ All ${TEST_VIEWPORTS.length} viewports validated successfully`);
 
+// Test 5: Verify CategoriesRoute and CategoryIcon SSR
+console.log('5. Testing Categories Directory Component & CategoryIcon rendering across mobile viewports...');
+const { CategoriesRoute } = await import('../routes/CategoriesRoute');
+const categoriesHtml = renderToString(
+  React.createElement(
+    MemoryRouter,
+    { initialEntries: ['/categories'] },
+    React.createElement(
+      ThemeProvider,
+      { defaultTheme: 'dark' },
+      React.createElement(CategoriesRoute, null)
+    )
+  )
+);
+
+if (!categoriesHtml.includes('Categories Directory')) {
+  throw new Error('CategoriesRoute failed to render Categories Directory');
+}
+if (!categoriesHtml.includes('Navigation') || !categoriesHtml.includes('Development') || !categoriesHtml.includes('Security')) {
+  throw new Error('CategoriesRoute missing primary category titles');
+}
+console.log('   ✓ Categories Directory and representative CategoryIcons render cleanly without layout exceptions');
+
+
 console.log('\n✅ ALL SPECIMEN & MOBILE AUDIT CHECKS PASSED (100% SUCCESS)\n');

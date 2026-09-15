@@ -29,9 +29,11 @@ export interface IconPreviewSvgProps extends React.SVGAttributes<SVGSVGElement> 
  * - QA Workbenches
  * 
  * Guarantees:
- * - 100% visual fidelity to canonical Iconoir vector artwork
- * - Respects source viewBox and coordinate system (24×24)
+ * - 100% visual fidelity to canonical Iconoir and Gridframe vector artwork
+ * - Respects source viewBox and standard coordinate system (0 0 24 24)
  * - Preserves individual stroke and fill attributes on internal paths
+ * - Canonical optical stroke normalization (1.5px default for Regular/Outline)
+ * - Deterministic SVG viewport and aspect ratio (xMidYMid meet)
  * - Zero procedural deformation, fake blobs, or arbitrary path scaling
  */
 export const IconPreviewSvg: React.FC<IconPreviewSvgProps> = memo(({
@@ -93,8 +95,16 @@ export const IconPreviewSvg: React.FC<IconPreviewSvgProps> = memo(({
   }
 
   // 4. Determine stroke behavior based on variant capabilities
+  const isOutlineStyle =
+    !activeVariant?.style ||
+    activeVariant.style === 'regular' ||
+    activeVariant.style === 'outline' ||
+    activeVariant.style === 'linear';
+
   const supportsStroke = activeVariant?.supportsStroke !== false;
-  const computedStrokeWidth = strokeWidth ?? activeVariant?.defaultStrokeWidth ?? 1.5;
+  // Canonical default stroke width is 1.5px for Regular/Outline, respecting explicit customizer props
+  const defaultCanonicalStroke = isOutlineStyle ? 1.5 : (activeVariant?.defaultStrokeWidth ?? 1.5);
+  const computedStrokeWidth = strokeWidth ?? defaultCanonicalStroke;
 
   // 5. Outer container transforms only (rotation, flip)
   const transforms: string[] = [];
@@ -116,10 +126,13 @@ export const IconPreviewSvg: React.FC<IconPreviewSvgProps> = memo(({
       strokeLinecap={supportsStroke ? strokeLinecap : undefined}
       strokeLinejoin={supportsStroke ? strokeLinejoin : undefined}
       preserveAspectRatio="xMidYMid meet"
+      overflow="visible"
       className={cn('inline-block shrink-0 select-none aspect-square', className)}
       style={{
         transform: transformStyle,
         transformOrigin: 'center center',
+        minWidth: 0,
+        minHeight: 0,
         ...style,
       }}
       dangerouslySetInnerHTML={{ __html: innerSvg }}

@@ -1,10 +1,12 @@
 import type { Icon } from '@/types/icon';
 import type { FilterState } from '@/types/filters';
 import { searchIconsWithScore } from './icon-search';
+import { normalizeCategorySlug, LEGACY_CATEGORY_ALIASES } from '@/data/category-registry';
 
 export interface FilterOptions {
   favoriteIds?: Set<string> | string[];
   collectionIconIds?: Set<string> | string[];
+  includeDrafts?: boolean;
 }
 
 /**
@@ -13,26 +15,46 @@ export interface FilterOptions {
  */
 export function filterAndSortIcons(
   icons: Icon[],
-  filters: FilterState,
+  filters: Partial<FilterState>,
   options?: FilterOptions
 ): Icon[] {
   let result = [...icons];
+
+  // 0. Status Filter (Exclude drafts & archived icons by default for public views)
+  if (!options?.includeDrafts) {
+    result = result.filter((icon) => {
+      const status = (icon as { status?: string }).status;
+      return !status || status === 'published';
+    });
+  }
 
   // 1. Search Query (Multi-tier relevance + fuzzy matching)
   if (filters.query && filters.query.trim()) {
     result = searchIconsWithScore(result, filters.query);
   }
 
-  // 2. Category Filter
-  if (filters.category && filters.category !== 'all' && filters.category !== 'All Categories') {
-    const filterCatSlug = filters.category.toLowerCase().replace(/\s+/g, '-');
+  // 2. Category Filter (with canonical normalization & alias support)
+  if (filters.category && filters.category !== 'all' && filters.category !== 'All Categories' && filters.category !== 'ALL') {
+    const rawCategory = filters.category.trim().toLowerCase();
+    const normalizedFilterSlug = normalizeCategorySlug(rawCategory);
+    const filterCatSlug = rawCategory.replace(/\s+/g, '-').replace(/_/g, '-');
+
     result = result.filter((icon) => {
       const iconPrimarySlug = (icon.primaryCategory || icon.category || '').toLowerCase().replace(/\s+/g, '-');
       const iconSecondaries = (icon.secondaryCategories || []).map((s) => s.toLowerCase().replace(/\s+/g, '-'));
+      const iconNormalizedPrimary = normalizeCategorySlug(icon.primaryCategory || icon.category || '');
+      const iconNormalizedSecondaries = (icon.secondaryCategories || []).map((s) => normalizeCategorySlug(s));
+      const iconCategoryNameLower = (icon.category || '').toLowerCase();
+
+      // Check direct slug match, normalized canonical match, secondary matches, or legacy alias matches
       return (
         iconPrimarySlug === filterCatSlug ||
+        iconNormalizedPrimary === normalizedFilterSlug ||
         iconSecondaries.includes(filterCatSlug) ||
-        icon.category.toLowerCase() === filters.category.toLowerCase()
+        iconNormalizedSecondaries.includes(normalizedFilterSlug) ||
+        iconCategoryNameLower === rawCategory ||
+        LEGACY_CATEGORY_ALIASES[filterCatSlug] === iconNormalizedPrimary ||
+        LEGACY_CATEGORY_ALIASES[iconPrimarySlug] === normalizedFilterSlug
       );
     });
   }
@@ -89,7 +111,12 @@ export function filterAndSortIcons(
   // 8. Sorting (Applied when query is empty, preserving relevance when searching)
   if (!filters.query || !filters.query.trim()) {
     if (filters.sort === 'popular') {
-      result.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      const getScore = (icon: Icon) => {
+        if (typeof icon.popularity === 'number') return icon.popularity;
+        return 100;
+      };
+      // When scores tie, break ties alphabetically by name for seamless catalog discovery
+      result.sort((a, b) => (getScore(b) - getScore(a)) || a.name.localeCompare(b.name));
     } else if (filters.sort === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (filters.sort === 'name-desc') {

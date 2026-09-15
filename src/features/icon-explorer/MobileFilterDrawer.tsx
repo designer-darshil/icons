@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, RotateCcw, SlidersHorizontal, Heart } from 'lucide-react';
 import { ICON_CATEGORIES } from '@/data/categories';
+import { CategoryIcon } from '@/components/icons/CategoryIcon';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { modalOverlayVariants } from '@/lib/motion';
@@ -27,11 +28,12 @@ export interface MobileFilterDrawerProps {
 }
 
 const CATEGORY_ITEMS = [
-  { id: 'all', slug: 'all', name: 'ALL' },
+  { id: 'all', slug: 'all', name: 'ALL', iconId: '' },
   ...ICON_CATEGORIES.map((c) => ({
     id: c.slug,
     slug: c.slug,
     name: c.name.toUpperCase(),
+    iconId: c.iconId,
   })),
 ];
 
@@ -264,13 +266,21 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
                         type="button"
                         onClick={() => onCategoryChange(cat.id)}
                         className={cn(
-                          'px-3.5 py-2 min-h-[40px] rounded-full text-xs font-mono uppercase tracking-wider transition-all cursor-pointer select-none touch-manipulation',
+                          'inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-mono uppercase tracking-wider transition-all cursor-pointer select-none touch-manipulation',
                           isSelected
                             ? 'bg-accent text-white font-bold shadow-xs'
                             : 'bg-bg-secondary/60 text-text-secondary hover:text-text-primary border border-border-subtle'
                         )}
                       >
-                        {cat.name}
+                        {cat.slug !== 'all' && (
+                          <CategoryIcon
+                            categorySlug={cat.slug}
+                            iconId={cat.iconId}
+                            size={14}
+                            className={cn('w-3.5 h-3.5 shrink-0', isSelected ? 'text-white' : 'text-text-tertiary')}
+                          />
+                        )}
+                        <span>{cat.name}</span>
                       </button>
                     );
                   })}

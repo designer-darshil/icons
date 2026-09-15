@@ -19,6 +19,11 @@ import './ux-polish-usability-test';
 import './compare-feature-test';
 import './shareable-icon-config-test';
 import './supabase-admin-auth-test';
+import './gridframe-loader-test';
+import './icon-intelligence-suite-test';
+import './admin-svg-editor-test';
+import './admin-2-operations-studio-test';
+import './homepage-catalog-width-test';
 
 console.log(`
 ======================================================

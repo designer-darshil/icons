@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { HeroSection } from '@/features/hero/HeroSection';
-import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
+import { getPublicCatalogIcons } from '@/lib/catalog-source';
 import { filterAndSortIcons } from '@/lib/icon-filtering';
 import { pageEntranceVariants } from '@/lib/motion';
 import { Layers, Box, FileCode } from 'lucide-react';
@@ -209,10 +209,13 @@ export const IconsRoute: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Retrieve complete unified public icon dataset
+  const publicIcons = useMemo(() => getPublicCatalogIcons(), []);
+
   // Filter & Search & Sort pipeline across COMPLETE ICON DATASET
   const filteredIcons = useMemo(() => {
     return filterAndSortIcons(
-      GRIDFRAME_ICONS,
+      publicIcons,
       {
         query,
         category,
@@ -227,7 +230,7 @@ export const IconsRoute: React.FC = () => {
         collectionIconIds: collectionIconSet,
       }
     );
-  }, [query, category, style, sort, onlyFavorites, activeCollection, favoriteSet, collectionIconSet]);
+  }, [publicIcons, query, category, style, sort, onlyFavorites, activeCollection, favoriteSet, collectionIconSet]);
 
   // Dynamic Document Title
   const dynamicTitle = useMemo(() => {
@@ -294,7 +297,7 @@ export const IconsRoute: React.FC = () => {
           onStyleChange={handleStyleChange}
           sort={sort}
           onSortChange={handleSortChange}
-          totalCount={GRIDFRAME_ICONS.length}
+          totalCount={publicIcons.length}
           filteredCount={filteredIcons.length}
           onlyFavorites={onlyFavorites}
           onToggleOnlyFavorites={handleToggleOnlyFavorites}
@@ -459,7 +462,7 @@ export const IconsRoute: React.FC = () => {
         onStyleChange={handleStyleChange}
         sort={sort}
         onSortChange={handleSortChange}
-        totalCount={GRIDFRAME_ICONS.length}
+        totalCount={publicIcons.length}
         filteredCount={filteredIcons.length}
         onlyFavorites={onlyFavorites}
         onToggleOnlyFavorites={handleToggleOnlyFavorites}

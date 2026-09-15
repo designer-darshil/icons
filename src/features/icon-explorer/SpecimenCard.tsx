@@ -121,7 +121,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
       }}
       aria-label={`Inspect ${icon.name} vector specimen`}
       className={cn(
-        'group relative flex flex-col justify-between aspect-[4/4.8] sm:aspect-[4/4.6] p-4 sm:p-5 rounded-xs transition-[transform,box-shadow,background-color,border-color] duration-150 select-none cursor-pointer overflow-hidden',
+        'group relative flex flex-col justify-between aspect-[4/4.8] sm:aspect-[4/4.6] p-4 sm:p-5 rounded-xs transition-[transform,box-shadow,background-color,border-color] duration-150 select-none cursor-pointer overflow-hidden min-w-0 min-h-0',
         // Open, subtle surface with soft hairline border
         'bg-bg-secondary/30 hover:bg-bg-secondary/70 border border-border-subtle hover:border-border-strong hover:-translate-y-1 hover:shadow-dropdown',
         isSelected && 'border-accent bg-bg-secondary/90 ring-1 ring-accent shadow-dropdown',
@@ -170,18 +170,19 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
         </div>
       </div>
 
-      {/* Main Specimen Stage: Hero Scale with Smooth Optical Floating */}
-      <div className="relative flex-1 flex items-center justify-center my-2 select-none">
+      {/* Main Specimen Stage: Standardized Fixed Preview Box Centered in Stage */}
+      <div className="relative flex-1 flex items-center justify-center my-2 select-none min-w-0 min-h-0 w-full">
         {/* Subtle crosshair reference guides on hover */}
         <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 border-t border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 border-l border-dashed border-border-subtle/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-        <div className="relative z-10 flex items-center justify-center text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-transform duration-150">
+        {/* Deterministic fixed preview container */}
+        <div className="relative z-10 w-10 h-10 flex items-center justify-center shrink-0 min-w-0 min-h-0 text-text-primary transform group-hover:-translate-y-1.5 group-hover:scale-110 transition-transform duration-150">
           <IconPreviewSvg
             variant={variant}
             icon={icon}
             size={40}
-            className="w-10 h-10 shrink-0"
+            className="w-10 h-10 shrink-0 block select-none"
           />
         </div>
       </div>
@@ -208,7 +209,7 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
       </div>
 
       {/* Bottom Editorial Footnote: Typographic Hierarchy */}
-      <div className="w-full pt-3 border-t border-border-subtle/30 flex items-center justify-between gap-2">
+      <div className="w-full pt-3 border-t border-border-subtle/30 flex items-center justify-between gap-2 min-w-0">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-sm font-medium tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
             {icon.name}
@@ -231,4 +232,3 @@ export const SpecimenCard: React.FC<SpecimenCardProps> = memo(({
 });
 
 SpecimenCard.displayName = 'SpecimenCard';
-

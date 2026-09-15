@@ -27,12 +27,12 @@ const FEATURED_SPECIMENS = [
 ] as const;
 
 const QUICK_CATEGORIES = [
-  { slug: 'interface', label: 'Interface' },
+  { slug: 'actions', label: 'Actions' },
   { slug: 'security', label: 'Security' },
   { slug: 'system', label: 'System' },
-  { slug: 'arrows', label: 'Arrows' },
-  { slug: 'media', label: 'Media' },
-  { slug: 'design', label: 'Design' },
+  { slug: 'navigation', label: 'Navigation' },
+  { slug: 'photos-and-videos', label: 'Media' },
+  { slug: 'design-tools', label: 'Design' },
 ] as const;
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
