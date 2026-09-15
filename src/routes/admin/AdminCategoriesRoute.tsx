@@ -3,6 +3,8 @@ import { useAdminCatalog } from '@/features/admin/context/AdminCatalogContext';
 import { AdminTable } from '@/features/admin/components/AdminTable';
 import { AdminModal, AdminConfirmModal } from '@/features/admin/components/AdminModal';
 import { AdminInput, AdminTextarea } from '@/features/admin/components/AdminFormControls';
+import { CategoryIcon } from '@/components/icons/CategoryIcon';
+import { getCategoryIconId } from '@/data/category-registry';
 import type { CanonicalCategoryDefinition } from '@/data/category-registry';
 
 export const AdminCategoriesRoute: React.FC = () => {
@@ -19,6 +21,7 @@ export const AdminCategoriesRoute: React.FC = () => {
   const [formSlug, setFormSlug] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formOrdering, setFormOrdering] = useState(10);
+  const [formIconId, setFormIconId] = useState('');
 
   // Filtered categories
   const filteredCategories = useMemo(() => {
@@ -33,6 +36,7 @@ export const AdminCategoriesRoute: React.FC = () => {
     setFormSlug('');
     setFormDescription('');
     setFormOrdering(categories.length + 1);
+    setFormIconId('');
     setIsCreateModalOpen(true);
   };
 
@@ -42,16 +46,19 @@ export const AdminCategoriesRoute: React.FC = () => {
     setFormSlug(cat.slug);
     setFormDescription(cat.description || '');
     setFormOrdering(cat.order || 10);
+    setFormIconId(cat.iconId || '');
   };
 
   const handleSaveCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanSlug = formSlug.trim().toLowerCase();
     createCategory({
-      id: `cat-${formSlug}`,
-      slug: formSlug.trim().toLowerCase(),
+      id: `cat-${cleanSlug}`,
+      slug: cleanSlug,
       name: formName.trim(),
       description: formDescription.trim(),
       order: formOrdering,
+      iconId: formIconId.trim() || getCategoryIconId(cleanSlug),
     });
     setIsCreateModalOpen(false);
   };
@@ -63,6 +70,7 @@ export const AdminCategoriesRoute: React.FC = () => {
         name: formName.trim(),
         description: formDescription.trim(),
         order: formOrdering,
+        iconId: formIconId.trim() || editingCategory.iconId || getCategoryIconId(editingCategory.slug),
       });
       setEditingCategory(null);
     }
@@ -93,9 +101,17 @@ export const AdminCategoriesRoute: React.FC = () => {
       key: 'name',
       header: 'Category Name & Slug',
       render: (cat: CanonicalCategoryDefinition) => (
-        <div>
-          <span className="font-semibold text-text-primary block">{cat.name}</span>
-          <span className="text-[11px] font-mono text-text-tertiary block">{cat.slug}</span>
+        <div className="flex items-center gap-2.5">
+          <CategoryIcon
+            categorySlug={cat.slug}
+            iconId={cat.iconId}
+            size={18}
+            className="w-[18px] h-[18px] text-text-tertiary shrink-0"
+          />
+          <div>
+            <span className="font-semibold text-text-primary block">{cat.name}</span>
+            <span className="text-[11px] font-mono text-text-tertiary block">{cat.slug}</span>
+          </div>
         </div>
       ),
     },

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
-import type { Icon } from '@/types/icon';
+import type { Icon, IconVariant } from '@/types/icon';
 import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
 import { OFFICIAL_CATEGORIES, type CanonicalCategoryDefinition } from '@/data/category-registry';
 import { useAdminActivity } from './AdminActivityContext';
@@ -9,6 +9,7 @@ export interface AdminIcon extends Icon {
   status?: 'published' | 'draft' | 'archived';
   updatedAt?: string;
   sourceLibrary?: string;
+  draftSvg?: string;
 }
 
 export interface CuratedCollection {
@@ -25,6 +26,7 @@ export interface CuratedCollection {
 const CATALOG_OVERRIDE_KEY = 'gridframe_admin_catalog_overrides_v1';
 const CATEGORIES_KEY = 'gridframe_admin_categories_v1';
 const COLLECTIONS_KEY = 'gridframe_admin_collections_v1';
+const CUSTOM_ICONS_KEY = 'gridframe_admin_custom_icons_v1';
 
 const DEFAULT_COLLECTIONS: CuratedCollection[] = [
   {
@@ -75,10 +77,16 @@ interface AdminCatalogContextType {
   collections: CuratedCollection[];
   isLoading: boolean;
   getIconBySlug: (slug: string) => AdminIcon | undefined;
+  createIcon: (icon: AdminIcon) => { success: boolean; error?: string };
   updateIcon: (slug: string, updates: Partial<AdminIcon>) => void;
   bulkUpdateStatus: (slugs: string[], status: 'published' | 'draft' | 'archived') => void;
   bulkUpdateCategory: (slugs: string[], categorySlug: string) => void;
   deleteIcon: (slug: string) => { success: boolean; warnings?: string[] };
+  addVariant: (slug: string, variant: IconVariant) => { success: boolean; error?: string };
+  updateVariantSvg: (slug: string, variantStyle: string, newSvg: string, newViewBox?: string, changeSummary?: string) => void;
+  deleteVariant: (slug: string, variantStyle: string) => { success: boolean; error?: string };
+  publishIcon: (slug: string) => void;
+  unpublishIcon: (slug: string) => void;
   createCategory: (cat: CanonicalCategoryDefinition) => void;
   updateCategory: (slug: string, updates: Partial<CanonicalCategoryDefinition>) => void;
   deleteCategory: (slug: string) => { success: boolean; error?: string };
@@ -95,13 +103,16 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { user } = useAdminAuth();
   const [isLoading] = useState(false);
 
-  // Initialize icons with override cache
+  // Initialize icons with custom uploads + override cache
   const [icons, setIcons] = useState<AdminIcon[]>(() => {
     try {
       const overridesRaw = localStorage.getItem(CATALOG_OVERRIDE_KEY);
       const overrides: Record<string, Partial<AdminIcon>> = overridesRaw ? JSON.parse(overridesRaw) : {};
 
-      return GRIDFRAME_ICONS.map((baseIcon) => {
+      const customIconsRaw = localStorage.getItem(CUSTOM_ICONS_KEY);
+      const customIcons: AdminIcon[] = customIconsRaw ? JSON.parse(customIconsRaw) : [];
+
+      const baseList = GRIDFRAME_ICONS.map((baseIcon) => {
         const custom = overrides[baseIcon.slug] || {};
         return {
           ...baseIcon,
@@ -111,6 +122,8 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
           ...custom,
         };
       });
+
+      return [...customIcons, ...baseList];
     } catch {
       return GRIDFRAME_ICONS.map((baseIcon) => ({
         ...baseIcon,
@@ -143,12 +156,17 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return DEFAULT_COLLECTIONS;
   });
 
-  // Sync overrides to localStorage
+  // Sync overrides & custom icons to localStorage
   const saveIconOverrides = useCallback((currentIcons: AdminIcon[]) => {
     try {
       const overrides: Record<string, Partial<AdminIcon>> = {};
+      const customIcons: AdminIcon[] = [];
+
       for (const icon of currentIcons) {
-        if (icon.status !== 'published' || icon.updatedAt !== '2026-09-14') {
+        // Track custom uploaded icons
+        if (icon.sourceLibrary && icon.sourceLibrary.includes('Custom')) {
+          customIcons.push(icon);
+        } else if (icon.status !== 'published' || icon.updatedAt !== '2026-09-14' || icon.draftSvg || icon.variants) {
           overrides[icon.slug] = {
             name: icon.name,
             category: icon.category,
@@ -160,10 +178,15 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
             useCases: icon.useCases,
             status: icon.status,
             updatedAt: icon.updatedAt,
+            variants: icon.variants,
+            svg: icon.svg,
+            viewBox: icon.viewBox,
+            draftSvg: icon.draftSvg,
           };
         }
       }
       localStorage.setItem(CATALOG_OVERRIDE_KEY, JSON.stringify(overrides));
+      localStorage.setItem(CUSTOM_ICONS_KEY, JSON.stringify(customIcons));
     } catch (e) {
       console.warn('Failed to save catalog overrides', e);
     }
@@ -174,6 +197,33 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return icons.find((i) => i.slug === slug || i.id === slug);
     },
     [icons]
+  );
+
+  const createIcon = useCallback(
+    (newIcon: AdminIcon): { success: boolean; error?: string } => {
+      const exists = icons.some((i) => i.slug === newIcon.slug || i.id === newIcon.id);
+      if (exists) {
+        return { success: false, error: `An icon with slug "${newIcon.slug}" already exists.` };
+      }
+
+      setIcons((prev) => {
+        const next = [newIcon, ...prev];
+        saveIconOverrides(next);
+        return next;
+      });
+
+      logActivity({
+        actor: user?.name || 'Admin',
+        action: 'New SVG Icon Created',
+        target: newIcon.name,
+        category: 'icons',
+        status: 'success',
+        details: `Created new concept [${newIcon.slug}] (Status: ${newIcon.status || 'draft'})`,
+      });
+
+      return { success: true };
+    },
+    [icons, saveIconOverrides, logActivity, user]
   );
 
   const updateIcon = useCallback(
@@ -204,6 +254,154 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
       });
     },
     [saveIconOverrides, logActivity, user]
+  );
+
+  const addVariant = useCallback(
+    (slug: string, variant: IconVariant): { success: boolean; error?: string } => {
+      let errorMsg: string | undefined;
+
+      setIcons((prev) => {
+        const next = prev.map((icon) => {
+          if (icon.slug === slug) {
+            const existingVariants = icon.variants || [];
+            if (existingVariants.some((v) => v.style === variant.style)) {
+              errorMsg = `Variant style "${variant.style}" already exists for this icon.`;
+              return icon;
+            }
+            return {
+              ...icon,
+              variants: [...existingVariants, variant],
+              updatedAt: new Date().toISOString().split('T')[0],
+            };
+          }
+          return icon;
+        });
+        if (!errorMsg) saveIconOverrides(next);
+        return next;
+      });
+
+      if (errorMsg) return { success: false, error: errorMsg };
+
+      logActivity({
+        actor: user?.name || 'Admin',
+        action: 'Icon Variant Added',
+        target: slug,
+        category: 'icons',
+        status: 'success',
+        details: `Added authentic [${variant.style}] variant to [${slug}]`,
+      });
+
+      return { success: true };
+    },
+    [saveIconOverrides, logActivity, user]
+  );
+
+  const updateVariantSvg = useCallback(
+    (slug: string, variantStyle: string, newSvg: string, newViewBox: string = '0 0 24 24', changeSummary?: string) => {
+      setIcons((prev) => {
+        const next = prev.map((icon) => {
+          if (icon.slug === slug) {
+            const updatedVariants = (icon.variants || []).map((v) => {
+              if (v.style === variantStyle) {
+                return {
+                  ...v,
+                  svg: newSvg,
+                  viewBox: newViewBox,
+                };
+              }
+              return v;
+            });
+
+            const isRegular = variantStyle === 'regular' || icon.style === variantStyle;
+            return {
+              ...icon,
+              svg: isRegular ? newSvg : icon.svg,
+              viewBox: isRegular ? newViewBox : icon.viewBox,
+              variants: updatedVariants,
+              updatedAt: new Date().toISOString().split('T')[0],
+            };
+          }
+          return icon;
+        });
+        saveIconOverrides(next);
+        return next;
+      });
+
+      logActivity({
+        actor: user?.name || 'Admin',
+        action: 'SVG Source Modified',
+        target: `${slug} (${variantStyle})`,
+        category: 'icons',
+        status: 'success',
+        details: changeSummary || `Updated SVG source paths for ${variantStyle} variant.`,
+      });
+    },
+    [saveIconOverrides, logActivity, user]
+  );
+
+  const deleteVariant = useCallback(
+    (slug: string, variantStyle: string): { success: boolean; error?: string } => {
+      if (variantStyle === 'regular') {
+        return { success: false, error: 'Cannot delete the canonical Regular variant.' };
+      }
+
+      setIcons((prev) => {
+        const next = prev.map((icon) => {
+          if (icon.slug === slug) {
+            return {
+              ...icon,
+              variants: (icon.variants || []).filter((v) => v.style !== variantStyle),
+              updatedAt: new Date().toISOString().split('T')[0],
+            };
+          }
+          return icon;
+        });
+        saveIconOverrides(next);
+        return next;
+      });
+
+      logActivity({
+        actor: user?.name || 'Admin',
+        action: 'Variant Removed',
+        target: `${slug} (${variantStyle})`,
+        category: 'icons',
+        status: 'warning',
+        details: `Deleted variant ${variantStyle} from [${slug}]`,
+      });
+
+      return { success: true };
+    },
+    [saveIconOverrides, logActivity, user]
+  );
+
+  const publishIcon = useCallback(
+    (slug: string) => {
+      updateIcon(slug, { status: 'published' });
+      logActivity({
+        actor: user?.name || 'Admin',
+        action: 'Icon Published to Live Catalog',
+        target: slug,
+        category: 'icons',
+        status: 'success',
+        details: `Published icon [${slug}] to public catalog.`,
+      });
+    },
+    [updateIcon, logActivity, user]
+  );
+
+  const unpublishIcon = useCallback(
+    (slug: string) => {
+      updateIcon(slug, { status: 'draft' });
+      logActivity({
+        actor: user?.name || 'Admin',
+        action: 'Icon Reverted to Draft',
+        target: slug,
+        category: 'icons',
+        status: 'info',
+        details: `Unpublished icon [${slug}], marked as draft.`,
+      });
+    },
+    [updateIcon, logActivity, user]
   );
 
   const bulkUpdateStatus = useCallback(
@@ -350,12 +548,9 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const deleteCategory = useCallback(
     (slug: string): { success: boolean; error?: string } => {
-      const assignedCount = icons.filter((i) => i.primaryCategory === slug || i.category.toLowerCase() === slug).length;
-      if (assignedCount > 0) {
-        return {
-          success: false,
-          error: `Cannot delete category "${slug}" because ${assignedCount} active icons are assigned to it. Reassign icons first.`,
-        };
+      const isAssigned = icons.some((i) => i.primaryCategory === slug);
+      if (isAssigned) {
+        return { success: false, error: 'Cannot delete a category with active assigned icons. Reassign icons first.' };
       }
 
       setCategories((prev) => {
@@ -374,7 +569,7 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
         target: slug,
         category: 'categories',
         status: 'warning',
-        details: `Deleted empty category [${slug}]`,
+        details: `Deleted category definition [${slug}]`,
       });
 
       return { success: true };
@@ -386,10 +581,9 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
     (col: Omit<CuratedCollection, 'id' | 'updatedAt'>) => {
       const newCol: CuratedCollection = {
         ...col,
-        id: `col-${Date.now()}`,
+        id: `col-${Date.now().toString(36)}`,
         updatedAt: new Date().toISOString(),
       };
-
       setCollections((prev) => {
         const updated = [newCol, ...prev];
         try {
@@ -406,7 +600,7 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
         target: col.name,
         category: 'collections',
         status: 'success',
-        details: `Created collection with ${col.iconSlugs.length} icons`,
+        details: `Created new curated collection with ${col.iconSlugs.length} icons`,
       });
     },
     [logActivity, user]
@@ -430,7 +624,7 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
         target: id,
         category: 'collections',
         status: 'info',
-        details: `Updated collection properties`,
+        details: `Updated collection ID [${id}]`,
       });
     },
     [logActivity, user]
@@ -464,6 +658,7 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
     localStorage.removeItem(CATALOG_OVERRIDE_KEY);
     localStorage.removeItem(CATEGORIES_KEY);
     localStorage.removeItem(COLLECTIONS_KEY);
+    localStorage.removeItem(CUSTOM_ICONS_KEY);
 
     setIcons(
       GRIDFRAME_ICONS.map((baseIcon) => ({
@@ -493,10 +688,16 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
       collections,
       isLoading,
       getIconBySlug,
+      createIcon,
       updateIcon,
       bulkUpdateStatus,
       bulkUpdateCategory,
       deleteIcon,
+      addVariant,
+      updateVariantSvg,
+      deleteVariant,
+      publishIcon,
+      unpublishIcon,
       createCategory,
       updateCategory,
       deleteCategory,
@@ -511,10 +712,16 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
       collections,
       isLoading,
       getIconBySlug,
+      createIcon,
       updateIcon,
       bulkUpdateStatus,
       bulkUpdateCategory,
       deleteIcon,
+      addVariant,
+      updateVariantSvg,
+      deleteVariant,
+      publishIcon,
+      unpublishIcon,
       createCategory,
       updateCategory,
       deleteCategory,

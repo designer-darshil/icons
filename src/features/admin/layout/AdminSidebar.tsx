@@ -2,6 +2,21 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAdminCatalog } from '../context/AdminCatalogContext';
 import { useAdminActivity } from '../context/AdminActivityContext';
+import {
+  Activity,
+  Layers,
+  Wrench,
+  Copy,
+  Grid,
+  Tag,
+  Database,
+  ShieldCheck,
+  Users,
+  Settings,
+  PlusCircle,
+  ExternalLink,
+  Sparkles,
+} from 'lucide-react';
 
 interface AdminSidebarProps {
   isOpen: boolean;
@@ -9,88 +24,91 @@ interface AdminSidebarProps {
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onCloseMobile }) => {
-  const { icons, categories, collections } = useAdminCatalog();
+  const { icons } = useAdminCatalog();
   const { activities } = useAdminActivity();
 
-  const navItems = [
+  const studioItems = [
     {
-      label: 'Dashboard',
+      label: 'Operations Home',
       path: '/admin',
       end: true,
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-        </svg>
-      ),
+      badge: 'Live',
+      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      icon: <Activity className="w-4 h-4" />,
     },
     {
-      label: 'Icons',
+      label: 'Health Inspector',
+      path: '/admin/health',
+      badge: '97.4%',
+      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      icon: <Sparkles className="w-4 h-4" />,
+    },
+    {
+      label: 'SVG Repair Center',
+      path: '/admin/svg-repair',
+      badge: '12',
+      badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      icon: <Wrench className="w-4 h-4" />,
+    },
+    {
+      label: 'Duplicate Center',
+      path: '/admin/duplicates',
+      badge: '4',
+      badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+      icon: <Copy className="w-4 h-4" />,
+    },
+    {
+      label: 'Coverage & Gaps',
+      path: '/admin/coverage',
+      icon: <Grid className="w-4 h-4" />,
+    },
+  ];
+
+  const catalogItems = [
+    {
+      label: 'Catalog Explorer',
       path: '/admin/icons',
       badge: icons.length.toLocaleString(),
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-      ),
+      icon: <Layers className="w-4 h-4" />,
     },
     {
-      label: 'Categories',
-      path: '/admin/categories',
-      badge: categories.length.toString(),
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-        </svg>
-      ),
+      label: 'Add SVG Icon',
+      path: '/admin/icons/new',
+      icon: <PlusCircle className="w-4 h-4 text-accent" />,
     },
     {
-      label: 'Styles / Variants',
-      path: '/admin/styles',
-      badge: '5',
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-        </svg>
-      ),
+      label: 'Curated Set Builder',
+      path: '/admin/set-builder',
+      icon: <Layers className="w-4 h-4" />,
     },
     {
-      label: 'Collections',
-      path: '/admin/collections',
-      badge: collections.length.toString(),
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-      ),
+      label: 'Taxonomy & Aliases',
+      path: '/admin/taxonomy',
+      icon: <Tag className="w-4 h-4" />,
     },
     {
-      label: 'Users & Access',
-      path: '/admin/users',
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
+      label: 'Sources & Sync',
+      path: '/admin/sources',
+      icon: <Database className="w-4 h-4" />,
     },
+  ];
+
+  const systemItems = [
     {
-      label: 'Activity Log',
+      label: 'Audit & Activity',
       path: '/admin/activity',
       badge: activities.length > 0 ? activities.length.toString() : undefined,
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      icon: <ShieldCheck className="w-4 h-4" />,
     },
     {
-      label: 'Settings',
+      label: 'Team & Access',
+      path: '/admin/users',
+      icon: <Users className="w-4 h-4" />,
+    },
+    {
+      label: 'Studio Settings',
       path: '/admin/settings',
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
+      icon: <Settings className="w-4 h-4" />,
     },
   ];
 
@@ -111,18 +129,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onCloseMobil
         }`}
       >
         {/* Brand Header */}
-        <div className="h-14 px-5 border-b border-border-subtle flex items-center justify-between gap-3 shrink-0">
+        <div className="h-14 px-4 border-b border-border-subtle flex items-center justify-between gap-3 shrink-0">
           <Link to="/admin" className="flex items-center gap-2.5 group">
-            <div className="w-7 h-7 bg-action-primary rounded-md flex items-center justify-center text-text-inverse font-mono font-bold text-sm shadow-xs">
-              G
+            <div className="w-7 h-7 bg-accent rounded-sm flex items-center justify-center text-accent-fg font-mono font-bold text-xs shadow-xs">
+              GF
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-mono font-bold text-sm tracking-tight text-text-primary group-hover:text-action-primary transition-colors">
-                  GRIDFRAME
+                <span className="font-mono font-bold text-xs tracking-tight text-text-primary group-hover:text-accent transition-colors">
+                  OPERATIONS
                 </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 bg-action-primary/10 text-action-primary border border-action-primary/20 rounded font-semibold">
-                  CMS
+                <span className="text-[9px] font-mono px-1 py-0.2 bg-accent/10 text-accent border border-accent/20 rounded font-semibold">
+                  STUDIO
                 </span>
               </div>
               <p className="text-[10px] text-text-tertiary font-mono">Catalog Control System</p>
@@ -131,7 +149,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onCloseMobil
 
           <button
             onClick={onCloseMobile}
-            className="md:hidden p-1 text-text-tertiary hover:text-text-primary rounded"
+            className="md:hidden p-1 text-text-tertiary hover:text-text-primary rounded cursor-pointer"
             aria-label="Close navigation sidebar"
           >
             ✕
@@ -139,38 +157,104 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onCloseMobil
         </div>
 
         {/* Navigation List */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 text-xs font-mono">
-          <div className="px-2.5 pb-2 text-[10px] uppercase text-text-tertiary tracking-wider font-semibold">
-            Catalog Management
+        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 text-xs font-mono">
+          {/* Section 1: Studio Operations */}
+          <div className="space-y-1">
+            <div className="px-2.5 pb-1 text-[10px] uppercase text-text-tertiary tracking-wider font-semibold">
+              Operations & Health
+            </div>
+            {studioItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.end}
+                onClick={onCloseMobile}
+                className={({ isActive }) =>
+                  `flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors cursor-pointer ${
+                    isActive
+                      ? 'bg-accent text-accent-fg font-semibold shadow-xs'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary/70'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate">{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span
+                    className={`px-1.5 py-0.2 text-[9px] font-mono rounded border shrink-0 ${
+                      item.badgeColor || 'bg-bg-surface/80 border-border-subtle/60 text-current'
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
           </div>
 
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.end}
-              onClick={onCloseMobile}
-              className={({ isActive }) =>
-                `flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                  isActive
-                    ? 'bg-action-primary text-text-inverse font-semibold shadow-xs'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary/70'
-                }`
-              }
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="shrink-0">{item.icon}</span>
-                <span className="truncate">{item.label}</span>
-              </div>
-              {item.badge && (
-                <span
-                  className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-bg-surface/80 border border-border-subtle/60 text-current shrink-0"
-                >
-                  {item.badge}
-                </span>
-              )}
-            </NavLink>
-          ))}
+          {/* Section 2: Catalog Management */}
+          <div className="space-y-1">
+            <div className="px-2.5 pb-1 text-[10px] uppercase text-text-tertiary tracking-wider font-semibold">
+              Catalog Management
+            </div>
+            {catalogItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onCloseMobile}
+                className={({ isActive }) =>
+                  `flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors cursor-pointer ${
+                    isActive
+                      ? 'bg-accent text-accent-fg font-semibold shadow-xs'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary/70'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate">{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="px-1.5 py-0.2 text-[9px] font-mono rounded bg-bg-surface/80 border border-border-subtle/60 text-current shrink-0">
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Section 3: System & Security */}
+          <div className="space-y-1">
+            <div className="px-2.5 pb-1 text-[10px] uppercase text-text-tertiary tracking-wider font-semibold">
+              System & Audit
+            </div>
+            {systemItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onCloseMobile}
+                className={({ isActive }) =>
+                  `flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors cursor-pointer ${
+                    isActive
+                      ? 'bg-accent text-accent-fg font-semibold shadow-xs'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary/70'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate">{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="px-1.5 py-0.2 text-[9px] font-mono rounded bg-bg-surface/80 border border-border-subtle/60 text-current shrink-0">
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
+          </div>
         </nav>
 
         {/* Sidebar Footer */}
@@ -179,16 +263,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onCloseMobil
             to="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-bg-surface border border-border-subtle hover:bg-bg-secondary text-text-secondary hover:text-text-primary text-xs font-mono transition-colors"
+            className="w-full flex items-center justify-between px-3 py-1.5 rounded-sm bg-bg-surface border border-border-subtle hover:bg-bg-secondary text-text-secondary hover:text-text-primary text-xs font-mono transition-colors cursor-pointer"
           >
-            <span>Live Public Site</span>
-            <span>↗</span>
+            <span className="flex items-center gap-1.5">
+              <span>Public Live Site</span>
+            </span>
+            <ExternalLink className="w-3.5 h-3.5 text-text-tertiary" />
           </Link>
-          <div className="flex items-center justify-between px-2 text-[10px] text-text-tertiary font-mono">
-            <span>GRIDFRAME v2.0.0</span>
-            <span className="flex items-center gap-1 text-emerald-500">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Healthy
+          <div className="flex items-center justify-between px-1 text-[10px] text-text-tertiary font-mono">
+            <span>GRIDFRAME 2.0</span>
+            <span className="flex items-center gap-1 text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Operational
             </span>
           </div>
         </div>

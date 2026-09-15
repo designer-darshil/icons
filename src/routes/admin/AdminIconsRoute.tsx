@@ -1,25 +1,37 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAdminCatalog, type AdminIcon } from '@/features/admin/context/AdminCatalogContext';
 import { AdminTable } from '@/features/admin/components/AdminTable';
 import { AdminStatusBadge } from '@/features/admin/components/AdminStatusBadge';
 import { AdminPagination } from '@/features/admin/components/AdminPagination';
 import { AdminModal, AdminConfirmModal } from '@/features/admin/components/AdminModal';
 import { AdminSelect } from '@/features/admin/components/AdminFormControls';
+import { IconPreviewSvg } from '@/components/icons/IconPreviewSvg';
+import {
+  LayoutList,
+  LayoutGrid,
+  PlusCircle,
+  Search,
+  Trash2,
+} from 'lucide-react';
 
 export const AdminIconsRoute: React.FC = () => {
   const { icons, categories, collections, bulkUpdateStatus, bulkUpdateCategory, deleteIcon } = useAdminCatalog();
-  const navigate = useNavigate();
+
+  // View Mode: Table vs Compact Grid
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedStyle, setSelectedStyle] = useState('all');
+  const [selectedSource, setSelectedSource] = useState('all');
+  const [qualityFilter, setQualityFilter] = useState<'all' | 'valid' | 'issues'>('all');
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(50);
+  const [pageSize] = useState(48);
 
   // Selection States
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
@@ -64,9 +76,25 @@ export const AdminIconsRoute: React.FC = () => {
         if (!hasVariant) return false;
       }
 
+      // Source library filter
+      if (selectedSource !== 'all') {
+        const src = icon.source?.id || 'iconoir';
+        if (src !== selectedSource) return false;
+      }
+
+      // Quality filter
+      if (qualityFilter === 'issues') {
+        const hasViewBoxIssue = icon.viewBox && icon.viewBox !== '0 0 24 24';
+        const hasEmptySvg = !icon.svg || icon.svg.length < 10;
+        if (!hasViewBoxIssue && !hasEmptySvg) return false;
+      } else if (qualityFilter === 'valid') {
+        const isGood = icon.viewBox === '0 0 24 24' && icon.svg && icon.svg.length >= 10;
+        if (!isGood) return false;
+      }
+
       return true;
     });
-  }, [icons, searchQuery, selectedCategory, selectedStatus, selectedStyle]);
+  }, [icons, searchQuery, selectedCategory, selectedStatus, selectedStyle, selectedSource, qualityFilter]);
 
   // Paginated dataset
   const totalPages = Math.ceil(filteredIcons.length / pageSize);
@@ -134,12 +162,15 @@ export const AdminIconsRoute: React.FC = () => {
       header: 'Icon',
       width: '56px',
       render: (icon: AdminIcon) => (
-        <div
-          className="w-8 h-8 rounded bg-bg-secondary p-1.5 flex items-center justify-center text-text-primary border border-border-subtle"
-          dangerouslySetInnerHTML={{
-            __html: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">${icon.svg}</svg>`,
-          }}
-        />
+        <div className="w-8 h-8 rounded bg-bg-surface p-1 flex items-center justify-center text-text-primary border border-border-subtle">
+          <IconPreviewSvg
+            svgContent={icon.svg}
+            viewBox={icon.viewBox || '0 0 24 24'}
+            size={20}
+            color="currentColor"
+            strokeWidth={1.5}
+          />
+        </div>
       ),
     },
     {
@@ -149,7 +180,7 @@ export const AdminIconsRoute: React.FC = () => {
         <div className="min-w-0">
           <Link
             to={`/admin/icons/${icon.slug}`}
-            className="font-semibold text-text-primary hover:text-action-primary transition-colors block truncate"
+            className="font-semibold text-text-primary hover:text-accent transition-colors block truncate"
           >
             {icon.name}
           </Link>
@@ -167,6 +198,20 @@ export const AdminIconsRoute: React.FC = () => {
       ),
     },
     {
+      key: 'source',
+      header: 'Source',
+      render: (icon: AdminIcon) => {
+        return (
+          <div className="font-mono text-[10px]">
+            <span className="font-bold text-text-secondary block">
+              {icon.source?.name || 'Iconoir'}
+            </span>
+            <span className="text-text-tertiary">{icon.source?.license || 'MIT'}</span>
+          </div>
+        );
+      },
+    },
+    {
       key: 'variants',
       header: 'Variants',
       render: (icon: AdminIcon) => {
@@ -181,7 +226,7 @@ export const AdminIconsRoute: React.FC = () => {
                   title={`${st} style ${has ? 'available' : 'missing'}`}
                   className={`w-5 h-5 rounded flex items-center justify-center font-bold ${
                     has
-                      ? 'bg-action-primary/10 text-action-primary border border-action-primary/20'
+                      ? 'bg-accent/10 text-accent border border-accent/20'
                       : 'bg-bg-secondary text-text-tertiary/40 border border-border-subtle'
                   }`}
                 >
@@ -200,31 +245,25 @@ export const AdminIconsRoute: React.FC = () => {
       render: (icon: AdminIcon) => <AdminStatusBadge status={icon.status || 'published'} size="sm" />,
     },
     {
-      key: 'updatedAt',
-      header: 'Updated',
-      width: '100px',
-      render: (icon: AdminIcon) => <span className="font-mono text-[11px] text-text-tertiary">{icon.updatedAt || '2026-09-14'}</span>,
-    },
-    {
       key: 'actions',
       header: 'Actions',
-      width: '120px',
+      width: '100px',
       align: 'right' as const,
       render: (icon: AdminIcon) => (
         <div className="flex items-center justify-end gap-1 font-mono text-[11px]">
           <Link
             to={`/admin/icons/${icon.slug}`}
-            className="px-2 py-1 bg-bg-surface hover:bg-bg-secondary border border-border-subtle rounded text-text-secondary hover:text-text-primary transition-colors"
+            className="px-2 py-1 bg-bg-surface hover:bg-bg-secondary border border-border-subtle rounded text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
           >
             Edit
           </Link>
           <button
             type="button"
             onClick={() => handleInitiateDelete(icon)}
-            className="p-1 text-text-tertiary hover:text-rose-500 rounded transition-colors"
-            title="Delete / Archive"
+            className="p-1 text-text-tertiary hover:text-rose-500 rounded transition-colors cursor-pointer"
+            title="Archive Icon"
           >
-            🗑
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       ),
@@ -233,31 +272,63 @@ export const AdminIconsRoute: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Top Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border-subtle">
+      {/* Top Header & Fast Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle pb-4">
         <div>
-          <h2 className="text-xl font-bold font-mono tracking-tight text-text-primary">Icons Directory</h2>
-          <p className="text-xs text-text-tertiary mt-0.5">
-            Manage {icons.length.toLocaleString()} canonical icons, metadata, and 5-style variant families.
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold font-mono text-text-primary tracking-tight">
+              CATALOG EXPLORER
+            </h1>
+            <span className="text-xs font-mono text-text-tertiary px-2 py-0.5 rounded bg-bg-surface border border-border-subtle">
+              {filteredIcons.length.toLocaleString()} matching
+            </span>
+          </div>
+          <p className="text-xs text-text-tertiary font-sans mt-0.5">
+            Filter, inspect, and manage canonical concepts and multi-style SVG assets.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => navigate('/admin/categories')}
-            className="px-3 py-1.5 bg-bg-surface hover:bg-bg-secondary border border-border-subtle rounded-md text-xs font-mono text-text-primary transition-colors"
+          {/* View Mode Switcher */}
+          <div className="flex items-center p-0.5 bg-bg-surface border border-border-default rounded-sm">
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-xs transition-colors cursor-pointer ${
+                viewMode === 'table' ? 'bg-accent text-accent-fg shadow-xs' : 'text-text-tertiary hover:text-text-primary'
+              }`}
+              title="Table View"
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-xs transition-colors cursor-pointer ${
+                viewMode === 'grid' ? 'bg-accent text-accent-fg shadow-xs' : 'text-text-tertiary hover:text-text-primary'
+              }`}
+              title="Compact Grid View"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <Link
+            to="/admin/icons/new"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-accent hover:bg-accent-hover text-accent-fg rounded-sm text-xs font-mono font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
           >
-            Manage Categories
-          </button>
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Add Icon</span>
+          </Link>
         </div>
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-bg-surface border border-border-subtle rounded-lg p-3.5 space-y-3 shadow-xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {/* Search Input */}
-          <div className="relative">
+      <div className="p-3.5 bg-bg-surface border border-border-subtle rounded-sm space-y-3 font-mono text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5">
+          {/* Instant Search Bar */}
+          <div className="sm:col-span-2 relative">
+            <Search className="w-3.5 h-3.5 text-text-tertiary absolute left-3 top-2.5" />
             <input
               type="text"
               value={searchQuery}
@@ -265,190 +336,263 @@ export const AdminIconsRoute: React.FC = () => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Filter by name, slug, tag..."
-              className="w-full pl-8 pr-3 py-1.5 bg-bg-secondary border border-border-subtle rounded-md text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-action-primary font-sans"
+              placeholder="Search name, slug, tag, keyword..."
+              className="w-full pl-8 pr-3 py-1.5 bg-bg-primary border border-border-default rounded-xs text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
             />
-            <svg
-              className="w-3.5 h-3.5 text-text-tertiary absolute left-2.5 top-2.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
           </div>
 
           {/* Category Filter */}
-          <select
-            value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-2.5 py-1.5 bg-bg-secondary border border-border-subtle rounded-md text-xs font-mono text-text-primary focus:outline-none focus:border-action-primary"
-          >
-            <option value="all">All Categories ({categories.length})</option>
-            {categories.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <div>
+            <select
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by Category"
+              className="w-full px-2.5 py-1.5 bg-bg-primary border border-border-default rounded-xs text-xs text-text-primary focus:outline-none focus:border-accent"
+            >
+              <option value="all">All Categories ({categories.length})</option>
+              {categories.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Status Filter */}
-          <select
-            value={selectedStatus}
-            onChange={(e) => {
-              setSelectedStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-2.5 py-1.5 bg-bg-secondary border border-border-subtle rounded-md text-xs font-mono text-text-primary focus:outline-none focus:border-action-primary"
-          >
-            <option value="all">All Statuses</option>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="archived">Archived</option>
-          </select>
+          <div>
+            <select
+              value={selectedStatus}
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by Status"
+              className="w-full px-2.5 py-1.5 bg-bg-primary border border-border-default rounded-xs text-xs text-text-primary focus:outline-none focus:border-accent"
+            >
+              <option value="all">All Statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Drafts</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
 
-          {/* Variant Style Filter */}
-          <select
-            value={selectedStyle}
-            onChange={(e) => {
-              setSelectedStyle(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-2.5 py-1.5 bg-bg-secondary border border-border-subtle rounded-md text-xs font-mono text-text-primary focus:outline-none focus:border-action-primary"
-          >
-            <option value="all">All Variant Styles</option>
-            <option value="regular">Regular (2.0px)</option>
-            <option value="light">Light (1.5px)</option>
-            <option value="filled">Filled (Solid)</option>
-            <option value="duotone">Duotone (2-Tone)</option>
-            <option value="duotone-line">Duotone Line</option>
-          </select>
+          {/* Variant Filter */}
+          <div>
+            <select
+              value={selectedStyle}
+              onChange={(e) => {
+                setSelectedStyle(e.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by Variant Style"
+              className="w-full px-2.5 py-1.5 bg-bg-primary border border-border-default rounded-xs text-xs text-text-primary focus:outline-none focus:border-accent"
+            >
+              <option value="all">All Variant Styles</option>
+              <option value="regular">Regular</option>
+              <option value="light">Light</option>
+              <option value="filled">Filled</option>
+              <option value="duotone">Duotone</option>
+              <option value="duotone-line">Duotone Line</option>
+            </select>
+          </div>
+
+          {/* Quality State */}
+          <div>
+            <select
+              value={qualityFilter}
+              onChange={(e) => {
+                setQualityFilter(e.target.value as any);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by Quality Gate"
+              className="w-full px-2.5 py-1.5 bg-bg-primary border border-border-default rounded-xs text-xs text-text-primary focus:outline-none focus:border-accent"
+            >
+              <option value="all">All Quality States</option>
+              <option value="valid">100% Validated (24×24)</option>
+              <option value="issues">Has Warnings / Non-24px</option>
+            </select>
+          </div>
+
+          {/* Source Filter */}
+          <div>
+            <select
+              value={selectedSource}
+              onChange={(e) => {
+                setSelectedSource(e.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter by Source"
+              className="w-full px-2.5 py-1.5 bg-bg-primary border border-border-default rounded-xs text-xs text-text-primary focus:outline-none focus:border-accent"
+            >
+              <option value="all">All Sources</option>
+              <option value="iconoir">Iconoir (Canonical)</option>
+              <option value="custom">Custom Studio Ingests</option>
+              <option value="tabler">Tabler Extended</option>
+            </select>
+          </div>
         </div>
 
-        {/* Bulk Action Toolbar */}
+        {/* Active Bulk Action Bar */}
         {selectedSlugs.size > 0 && (
-          <div className="flex items-center justify-between gap-3 p-2.5 bg-action-primary/10 border border-action-primary/20 rounded-md animate-in fade-in">
-            <span className="text-xs font-mono text-action-primary font-semibold">
-              {selectedSlugs.size} icon(s) selected
+          <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-xs animate-in fade-in">
+            <span className="text-text-primary font-bold">
+              {selectedSlugs.size} icon{selectedSlugs.size > 1 ? 's' : ''} selected
             </span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleBulkPublish}
-                className="px-2.5 py-1 bg-bg-surface hover:bg-bg-secondary border border-border-subtle rounded text-xs font-mono text-text-primary transition-colors"
+                className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded text-[11px] font-bold cursor-pointer transition-colors"
               >
                 Publish Selected
               </button>
               <button
                 type="button"
-                onClick={handleBulkArchive}
-                className="px-2.5 py-1 bg-bg-surface hover:bg-bg-secondary border border-border-subtle rounded text-xs font-mono text-text-primary transition-colors"
+                onClick={() => setIsBulkCategoryModalOpen(true)}
+                className="px-2.5 py-1 bg-bg-secondary hover:bg-bg-elevated text-text-primary border border-border-default rounded text-[11px] cursor-pointer transition-colors"
               >
-                Archive Selected
+                Assign Category
               </button>
               <button
                 type="button"
-                onClick={() => setIsBulkCategoryModalOpen(true)}
-                className="px-2.5 py-1 bg-action-primary text-text-inverse rounded text-xs font-mono font-medium hover:bg-action-primary/90 transition-colors"
+                onClick={handleBulkArchive}
+                className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded text-[11px] font-bold cursor-pointer transition-colors"
               >
-                Reassign Category
+                Archive Selected
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Main Table */}
-      <AdminTable
-        columns={columns}
-        data={paginatedIcons}
-        keyExtractor={(item) => item.slug}
-        selectedKeys={selectedSlugs}
-        onSelectAll={handleSelectAll}
-        onSelectRow={handleSelectRow}
-        emptyMessage="No icons match your filter criteria."
-      />
+      {/* Main Content: Table or Compact Grid */}
+      {viewMode === 'table' ? (
+        <AdminTable<AdminIcon>
+          data={paginatedIcons}
+          columns={columns}
+          keyExtractor={(i) => i.slug}
+          selectedKeys={selectedSlugs}
+          onSelectAll={handleSelectAll}
+          onSelectRow={handleSelectRow}
+          emptyMessage={
+            <div className="py-12 text-center text-xs font-mono text-text-tertiary">
+              No matching icons found for the selected filters.
+            </div>
+          }
+        />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+          {paginatedIcons.map((icon) => (
+            <Link
+              key={icon.slug}
+              to={`/admin/icons/${icon.slug}`}
+              className="p-3 bg-bg-surface border border-border-subtle hover:border-accent/80 rounded-sm flex flex-col items-center justify-between text-center group transition-all cursor-pointer aspect-square"
+            >
+              <div className="w-full flex items-center justify-between text-[9px] font-mono text-text-tertiary">
+                <span className="truncate">{icon.category}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${icon.status === 'draft' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+              </div>
 
-      {/* Pagination Bar */}
+              <div className="w-10 h-10 flex items-center justify-center text-text-primary group-hover:scale-110 transition-transform">
+                <IconPreviewSvg
+                  svgContent={icon.svg}
+                  viewBox={icon.viewBox || '0 0 24 24'}
+                  size={28}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+              </div>
+
+              <div className="w-full truncate">
+                <span className="text-[11px] font-mono font-semibold text-text-primary block truncate group-hover:text-accent transition-colors">
+                  {icon.name}
+                </span>
+                <span className="text-[9px] font-mono text-text-tertiary block truncate">
+                  {icon.variants?.length || 1} variants
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination Footer */}
       <AdminPagination
         currentPage={currentPage}
         totalPages={totalPages}
         totalItems={filteredIcons.length}
         pageSize={pageSize}
         onPageChange={setCurrentPage}
-        onPageSizeChange={(sz) => {
-          setPageSize(sz);
-          setCurrentPage(1);
-        }}
       />
-
-      {/* Bulk Category Modal */}
-      <AdminModal
-        isOpen={isBulkCategoryModalOpen}
-        onClose={() => setIsBulkCategoryModalOpen(false)}
-        title="Bulk Reassign Category"
-        subtitle={`Reassign ${selectedSlugs.size} selected icons to a new primary category`}
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setIsBulkCategoryModalOpen(false)}
-              className="px-3 py-1.5 bg-bg-surface border border-border-subtle rounded text-xs font-mono text-text-secondary"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirmBulkCategory}
-              className="px-3.5 py-1.5 bg-action-primary text-text-inverse rounded text-xs font-mono font-semibold"
-            >
-              Apply to {selectedSlugs.size} Icons
-            </button>
-          </>
-        }
-      >
-        <div className="space-y-3 py-2">
-          <AdminSelect
-            label="Target Primary Category"
-            value={bulkTargetCategory}
-            onChange={(e) => setBulkTargetCategory(e.target.value)}
-            options={categories.map((c) => ({ value: c.slug, label: `${c.name} (${c.slug})` }))}
-          />
-        </div>
-      </AdminModal>
 
       {/* Delete Confirmation Modal */}
-      <AdminConfirmModal
-        isOpen={!!iconToDelete}
-        onClose={() => setIconToDelete(null)}
-        onConfirm={handleConfirmDelete}
-        title={`Delete Icon "${iconToDelete?.name}"`}
-        variant="danger"
-        confirmLabel="Confirm Delete"
-        message={
-          <div className="space-y-3">
-            <p>
-              Are you sure you want to delete the icon concept <strong>{iconToDelete?.slug}</strong>?
-            </p>
-            {deleteWarnings.length > 0 && (
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-md text-xs text-amber-500 font-mono space-y-1">
-                <p className="font-bold">Dependencies Detected:</p>
-                <ul className="list-disc list-inside">
+      {iconToDelete && (
+        <AdminConfirmModal
+          isOpen={true}
+          title={`Archive Icon: /${iconToDelete.slug}`}
+          confirmLabel="Archive Icon"
+          variant="danger"
+          onClose={() => setIconToDelete(null)}
+          onConfirm={handleConfirmDelete}
+          message={
+            <div className="space-y-3 text-xs font-mono text-text-secondary">
+              <p>
+                Are you sure you want to archive <strong>{iconToDelete.name}</strong>?
+              </p>
+              {deleteWarnings.length > 0 && (
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded text-amber-400 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <span>Dependency Warnings:</span>
+                  </div>
                   {deleteWarnings.map((w, idx) => (
-                    <li key={idx}>{w}</li>
+                    <p key={idx} className="text-[11px]">{w}</p>
                   ))}
-                </ul>
-              </div>
-            )}
-            <p className="text-xs text-text-tertiary">
-              Tip: Consider changing status to <strong>Archived</strong> instead of permanently removing the concept.
-            </p>
+                </div>
+              )}
+              <p className="text-[11px] text-text-tertiary">
+                Archiving hides the icon from public search while preserving historical versions, favorites, and analytics.
+              </p>
+            </div>
+          }
+        />
+      )}
+
+      {/* Bulk Category Modal */}
+      {isBulkCategoryModalOpen && (
+        <AdminModal
+          isOpen={true}
+          title={`Assign Category to ${selectedSlugs.size} Icons`}
+          onClose={() => setIsBulkCategoryModalOpen(false)}
+        >
+          <div className="space-y-4 text-xs font-mono">
+            <AdminSelect
+              label="Target Taxonomy Category"
+              value={bulkTargetCategory}
+              onChange={(e) => setBulkTargetCategory(e.target.value)}
+              options={categories.map((c) => ({ value: c.slug, label: c.name }))}
+            />
+            <div className="flex justify-end gap-2 pt-2 border-t border-border-subtle">
+              <button
+                type="button"
+                onClick={() => setIsBulkCategoryModalOpen(false)}
+                className="px-3 py-1.5 bg-bg-surface border border-border-default rounded cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBulkCategory}
+                className="px-4 py-1.5 bg-accent text-accent-fg font-bold rounded uppercase cursor-pointer"
+              >
+                Update Category
+              </button>
+            </div>
           </div>
-        }
-      />
+        </AdminModal>
+      )}
     </div>
   );
 };

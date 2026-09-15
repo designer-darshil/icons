@@ -15,6 +15,7 @@ import { CompareRoute } from "@/routes/CompareRoute";
 import { PrivacyRoute } from "@/routes/PrivacyRoute";
 import { TermsRoute } from "@/routes/TermsRoute";
 import { AboutRoute } from "@/routes/AboutRoute";
+import { IntelligenceRoute } from "@/routes/IntelligenceRoute";
 import { GridframeRouteError } from "@/components/error/GridframeRouteError";
 
 // Admin Module Routes & Shell
@@ -23,6 +24,7 @@ import { AdminAuthProvider } from "@/features/admin/auth/AdminAuthContext";
 import { AdminLoginRoute } from "@/routes/admin/AdminLoginRoute";
 import { AdminDashboardRoute } from "@/routes/admin/AdminDashboardRoute";
 import { AdminIconsRoute } from "@/routes/admin/AdminIconsRoute";
+import { AdminIconNewRoute } from "@/routes/admin/AdminIconNewRoute";
 import { AdminIconDetailRoute } from "@/routes/admin/AdminIconDetailRoute";
 import { AdminCategoriesRoute } from "@/routes/admin/AdminCategoriesRoute";
 import { AdminStylesRoute } from "@/routes/admin/AdminStylesRoute";
@@ -30,6 +32,13 @@ import { AdminCollectionsRoute } from "@/routes/admin/AdminCollectionsRoute";
 import { AdminUsersRoute } from "@/routes/admin/AdminUsersRoute";
 import { AdminActivityRoute } from "@/routes/admin/AdminActivityRoute";
 import { AdminSettingsRoute } from "@/routes/admin/AdminSettingsRoute";
+import { AdminHealthRoute } from "@/routes/admin/AdminHealthRoute";
+import { AdminSvgRepairRoute } from "@/routes/admin/AdminSvgRepairRoute";
+import { AdminDuplicatesRoute } from "@/routes/admin/AdminDuplicatesRoute";
+import { AdminCoverageRoute } from "@/routes/admin/AdminCoverageRoute";
+import { AdminTaxonomyRoute } from "@/routes/admin/AdminTaxonomyRoute";
+import { AdminSetBuilderRoute } from "@/routes/admin/AdminSetBuilderRoute";
+import { AdminSourcesRoute } from "@/routes/admin/AdminSourcesRoute";
 
 export const router = createBrowserRouter([
   // Public Client Routes
@@ -81,6 +90,18 @@ export const router = createBrowserRouter([
       {
         path: "compare",
         element: <CompareRoute />,
+      },
+      {
+        path: "intelligence",
+        element: <IntelligenceRoute />,
+      },
+      {
+        path: "intelligence/:tool",
+        element: <IntelligenceRoute />,
+      },
+      {
+        path: "intelligence/:tool/:slug",
+        element: <IntelligenceRoute />,
       },
       {
         path: "dev/design-system",
@@ -152,8 +173,40 @@ export const router = createBrowserRouter([
         element: <AdminIconsRoute />,
       },
       {
+        path: "icons/new",
+        element: <AdminIconNewRoute />,
+      },
+      {
         path: "icons/:id",
         element: <AdminIconDetailRoute />,
+      },
+      {
+        path: "health",
+        element: <AdminHealthRoute />,
+      },
+      {
+        path: "svg-repair",
+        element: <AdminSvgRepairRoute />,
+      },
+      {
+        path: "duplicates",
+        element: <AdminDuplicatesRoute />,
+      },
+      {
+        path: "coverage",
+        element: <AdminCoverageRoute />,
+      },
+      {
+        path: "taxonomy",
+        element: <AdminTaxonomyRoute />,
+      },
+      {
+        path: "set-builder",
+        element: <AdminSetBuilderRoute />,
+      },
+      {
+        path: "sources",
+        element: <AdminSourcesRoute />,
       },
       {
         path: "categories",
