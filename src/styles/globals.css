@@ -41,19 +41,20 @@
     min-height: 100vh;
   }
 
-  /* Scoped 200ms Color-Only Theme Transition (Zero Layout Shift) */
+  /* Scoped 200ms Color-Only Theme Transition matching Webflow Reference (Zero Layout Shift) */
   html.theme-transition,
   html.theme-transition *,
   html.theme-transition *::before,
   html.theme-transition *::after {
-    transition: color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-                background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
-                fill 200ms cubic-bezier(0.16, 1, 0.3, 1),
-                stroke 200ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: color 200ms ease-in-out,
+                background-color 200ms ease-in-out,
+                border-color 200ms ease-in-out,
+                box-shadow 200ms ease-in-out,
+                fill 200ms ease-in-out,
+                stroke 200ms ease-in-out !important;
     transition-delay: 0s !important;
   }
+
 
   @media (prefers-reduced-motion: reduce) {
     html.theme-transition,

@@ -37,7 +37,7 @@ function runTests() {
   const globalsPath = path.resolve('./src/styles/globals.css');
   const globalsCode = fs.readFileSync(globalsPath, 'utf8');
   assert(globalsCode.includes('html.theme-transition'), 'Defines scoped html.theme-transition class');
-  assert(globalsCode.includes('200ms cubic-bezier'), 'Uses 200ms timing curve (target: 180-240ms)');
+  assert(globalsCode.includes('200ms ease-in-out'), 'Uses 200ms ease-in-out timing curve (target: 180-240ms)');
   assert(!globalsCode.includes('transition: all 200ms'), 'Does NOT use transition: all for theme changes');
   assert(globalsCode.includes('color 200ms') && globalsCode.includes('background-color 200ms'), 'Strictly transitions color properties');
 
@@ -47,6 +47,14 @@ function runTests() {
     globalsCode.includes('@media (prefers-reduced-motion: reduce)') && globalsCode.includes('transition: none !important'),
     'Disables theme transitions when user prefers reduced motion'
   );
+
+  // 4. Verify Theme Toggle Layered Crossfade
+  console.log('\n--- 4. Testing Theme Toggle Crossfade Structure ---');
+  const togglePath = path.resolve('./src/components/navigation/ThemeToggle.tsx');
+  const toggleCode = fs.readFileSync(togglePath, 'utf8');
+  assert(toggleCode.includes('transition-[opacity,transform] duration-200 ease-in-out'), 'ThemeToggle implements 200ms ease-in-out icon crossfade');
+  assert(toggleCode.includes('absolute inset-0'), 'ThemeToggle layers Sun and Moon icons in identical geometry without resizing');
+
 
   // 4. Verify ThemeProvider Transition Activation
   console.log('\n--- 4. Testing ThemeProvider Lifecycle ---');

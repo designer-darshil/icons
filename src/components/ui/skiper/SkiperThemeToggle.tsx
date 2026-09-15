@@ -34,24 +34,23 @@ export const SkiperThemeToggle: React.FC<SkiperThemeToggleProps> = ({
         className
       )}
     >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={theme}
-          initial={{ y: isDark ? 6 : -6, opacity: 0, rotate: isDark ? -30 : 30 }}
-          animate={{ y: 0, opacity: 1, rotate: 0 }}
-          exit={{ y: isDark ? -6 : 6, opacity: 0, rotate: isDark ? 30 : -30 }}
-          transition={{ duration: 0.12, ease: 'easeOut' }}
-          className="flex items-center justify-center pointer-events-none"
-        >
-          {isDark ? (
-            <Sun className="w-[18px] h-[18px] text-text-primary stroke-[1.75]" />
-          ) : (
-            <Moon className="w-[18px] h-[18px] text-text-primary stroke-[1.75]" />
+      <div className="relative w-[18px] h-[18px]">
+        <Sun
+          className={cn(
+            'w-[18px] h-[18px] text-text-primary stroke-[1.75] absolute inset-0 transition-[opacity,transform] duration-200 ease-in-out',
+            isDark ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 -rotate-90 pointer-events-none'
           )}
-        </motion.div>
-      </AnimatePresence>
+        />
+        <Moon
+          className={cn(
+            'w-[18px] h-[18px] text-text-primary stroke-[1.75] absolute inset-0 transition-[opacity,transform] duration-200 ease-in-out',
+            !isDark ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 rotate-90 pointer-events-none'
+          )}
+        />
+      </div>
     </button>
   );
 };
+
 
 SkiperThemeToggle.displayName = 'SkiperThemeToggle';

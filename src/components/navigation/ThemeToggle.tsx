@@ -12,6 +12,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className, compact = f
   const { theme, toggleTheme, setTheme } = useTheme();
 
   if (compact) {
+    const isDark = theme === "dark";
     return (
       <button
         type="button"
@@ -22,10 +23,24 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className, compact = f
           className
         )}
       >
-        {theme === "dark" ? <Sun className="w-[18px] h-[18px] stroke-[1.75]" /> : <Moon className="w-[18px] h-[18px] stroke-[1.75]" />}
+        <div className="relative w-[18px] h-[18px]">
+          <Sun
+            className={cn(
+              "w-[18px] h-[18px] stroke-[1.75] absolute inset-0 transition-[opacity,transform] duration-200 ease-in-out",
+              isDark ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-90 -rotate-90 pointer-events-none"
+            )}
+          />
+          <Moon
+            className={cn(
+              "w-[18px] h-[18px] stroke-[1.75] absolute inset-0 transition-[opacity,transform] duration-200 ease-in-out",
+              !isDark ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-90 rotate-90 pointer-events-none"
+            )}
+          />
+        </div>
       </button>
     );
   }
+
 
   return (
     <div
