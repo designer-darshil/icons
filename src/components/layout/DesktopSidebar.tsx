@@ -20,7 +20,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
     <aside
       aria-label="Sidebar Filters"
       className={cn(
-        "hidden lg:flex flex-col border-r border-border-subtle bg-bg-surface transition-all duration-200 shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto",
+        "hidden lg:flex flex-col border-r border-border-subtle bg-bg-surface transition-[width] duration-200 shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto",
         isCollapsed ? "w-14" : "w-64",
         className
       )}

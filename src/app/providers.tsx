@@ -27,7 +27,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     return defaultTheme;
   });
 
-  // Apply data-theme to HTML root
+  const transitionTimeoutRef = React.useRef<number | null>(null);
+
+  // Apply data-theme to HTML root on initial load without animation
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
@@ -35,10 +37,28 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }, [theme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    if (typeof document !== "undefined") {
-      document.documentElement.setAttribute("data-theme", newTheme);
+    if (typeof document === "undefined") {
+      setThemeState(newTheme);
+      return;
     }
+
+    const root = document.documentElement;
+    const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Apply smooth color transition class if user has not requested reduced motion
+    if (!isReducedMotion) {
+      root.classList.add("theme-transition");
+      if (transitionTimeoutRef.current) {
+        window.clearTimeout(transitionTimeoutRef.current);
+      }
+      transitionTimeoutRef.current = window.setTimeout(() => {
+        root.classList.remove("theme-transition");
+      }, 240);
+    }
+
+    setThemeState(newTheme);
+    root.setAttribute("data-theme", newTheme);
+
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newTheme);
     } catch (e) {
@@ -49,6 +69,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   const toggleTheme = useCallback(() => {
     setTheme(theme === "dark" ? "light" : "dark");
   }, [theme, setTheme]);
+
 
   const value = useMemo(
     () => ({
