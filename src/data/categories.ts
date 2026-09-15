@@ -15,6 +15,7 @@ export interface CategoryMetadata {
   description: string;
   count: number;
   order: number;
+  iconId: string;
 }
 
 // Global canonical category index initialized with the main catalog
@@ -33,6 +34,7 @@ export function getOfficialCategories(icons: Icon[] = GRIDFRAME_ICONS): Category
     description: c.description,
     count: c.iconCount,
     order: c.order,
+    iconId: c.iconId,
   }));
 }
 
@@ -71,6 +73,7 @@ export function getCategoryMetadata(categoryIdOrName: string, icons: Icon[] = GR
     description: canonical.description,
     count,
     order: canonical.order,
+    iconId: canonical.iconId,
   };
 }
 
@@ -81,3 +84,4 @@ export {
   getCanonicalCategory,
   CategoryIndex,
 };
+

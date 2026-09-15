@@ -12,6 +12,7 @@ export interface CanonicalCategoryDefinition {
   slug: string;
   description: string;
   order: number;
+  iconId: string;
 }
 
 export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
@@ -21,6 +22,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'cloud',
     description: 'Cloud infrastructure, cloud storage, hosting, sync, remote services',
     order: 1,
+    iconId: 'cloud',
   },
   {
     id: 'communication',
@@ -28,6 +30,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'communication',
     description: 'Messages, chat, email, calls, conversations, communication actions',
     order: 2,
+    iconId: 'chat-bubble',
   },
   {
     id: 'clothing',
@@ -35,6 +38,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'clothing',
     description: 'Clothing, footwear, accessories, apparel',
     order: 3,
+    iconId: 'shirt',
   },
   {
     id: 'business',
@@ -42,6 +46,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'business',
     description: 'Business operations, companies, offices, management, professional workflows',
     order: 4,
+    iconId: 'briefcase',
   },
   {
     id: 'buildings',
@@ -49,6 +54,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'buildings',
     description: 'Homes, offices, schools, hospitals, public buildings, structures',
     order: 5,
+    iconId: 'building',
   },
   {
     id: 'audio',
@@ -56,6 +62,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'audio',
     description: 'Speakers, microphones, volume, sound controls, audio hardware',
     order: 6,
+    iconId: 'sound-high',
   },
   {
     id: 'animations',
@@ -63,6 +70,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'animations',
     description: 'Motion, transitions, playback animation concepts, animation controls',
     order: 7,
+    iconId: 'transition-up',
   },
   {
     id: 'animals',
@@ -70,6 +78,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'animals',
     description: 'Animal species, animal-related concepts, pets, wildlife',
     order: 8,
+    iconId: 'paw-print',
   },
   {
     id: 'activities',
@@ -77,6 +86,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'activities',
     description: 'Sports, leisure, events, hobbies, physical activities',
     order: 9,
+    iconId: 'basketball',
   },
   {
     id: 'actions',
@@ -84,6 +94,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'actions',
     description: 'Generic UI actions such as add, edit, delete, save, undo, redo',
     order: 10,
+    iconId: 'cursor-pointer',
   },
   {
     id: 'connectivity',
@@ -91,6 +102,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'connectivity',
     description: 'Wifi, bluetooth, signal, network, connection, pairing',
     order: 11,
+    iconId: 'wifi',
   },
   {
     id: 'database',
@@ -98,6 +110,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'database',
     description: 'Databases, tables, storage systems, schemas, records',
     order: 12,
+    iconId: 'database',
   },
   {
     id: 'design-tools',
@@ -105,6 +118,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'design-tools',
     description: 'Design software concepts, canvas tools, pen tools, layers, components, design systems',
     order: 13,
+    iconId: 'design-pencil',
   },
   {
     id: 'development',
@@ -112,6 +126,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'development',
     description: 'Code, programming, APIs, terminals, syntax, frameworks, development workflows',
     order: 14,
+    iconId: 'code',
   },
   {
     id: 'devices',
@@ -119,6 +134,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'devices',
     description: 'Phones, laptops, tablets, monitors, hardware and electronics',
     order: 15,
+    iconId: 'laptop',
   },
   {
     id: 'docs',
@@ -126,6 +142,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'docs',
     description: 'Documents, files, notes, pages, text documents, documentation',
     order: 16,
+    iconId: 'page',
   },
   {
     id: 'emojis',
@@ -133,6 +150,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'emojis',
     description: 'Emoji-style symbols, expressive faces, reactions',
     order: 17,
+    iconId: 'emoji-satisfied',
   },
   {
     id: 'finance',
@@ -140,6 +158,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'finance',
     description: 'Money, payments, banking, cards, transactions, currency, accounting',
     order: 18,
+    iconId: 'wallet',
   },
   {
     id: 'food',
@@ -147,6 +166,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'food',
     description: 'Food, beverages, cooking, restaurants, ingredients, meals',
     order: 19,
+    iconId: 'coffee-cup',
   },
   {
     id: 'gaming',
@@ -154,6 +174,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'gaming',
     description: 'Games, controllers, consoles, achievements, game mechanics',
     order: 20,
+    iconId: 'gamepad',
   },
   {
     id: 'gestures',
@@ -161,6 +182,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'gestures',
     description: 'Hand gestures, touch gestures, pointing, swiping, interaction gestures',
     order: 21,
+    iconId: 'hand-card',
   },
   {
     id: 'git',
@@ -168,6 +190,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'git',
     description: 'Git branches, commits, repositories, pull requests, merge, version control',
     order: 22,
+    iconId: 'git-branch',
   },
   {
     id: 'health',
@@ -175,6 +198,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'health',
     description: 'Medical, wellness, healthcare, fitness-health context, diagnostics',
     order: 23,
+    iconId: 'heart',
   },
   {
     id: 'home',
@@ -182,6 +206,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'home',
     description: 'Household, rooms, furniture, appliances, home controls',
     order: 24,
+    iconId: 'home',
   },
   {
     id: 'identity',
@@ -189,6 +214,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'identity',
     description: 'Identity, profiles, authentication identity, verification, credentials',
     order: 25,
+    iconId: 'user-badge-check',
   },
   {
     id: 'layout',
@@ -196,6 +222,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'layout',
     description: 'Alignment, grids, columns, panels, spacing, layout structures',
     order: 26,
+    iconId: 'view-grid',
   },
   {
     id: 'maps',
@@ -203,6 +230,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'maps',
     description: 'Maps, locations, coordinates, navigation maps, geographic markers',
     order: 27,
+    iconId: 'map-pin',
   },
   {
     id: 'music',
@@ -210,6 +238,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'music',
     description: 'Music, instruments, tracks, playlists, albums, musical controls',
     order: 28,
+    iconId: 'music-double-note',
   },
   {
     id: 'nature',
@@ -217,6 +246,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'nature',
     description: 'Plants, trees, flowers, landscapes, natural environments',
     order: 29,
+    iconId: 'leaf',
   },
   {
     id: 'navigation',
@@ -224,6 +254,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'navigation',
     description: 'Wayfinding, directional navigation, menus, arrows, breadcrumbs, location movement within interfaces',
     order: 30,
+    iconId: 'compass',
   },
   {
     id: 'organization',
@@ -231,6 +262,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'organization',
     description: 'Folders, collections, groups, sorting, structure, organization concepts',
     order: 31,
+    iconId: 'folder',
   },
   {
     id: 'other',
@@ -238,6 +270,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'other',
     description: 'Icons that genuinely do not fit another category',
     order: 32,
+    iconId: 'sparks',
   },
   {
     id: 'photos-and-videos',
@@ -245,6 +278,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'photos-and-videos',
     description: 'Photos, galleries, video, cameras/media content, playback media',
     order: 33,
+    iconId: 'media-video',
   },
   {
     id: 'science',
@@ -252,6 +286,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'science',
     description: 'Science, chemistry, physics, biology, laboratory, measurement',
     order: 34,
+    iconId: 'flask',
   },
   {
     id: 'security',
@@ -259,6 +294,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'security',
     description: 'Security, privacy, locks, permissions, encryption, protection',
     order: 35,
+    iconId: 'shield',
   },
   {
     id: 'shapes',
@@ -266,6 +302,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'shapes',
     description: 'Basic geometric shapes, circles, squares, triangles, polygons, symbols',
     order: 36,
+    iconId: 'square',
   },
   {
     id: 'shopping',
@@ -273,6 +310,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'shopping',
     description: 'Shopping, cart, products, stores, checkout, orders',
     order: 37,
+    iconId: 'shopping-bag',
   },
   {
     id: 'social',
@@ -280,6 +318,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'social',
     description: 'Social networks, sharing, reactions, followers, communities',
     order: 38,
+    iconId: 'share-android',
   },
   {
     id: 'system',
@@ -287,6 +326,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'system',
     description: 'System controls, settings, configuration, status, OS/system concepts',
     order: 39,
+    iconId: 'settings',
   },
   {
     id: 'tools',
@@ -294,6 +334,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'tools',
     description: 'Tools, utilities, repair, construction, maintenance',
     order: 40,
+    iconId: 'tools',
   },
   {
     id: 'transport',
@@ -301,6 +342,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'transport',
     description: 'Cars, buses, trains, bicycles, airplanes, ships, transportation',
     order: 41,
+    iconId: 'car',
   },
   {
     id: 'typography',
@@ -308,6 +350,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'typography',
     description: 'Text formatting, fonts, alignment, headings, text controls, typography',
     order: 42,
+    iconId: 'text',
   },
   {
     id: 'users',
@@ -315,6 +358,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'users',
     description: 'People, accounts, teams, profiles, user management',
     order: 43,
+    iconId: 'user',
   },
   {
     id: 'weather',
@@ -322,6 +366,7 @@ export const OFFICIAL_CATEGORIES: CanonicalCategoryDefinition[] = [
     slug: 'weather',
     description: 'Weather conditions, forecasts, climate, temperature, precipitation',
     order: 44,
+    iconId: 'sun-light',
   },
 ];
 
@@ -340,6 +385,35 @@ export const CATEGORY_BY_NAME_LOWER = new Map<string, CanonicalCategoryDefinitio
   OFFICIAL_CATEGORIES.map((c) => [c.name.toLowerCase(), c])
 );
 
+// Semantic alias mappings for old or alternative category names
+export const LEGACY_CATEGORY_ALIASES: Record<string, string> = {
+  interface: 'actions',
+  arrows: 'navigation',
+  files: 'docs',
+  media: 'photos-and-videos',
+  time: 'system',
+  people: 'users',
+  design: 'design-tools',
+  commerce: 'shopping',
+  editor: 'typography',
+  text: 'typography',
+  transportation: 'transport',
+  accessibility: 'system',
+};
+
+// Specific iconic overrides for alias domains if queried directly
+export const CATEGORY_ALIAS_ICON_MAP: Record<string, string> = {
+  arrows: 'arrow-right',
+  files: 'folder',
+  media: 'media-video',
+  commerce: 'shopping-bag',
+  design: 'design-pencil',
+  editor: 'text',
+  time: 'clock',
+  accessibility: 'accessibility',
+  transportation: 'car',
+};
+
 /**
  * Normalizes any category string (name, slug, id) to its canonical slug.
  */
@@ -351,23 +425,7 @@ export function normalizeCategorySlug(input: string): string {
   const fromName = CATEGORY_BY_NAME_LOWER.get(input.trim().toLowerCase());
   if (fromName) return fromName.slug;
 
-  // Semantic alias mappings for old category names
-  const legacyAliases: Record<string, string> = {
-    interface: 'actions',
-    arrows: 'navigation',
-    files: 'docs',
-    media: 'photos-and-videos',
-    time: 'system',
-    people: 'users',
-    design: 'design-tools',
-    commerce: 'shopping',
-    editor: 'typography',
-    text: 'typography',
-    transportation: 'transport',
-    accessibility: 'system',
-  };
-
-  if (legacyAliases[clean]) return legacyAliases[clean];
+  if (LEGACY_CATEGORY_ALIASES[clean]) return LEGACY_CATEGORY_ALIASES[clean];
 
   return 'other';
 }
@@ -378,4 +436,17 @@ export function normalizeCategorySlug(input: string): string {
 export function getCanonicalCategory(input: string): CanonicalCategoryDefinition {
   const slug = normalizeCategorySlug(input);
   return CATEGORY_BY_SLUG.get(slug) || CATEGORY_BY_SLUG.get('other')!;
+}
+
+/**
+ * Resolves the canonical representative Iconoir icon ID for a category slug, alias, or name.
+ */
+export function getCategoryIconId(input: string): string {
+  if (!input) return 'sparks';
+  const clean = input.trim().toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+  if (CATEGORY_ALIAS_ICON_MAP[clean]) {
+    return CATEGORY_ALIAS_ICON_MAP[clean];
+  }
+  const canonical = getCanonicalCategory(input);
+  return canonical?.iconId || 'sparks';
 }

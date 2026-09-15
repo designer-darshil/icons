@@ -8,6 +8,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ICON_CATEGORIES, getCategoryMetadata, canonicalCategoryIndex } from '@/data/categories';
 import { ArrowLeft, Search, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { CategoryIcon } from '@/components/icons/CategoryIcon';
 import type { Icon, IconStyle } from '@/types/icon';
 
 export const CategoriesRoute: React.FC = () => {
@@ -77,9 +78,21 @@ export const CategoriesRoute: React.FC = () => {
                 </span>
               )}
             </div>
-            <h1 className="type-h1 text-text-primary">
-              {activeCategory ? `${categoryDisplayName} Icons` : 'Categories Directory'}
-            </h1>
+            <div className="flex items-center gap-3">
+              {activeCategory && (
+                <div className="w-10 h-10 rounded-lg bg-bg-elevated border border-border-subtle flex items-center justify-center text-accent shrink-0 shadow-xs">
+                  <CategoryIcon
+                    categorySlug={activeCategoryMeta?.slug || activeCategory}
+                    iconId={activeCategoryMeta?.iconId}
+                    size={22}
+                    className="w-[22px] h-[22px]"
+                  />
+                </div>
+              )}
+              <h1 className="type-h1 text-text-primary">
+                {activeCategory ? `${categoryDisplayName} Icons` : 'Categories Directory'}
+              </h1>
+            </div>
             <p className="type-body text-text-secondary max-w-xl">
               {activeCategory
                 ? activeCategoryMeta?.description || `Exploring all canonical ${categoryDisplayName.toLowerCase()} vector concepts.`
@@ -161,15 +174,21 @@ export const CategoriesRoute: React.FC = () => {
                     <Link key={rel.slug} to={`/categories/${rel.slug}`}>
                       <div className="p-3.5 rounded-md border border-border-subtle/60 bg-bg-secondary/30 hover:bg-bg-secondary/70 hover:border-border-default hover:-translate-y-0.5 transition-all duration-150 flex items-center justify-between group cursor-pointer">
                         <div className="space-y-1 min-w-0 pr-3">
-                          <div className="flex items-baseline gap-2 min-w-0">
-                            <span className="text-[10px] font-mono text-text-tertiary/70 group-hover:text-accent transition-colors font-semibold">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <CategoryIcon
+                              categorySlug={rel.slug}
+                              iconId={rel.iconId}
+                              size={18}
+                              className="w-[18px] h-[18px] text-text-tertiary group-hover:text-accent transition-colors shrink-0"
+                            />
+                            <span className="text-[10px] font-mono text-text-tertiary/70 group-hover:text-accent transition-colors font-semibold shrink-0">
                               #{rel.order.toString().padStart(2, '0')}
                             </span>
                             <span className="text-sm font-semibold text-text-primary group-hover:text-accent transition-colors truncate">
                               {rel.name}
                             </span>
                           </div>
-                          <p className="text-xs text-text-secondary/90 line-clamp-1">{rel.description}</p>
+                          <p className="text-xs text-text-secondary/90 line-clamp-1 pl-7">{rel.description}</p>
                         </div>
                         <div className="flex items-center gap-2 text-text-tertiary group-hover:text-accent shrink-0">
                           <span className="text-xs font-mono">{rel.count} icons</span>
@@ -193,15 +212,23 @@ export const CategoriesRoute: React.FC = () => {
                   className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-xl"
                 >
                   <div className="h-full p-5 sm:p-6 rounded-xl border border-border-subtle/70 bg-bg-secondary/30 hover:bg-bg-secondary/70 hover:border-border-strong hover:-translate-y-1 hover:shadow-dropdown transition-all duration-200 flex flex-col justify-between min-h-[145px] sm:min-h-[155px] cursor-pointer select-none">
-                    {/* Top Row: Index + Title + Count */}
-                    <div className="flex items-baseline justify-between gap-3 min-w-0">
-                      <div className="flex items-baseline gap-2.5 min-w-0">
-                        <span className="text-xs font-mono text-accent font-bold tracking-wider shrink-0">
-                          #{cat.order.toString().padStart(2, '0')}
-                        </span>
-                        <h2 className="text-base sm:text-[17px] font-semibold tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
-                          {cat.name}
-                        </h2>
+                    {/* Top Row: Icon + Index + Title + Count */}
+                    <div className="flex items-start justify-between gap-3 min-w-0">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <CategoryIcon
+                          categorySlug={cat.slug}
+                          iconId={cat.iconId}
+                          size={20}
+                          className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0"
+                        />
+                        <div className="flex items-baseline gap-2 min-w-0">
+                          <span className="text-xs font-mono text-accent font-bold tracking-wider shrink-0">
+                            #{cat.order.toString().padStart(2, '0')}
+                          </span>
+                          <h2 className="text-base sm:text-[17px] font-semibold tracking-tight text-text-primary group-hover:text-accent transition-colors truncate">
+                            {cat.name}
+                          </h2>
+                        </div>
                       </div>
                       <span className="text-xs font-mono text-text-tertiary px-2 py-0.5 rounded-sm bg-bg-elevated/60 border border-border-subtle shrink-0 group-hover:text-text-primary transition-colors">
                         {cat.count} {cat.count === 1 ? 'icon' : 'icons'}
@@ -232,3 +259,4 @@ export const CategoriesRoute: React.FC = () => {
 };
 
 export default CategoriesRoute;
+

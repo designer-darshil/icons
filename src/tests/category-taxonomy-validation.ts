@@ -17,6 +17,7 @@ import {
   TOTAL_OFFICIAL_CATEGORY_COUNT,
   CATEGORY_BY_SLUG,
   normalizeCategorySlug,
+  getCategoryIconId,
 } from '../data/category-registry';
 import { canonicalCategoryIndex } from '../data/categories';
 
@@ -149,15 +150,91 @@ export function runTaxonomyValidation(): boolean {
     console.log(`✓ 100% of ${GRIDFRAME_ICONS.length} catalog icons have verified canonical regular variant.`);
   }
 
-  // 6. Generate Category Coverage Report
+  // 6. Check canonical representative Iconoir icons for all categories
+  console.log('6. Validating canonical representative Iconoir category icons...');
+  const iconMap = new Map(GRIDFRAME_ICONS.map((i) => [i.id, i]));
+  let missingCategoryIcons = 0;
+
+  for (const cat of OFFICIAL_CATEGORIES) {
+    if (!cat.iconId) {
+      console.error(`❌ Category ${cat.name} (${cat.slug}) has no iconId!`);
+      missingCategoryIcons++;
+      passed = false;
+      continue;
+    }
+
+    const icon = iconMap.get(cat.iconId);
+    if (!icon) {
+      console.error(`❌ Category ${cat.name} (${cat.slug}) references invalid iconId: "${cat.iconId}"`);
+      missingCategoryIcons++;
+      passed = false;
+      continue;
+    }
+
+    const hasRegular = (icon.variants || []).some((v) => v.style === 'regular');
+    if (!hasRegular) {
+      console.error(`❌ Category icon "${cat.iconId}" for ${cat.name} is missing canonical regular variant!`);
+      missingCategoryIcons++;
+      passed = false;
+    }
+  }
+
+  // Validate the 21 prompt-specified categories specifically
+  const promptCategories = [
+    { name: 'Navigation', slug: 'navigation' },
+    { name: 'Arrows', slug: 'arrows' },
+    { name: 'Communication', slug: 'communication' },
+    { name: 'Commerce', slug: 'commerce' },
+    { name: 'Development', slug: 'development' },
+    { name: 'Design', slug: 'design' },
+    { name: 'Files', slug: 'files' },
+    { name: 'Finance', slug: 'finance' },
+    { name: 'Media', slug: 'media' },
+    { name: 'Security', slug: 'security' },
+    { name: 'Social', slug: 'social' },
+    { name: 'Users', slug: 'users' },
+    { name: 'Weather', slug: 'weather' },
+    { name: 'Maps', slug: 'maps' },
+    { name: 'Devices', slug: 'devices' },
+    { name: 'Home', slug: 'home' },
+    { name: 'Editor', slug: 'editor' },
+    { name: 'Time', slug: 'time' },
+    { name: 'Accessibility', slug: 'accessibility' },
+    { name: 'Transportation', slug: 'transportation' },
+  ];
+
+  for (const target of promptCategories) {
+    const iconId = getCategoryIconId(target.slug);
+    const icon = iconMap.get(iconId);
+    if (!icon) {
+      console.error(`❌ Prompt target category "${target.name}" (${target.slug}) has invalid iconId: "${iconId}"`);
+      missingCategoryIcons++;
+      passed = false;
+    } else {
+      const hasRegular = (icon.variants || []).some((v) => v.style === 'regular');
+      if (!hasRegular) {
+        console.error(`❌ Prompt category icon "${iconId}" for ${target.name} missing regular variant!`);
+        missingCategoryIcons++;
+        passed = false;
+      }
+    }
+  }
+
+  if (missingCategoryIcons > 0) {
+    console.error(`❌ Found ${missingCategoryIcons} missing or invalid category icon mappings!`);
+  } else {
+    console.log(`✓ 100% of official categories & aliases have verified canonical Iconoir icons.`);
+  }
+
+  // 7. Generate Category Coverage Report
   console.log('\n============================================================');
   console.log('OFFICIAL CATEGORY COVERAGE REPORT');
   console.log('============================================================');
-  console.log(' # | CATEGORY             | SLUG                 | ICONS | STATUS');
-  console.log('---+----------------------+----------------------+-------+---------');
+  console.log(' # | CATEGORY             | SLUG                 | ICON ID              | ICONS | STATUS');
+  console.log('---+----------------------+----------------------+----------------------+-------+---------');
   categoriesWithCounts.forEach((c) => {
     console.log(
-      `${c.order.toString().padStart(2)} | ${c.name.padEnd(20)} | ${c.slug.padEnd(20)} | ${c.iconCount
+      `${c.order.toString().padStart(2)} | ${c.name.padEnd(20)} | ${c.slug.padEnd(20)} | ${(c.iconId || 'none').padEnd(20)} | ${c.iconCount
         .toString()
         .padStart(5)} | Verified`
     );
