@@ -169,6 +169,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                   </span>
                 )}
               </NavLink>
+              <NavLink to="/intelligence" className={navLinkClass}>
+                {({ isActive }) => (
+                  <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider">
+                    <span className="text-[10px] text-text-tertiary font-bold">04</span>
+                    <span>Intelligence</span>
+                    {isActive && <span className="w-1 h-1 rounded-full bg-accent ml-0.5" />}
+                  </span>
+                )}
+              </NavLink>
             </nav>
           </div>
 

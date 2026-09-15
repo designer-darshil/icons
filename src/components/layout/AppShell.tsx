@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { ScrollRestoration } from './ScrollRestoration';
-import { AppLoader } from '@/components/system/AppLoader';
+import { RouteLoader } from '@/components/system/AppLoader';
 
 export const AppShell: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ export const AppShell: React.FC = () => {
         Skip to main content
       </a>
 
-      <Suspense fallback={<AppLoader fullscreen label="LOADING ROUTE" sublabel="Fetching route assets..." />}>
+      <Suspense fallback={<RouteLoader />}>
         <Outlet />
       </Suspense>
     </div>

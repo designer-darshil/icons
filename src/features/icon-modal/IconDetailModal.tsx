@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CodeModal } from '@/components/export/CodeModal';
 import { CollectionModal } from '@/features/collections/CollectionModal';
@@ -28,6 +29,7 @@ import {
   FlipHorizontal,
   FlipVertical,
   Share2,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import {
@@ -387,6 +389,14 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                     {customization.size}px
                   </span>
                 </div>
+
+                {/* Source Attribution Metadata */}
+                {icon.source && (
+                  <div className="w-full max-w-[320px] flex items-center justify-between text-[10px] font-mono text-text-tertiary pt-2 px-1 select-none">
+                    <span>Source: {icon.source.name || 'Iconoir'}</span>
+                    <span>License: {icon.source.license || 'MIT'}</span>
+                  </div>
+                )}
               </div>
 
               {/* ─── RIGHT: CONTROLS ─── */}
@@ -564,7 +574,17 @@ export const IconDetailModal: React.FC<IconDetailModalProps> = ({
                       <span>Add to Collection</span>
                     </button>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Link
+                        to={`/intelligence/dna/${icon.slug}`}
+                        aria-label="Open Icon Intelligence analysis"
+                        className="flex items-center gap-1.5 text-[11px] font-mono text-text-tertiary hover:text-accent transition-colors cursor-pointer touch-manipulation py-1 px-1.5 rounded min-h-[36px]"
+                        title="Inspect DNA & Intelligence"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-accent" />
+                        <span>Intelligence</span>
+                      </Link>
+
                       <button
                         type="button"
                         onClick={handleShare}
