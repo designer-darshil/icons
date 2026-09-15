@@ -47,7 +47,7 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
     setRenderedCount((prev) => Math.min(prev + BATCH_SIZE, icons.length));
   }, [icons.length]);
 
-  // IntersectionObserver for auto-loading next batch on scroll
+  // IntersectionObserver for reliable auto-loading next batch on scroll
   useEffect(() => {
     if (!hasMore) return;
 
@@ -57,17 +57,25 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
           loadMore();
         }
       },
-      { rootMargin: '400px' }
+      { rootMargin: '600px' }
     );
 
     const target = loadMoreRef.current;
     if (target) observer.observe(target);
 
+    // Viewport auto-fill: if content doesn't fill viewport on high-res monitors, load next batch
+    const checkFill = setTimeout(() => {
+      if (typeof window !== 'undefined' && document.documentElement.scrollHeight <= window.innerHeight + 200 && hasMore) {
+        loadMore();
+      }
+    }, 150);
+
     return () => {
+      clearTimeout(checkFill);
       if (target) observer.unobserve(target);
       observer.disconnect();
     };
-  }, [hasMore, loadMore]);
+  }, [hasMore, loadMore, renderedCount]);
 
   if (icons.length === 0) {
     return (
@@ -94,14 +102,14 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-testid="specimen-grid">
       <div className={`grid ${columns} gap-4 sm:gap-5 lg:gap-6`}>
         {visibleIcons.map((icon) => (
           <SpecimenCard
-            key={icon.id}
+            key={icon.id || icon.slug}
             icon={icon}
-            isSelected={selectedIconId === icon.id}
-            isFavorite={favoriteIds.has(icon.id)}
+            isSelected={selectedIconId === icon.id || selectedIconId === icon.slug}
+            isFavorite={favoriteIds.has(icon.id) || favoriteIds.has(icon.slug)}
             activeStyle={activeStyle}
             forceRegular={forceRegular}
             onSelect={onSelectIcon}
@@ -112,7 +120,11 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
 
       {/* Infinite Scroll Trigger Sentinel */}
       {hasMore && (
-        <div ref={loadMoreRef} className="py-8 flex flex-col items-center justify-center gap-2">
+        <div
+          ref={loadMoreRef}
+          className="py-8 flex flex-col items-center justify-center gap-2 min-h-[60px]"
+          data-testid="infinite-scroll-sentinel"
+        >
           <div className="flex items-center gap-2 text-xs font-mono text-text-tertiary">
             <Loader2 className="w-3.5 h-3.5 animate-spin text-text-secondary" />
             <span>Rendering specimens ({visibleIcons.length} of {icons.length.toLocaleString()})...</span>
@@ -124,4 +136,3 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
 });
 
 SpecimenGrid.displayName = 'SpecimenGrid';
-

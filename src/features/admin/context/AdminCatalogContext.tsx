@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useMemo } from
 import type { Icon, IconVariant } from '@/types/icon';
 import { GRIDFRAME_ICONS } from '@/data/icons/gridframe-catalog';
 import { OFFICIAL_CATEGORIES, type CanonicalCategoryDefinition } from '@/data/category-registry';
+import { notifyCatalogUpdate } from '@/lib/catalog-source';
 import { useAdminActivity } from './AdminActivityContext';
 import { useAdminAuth } from '../auth/AdminAuthContext';
 
@@ -187,6 +188,7 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
       localStorage.setItem(CATALOG_OVERRIDE_KEY, JSON.stringify(overrides));
       localStorage.setItem(CUSTOM_ICONS_KEY, JSON.stringify(customIcons));
+      notifyCatalogUpdate();
     } catch (e) {
       console.warn('Failed to save catalog overrides', e);
     }
@@ -670,6 +672,7 @@ export const AdminCatalogProvider: React.FC<{ children: React.ReactNode }> = ({ 
     );
     setCategories(OFFICIAL_CATEGORIES);
     setCollections(DEFAULT_COLLECTIONS);
+    notifyCatalogUpdate();
 
     logActivity({
       actor: user?.name || 'Admin',

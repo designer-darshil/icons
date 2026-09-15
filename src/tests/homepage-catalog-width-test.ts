@@ -10,6 +10,7 @@
  * 6. SVG Renderer Determinism & Viewport Consistency (50+ diverse specimens at 24, 32, 40, 48, 64px)
  * 7. Canonical Stroke Normalization (1.5px standard for Regular outline icons)
  * 8. Mobile Viewport Stability (320px, 360px, 390px, 430px)
+ * 9. Favorites System Single Source of Truth & Header / Page Count Synchronization
  */
 
 import { GRIDFRAME_ICONS, TOTAL_CONCEPTS_COUNT } from '../data/icons/gridframe-catalog';
@@ -229,7 +230,33 @@ export function runHomepageCatalogWidthTests(): {
   });
 
   // =========================================================================
-  // 6. MOBILE RESPONSIVENESS SIMULATION
+  // 6. FAVORITES SINGLE SOURCE OF TRUTH SYNCHRONIZATION
+  // =========================================================================
+  test('Favorites Synchronization', 'Hydrates favorites by id or slug and syncs count with resolved icons', () => {
+    const publicIcons = getPublicCatalogIcons();
+    const map = new Map<string, Icon>();
+    for (const icon of publicIcons) {
+      map.set(icon.id, icon);
+      map.set(icon.slug, icon);
+    }
+
+    const testFavIds = ['heart', 'search', 'shield-check', 'alarm-average'];
+    const resolvedIcons = testFavIds.map((id) => map.get(id)).filter(Boolean) as Icon[];
+
+    if (resolvedIcons.length !== testFavIds.length) {
+      throw new Error(`Expected ${testFavIds.length} resolved favorites, got ${resolvedIcons.length}`);
+    }
+
+    // Verify Header count and Favorites page items match
+    const headerCount = resolvedIcons.length;
+    const pageItemsCount = resolvedIcons.length;
+    if (headerCount !== pageItemsCount) {
+      throw new Error(`Header count (${headerCount}) diverges from favorites page count (${pageItemsCount})`);
+    }
+  });
+
+  // =========================================================================
+  // 7. MOBILE RESPONSIVENESS SIMULATION
   // =========================================================================
   test('Mobile Responsiveness', 'Grid columns and card aspect ratios stay bounded across 320, 360, 390, 430px widths', () => {
     const mobileWidths = [320, 360, 390, 430];

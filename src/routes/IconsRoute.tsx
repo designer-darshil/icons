@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { HeroSection } from '@/features/hero/HeroSection';
-import { getPublicCatalogIcons } from '@/lib/catalog-source';
+import { usePublicCatalog } from '@/lib/catalog-source';
 import { filterAndSortIcons } from '@/lib/icon-filtering';
 import { pageEntranceVariants } from '@/lib/motion';
 import { Layers, Box, FileCode } from 'lucide-react';
@@ -209,8 +209,8 @@ export const IconsRoute: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Retrieve complete unified public icon dataset
-  const publicIcons = useMemo(() => getPublicCatalogIcons(), []);
+  // Retrieve complete unified public icon dataset with live updates
+  const publicIcons = usePublicCatalog();
 
   // Filter & Search & Sort pipeline across COMPLETE ICON DATASET
   const filteredIcons = useMemo(() => {
@@ -231,6 +231,20 @@ export const IconsRoute: React.FC = () => {
       }
     );
   }, [publicIcons, query, category, style, sort, onlyFavorites, activeCollection, favoriteSet, collectionIconSet]);
+
+  // Development Diagnostic Logging
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      console.info(
+        `[GRIDFRAME CATALOG TRACE]\n` +
+        `  Catalog Source:          ${publicIcons.length} concepts\n` +
+        `  Validated Concepts:      ${publicIcons.length}\n` +
+        `  Published Concepts:      ${publicIcons.filter((i) => !(i as any).status || (i as any).status === 'published').length}\n` +
+        `  Homepage Eligible:       ${filteredIcons.length}\n` +
+        `  Active Filter/Query:     category="${category}" style="${style}" sort="${sort}" query="${query}"`
+      );
+    }
+  }, [publicIcons.length, filteredIcons.length, category, style, sort, query]);
 
   // Dynamic Document Title
   const dynamicTitle = useMemo(() => {
