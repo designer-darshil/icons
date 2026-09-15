@@ -26,6 +26,7 @@ export const LenisProvider: React.FC<LenisProviderProps> = ({ children }) => {
       smoothWheel: true,
       wheelMultiplier: 1.0,
       touchMultiplier: 1.0,
+      syncTouch: false,
       prevent: (node: Node) => {
         if (node && node.nodeType === Node.ELEMENT_NODE) {
           const el = node as HTMLElement;
@@ -35,6 +36,10 @@ export const LenisProvider: React.FC<LenisProviderProps> = ({ children }) => {
       },
     });
 
+    if (typeof window !== 'undefined') {
+      (window as any).__lenisInstance = instance;
+    }
+
     setLenis(instance);
 
     function raf(time: number) {
@@ -43,6 +48,7 @@ export const LenisProvider: React.FC<LenisProviderProps> = ({ children }) => {
     }
 
     rafHandleRef.current = requestAnimationFrame(raf);
+
 
     return () => {
       if (rafHandleRef.current) {

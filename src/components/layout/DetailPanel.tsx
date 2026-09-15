@@ -3,6 +3,7 @@ import { cn } from "@/lib/cn";
 import { X, Sparkles, Sliders } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface DetailPanelProps {
@@ -35,17 +36,10 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Lock body scroll on mobile/tablet when open
-  useEffect(() => {
-    if (isOpen && typeof window !== "undefined" && window.innerWidth < 1280) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  // Lock body scroll on mobile/tablet when open via unified scroll lock
+  const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1280;
+  useScrollLock(isOpen && isMobileOrTablet);
+
 
   if (!isOpen) return null;
 

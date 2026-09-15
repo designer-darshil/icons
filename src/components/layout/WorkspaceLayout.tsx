@@ -44,10 +44,11 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
       {/* Main Workstation Exploration Surface */}
       <main
         id="main-content"
-        className="flex-1 min-w-0 flex flex-col overflow-y-auto pb-20 md:pb-6"
+        className="flex-1 min-w-0 flex flex-col pb-20 md:pb-6"
       >
         {children}
       </main>
+
 
       {/* Right Detail Inspector Panel */}
       <DetailPanel

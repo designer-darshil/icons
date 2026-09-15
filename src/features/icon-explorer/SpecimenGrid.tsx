@@ -31,10 +31,16 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
 }) => {
   const [renderedCount, setRenderedCount] = useState(BATCH_SIZE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isLoadingRef = useRef(false);
 
-  // Reset rendered count when source dataset changes
+  // Reset rendered count only when source icon list actually changes
+  const prevIconsRef = useRef(icons);
   useEffect(() => {
-    setRenderedCount(BATCH_SIZE);
+    if (prevIconsRef.current !== icons) {
+      prevIconsRef.current = icons;
+      setRenderedCount(BATCH_SIZE);
+      isLoadingRef.current = false;
+    }
   }, [icons]);
 
   const visibleIcons = useMemo(() => {
@@ -44,38 +50,41 @@ export const SpecimenGrid: React.FC<SpecimenGridProps> = memo(({
   const hasMore = renderedCount < icons.length;
 
   const loadMore = useCallback(() => {
-    setRenderedCount((prev) => Math.min(prev + BATCH_SIZE, icons.length));
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
+    setRenderedCount((prev) => {
+      const next = Math.min(prev + BATCH_SIZE, icons.length);
+      return next;
+    });
+    requestAnimationFrame(() => {
+      isLoadingRef.current = false;
+    });
   }, [icons.length]);
 
-  // IntersectionObserver for reliable auto-loading next batch on scroll
+  // Stable IntersectionObserver: does not tear down on every batch load
   useEffect(() => {
     if (!hasMore) return;
 
+    const target = loadMoreRef.current;
+    if (!target) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) {
+        if (entries[0]?.isIntersecting && !isLoadingRef.current) {
           loadMore();
         }
       },
-      { rootMargin: '600px' }
+      { rootMargin: '400px' }
     );
 
-    const target = loadMoreRef.current;
-    if (target) observer.observe(target);
-
-    // Viewport auto-fill: if content doesn't fill viewport on high-res monitors, load next batch
-    const checkFill = setTimeout(() => {
-      if (typeof window !== 'undefined' && document.documentElement.scrollHeight <= window.innerHeight + 200 && hasMore) {
-        loadMore();
-      }
-    }, 150);
+    observer.observe(target);
 
     return () => {
-      clearTimeout(checkFill);
-      if (target) observer.unobserve(target);
+      observer.unobserve(target);
       observer.disconnect();
     };
-  }, [hasMore, loadMore, renderedCount]);
+  }, [hasMore, loadMore]);
+
 
   if (icons.length === 0) {
     return (

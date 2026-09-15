@@ -10,18 +10,23 @@ import { useLenis } from '@/hooks/useLenis';
 export const ScrollRestoration: React.FC = () => {
   const { pathname } = useLocation();
   const lenis = useLenis();
+  const prevPathRef = React.useRef(pathname);
 
   useEffect(() => {
-    // Immediate reset on route change to prevent flash of previous scroll depth
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true });
-    }
-    window.scrollTo(0, 0);
-    if (typeof document !== 'undefined') {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+    // Only perform scroll restoration when navigating to a different route
+    if (prevPathRef.current !== pathname) {
+      prevPathRef.current = pathname;
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+      }
+      window.scrollTo(0, 0);
+      if (typeof document !== 'undefined') {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
     }
   }, [pathname, lenis]);
 
   return null;
 };
+
